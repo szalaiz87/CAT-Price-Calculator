@@ -295,10 +295,10 @@
                     <Border Grid.Row="6" Style="{StaticResource Card}" Padding="14">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><Path Style="{StaticResource Icon}" Data="{StaticResource DocumentIcon}" /><TextBlock x:Name="ReleaseNotesTitle" Text="Legújabb verzió • v1.0.0" Style="{StaticResource SectionHeading}" /></StackPanel>
-                            <TextBlock Text="• DHL élő követés a Robo Sanyi csomaglapján." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Védett API-kulcs és teszt a Beállításokban." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Lekérdezési keret és kímélő DHL frissítés." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Megőrzött adatok, 48 órás törlés és két téma." TextWrapping="Wrap" Margin="0,4,0,0" />
+                            <TextBlock Text="• Csomagkövetés kizárólag kézi indítással." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Összes frissítése és frissítés soronként." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Törlés gomb minden csomagsor végén." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Azonos méret, két téma, görgetősáv nélkül." TextWrapping="Wrap" Margin="0,4,0,0" />
                         </StackPanel>
                     </Border>
                     </Grid>

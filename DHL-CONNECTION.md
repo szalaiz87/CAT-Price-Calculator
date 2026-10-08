@@ -1,4 +1,4 @@
-# DHL bekötés – v1.1.0-beta.2
+# DHL bekötés – v1.1.0-beta.3
 
 A Robo Sanyi a **DHL Shipment Tracking – Unified** API-t használja. Ez csomagkövetés; nem címkenyomtatási vagy fuvarrendelési API. Egyetlen saját, jóváhagyott **Consumer Key / API-kulcs** szükséges a hitelesítéshez.
 
@@ -21,7 +21,7 @@ A Robo Sanyi a **DHL Shipment Tracking – Unified** API-t használja. Ez csomag
 1. Telepítsd a béta kiadást, vagy engedélyezd a béta frissítést a Beállítások / Általános alatt, majd kattints a Frissítésekre.
 2. **Beállítások → DHL API**: másold be a Consumer Key értékét. Az irányítószám maradhat üres, a szolgáltatás Automatikus, a keret kezdetben 250.
 3. Kattints a **DHL beállítások mentése** gombra. Írj be egy saját DHL csomagszámot a tesztmezőbe, majd **Tesztlekérés**.
-4. A **Robo Sanyi** lapon válaszd a DHL-t és add hozzá a csomagot; az új DHL-csomagot a program rögtön lekéri. A **DHL frissítés** a saját, még nem kézbesített DHL-csomagokat frissíti. A **Stop** megszakítja a hátralévő lekéréseket; a már mentett válaszok megmaradnak.
+4. A **Robo Sanyi** lapon válaszd a DHL-t és add hozzá a csomagot; a hozzáadás csak helyben ment, lekérést nem indít. A sor végi **frissítésikon** kizárólag azt a csomagot kéri le. Az **Összes frissítése** az összes oldalon szereplő saját, még nem kézbesített, API-val támogatott csomagot frissíti (jelenleg DHL). A **Stop** megszakítja a hátralévő lekéréseket; a már mentett válaszok megmaradnak. A **kukaikon** mindkét táblázatban törli az adott csomagot a mentett listából.
 
 Az API-kulcs maszkolt mezőben látható, és Windows DPAPI-titkosítással, az aktuális Windows-felhasználóhoz kötve mentődik a `%LOCALAPPDATA%\CAT-Price-Calculator\dhl-connection.bin` fájlba. Másik gépen vagy Windows-felhasználóval újra meg kell adni. A program nem menti sima szövegként és nem írja naplóba; a HTTP-kérésben kizárólag a `DHL-API-Key` fejlécben használja. A **Mentett API-kulcs törlése** kikapcsolja a kapcsolatot. A kulcsot az alkalmazásba írd, ne nyilvános GitHub-bejegyzésbe vagy chatbe.
 
@@ -29,7 +29,7 @@ Az API-kulcs maszkolt mezőben látható, és Windows DPAPI-titkosítással, az 
 
 - A DHL hivatalos kezdő hozzáférése **250 lekérés/nap és legfeljebb egy lekérés öt másodpercenként**; ezt a DHL fejlesztési célú keretként írja le. Az éles céges használat feltételeit a Request Upgrade jóváhagyása rendezi. A regisztráció nem jelent automatikus éles hozzáférést.
 - A program minden DHL kérés között legalább öt másodpercet tart, a tesztlekéréssel együtt. A 24 órás számláló mentett, újraindítással nem nullázódik; ez konzervatív, gördülő 24 órás helyi korlát. A DHL szerverének napi számlálója eltérhet, és más gépek / programok lekérései is beleszámíthatnak. Magasabb helyi keretet csak DHL által jóváhagyott limit alapján állíts be.
-- Nincs időzített háttérlekérés. Hozzáadáskor és kézi frissítéskor indul API-kérés. A mintacsomagok nem kérdezhetők le. FedEx/UPS/GLS továbbra is csak helyi bejegyzést tárol, API-integrációjuk későbbi fejlesztés.
+- **Nincs automatikus csomaglekérés**: hozzáadáskor, induláskor, lapváltáskor és időzítve sem. Kérés csak a kézi összes/soronkénti frissítés vagy a Beállítások tesztgombja miatt indul. A mintacsomagok nem kérdezhetők le. FedEx/UPS/GLS továbbra is csak helyi bejegyzést tárol; frissítésük inaktív, API-integrációjuk későbbi fejlesztés.
 - Jogosultsági vagy szolgáltatáshiba és kerettúllépés leállítja a sorozatot; a sor hibajelzést kap, részletei az egérrel rámutatva olvashatók. A már ismert adatok megmaradnak. A nem található / többértelmű csomag nem akadályozza a többi csomag lekérését. A DHL 429 válaszánál az app figyelembe veszi a Retry-After várakozást.
 - A `demo-key` mintaadatot ad, ezért ezt a program nem fogadja el saját kapcsolatként.
 

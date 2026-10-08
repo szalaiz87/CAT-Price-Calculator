@@ -1,3 +1,18 @@
+# Linser Hungary v1.1.0-beta.3 – kézi csomagkezelés
+
+- **Nincs automatikus csomaglekérés**, hozzáadáskor, induláskor és lapváltáskor sem. A DHL kapcsolatpróba továbbra is kizárólag kézi tesztgombbal indul.
+- **Összes frissítése** a Robo Sanyi lapon: az összes oldal úton lévő, API-val támogatott saját csomagjának frissítése. Jelenleg DHL; a minták és a kézbesített csomagok kimaradnak.
+- Úton lévő sor végén külön vektoros **frissítésikon**; mindkét táblázat minden sorának végén **kukaikon**. A törlés mentett, és frissítés közben sem térhet vissza a törölt csomag egy későbbi API-válaszból.
+- Változatlan ablakméret, négy soros lapozható táblázatok, két téma, görgetősáv nélküli elrendezés. A hosszú helynév teljes tartalma a sor eszköztippjében olvasható.
+
+[Windows béta letöltő, PowerShell nélkül](https://github.com/szalaiz87/CAT-Price-Calculator/releases/download/v1.1.0-beta.3/CAT-Letoltes-Windows-v1.1.0-beta.3.cmd). Telepítés előtt zárd be a futó alkalmazást; a béta csatorna engedélyezése után az app Frissítések gombjával is telepíthető. **v1.0.0 marad a stabil.**
+
+DHL hozzáférés és kézi használat: [DHL-CONNECTION.md](DHL-CONNECTION.md). Az API-kulcs védett mentése, lekérési keret, öt másodperces időköz és helyi 48 órás törlés megmaradt. A FedEx/UPS/GLS frissítésgombja integráció hiányában inaktív.
+
+Ellenőrzés: **252 automatizált ellenőrzés**, hibamentes Windows x64 publish, statikus XAML-/eseménykötés-ellenőrzés. A tényleges WPF-felület Linux alatt nem futtatható; saját jóváhagyott DHL-kulcs nélkül élő céges csomagteszt nem történt.
+
+---
+
 # Linser Hungary v1.1.0-beta.2 – DHL csomagkövetés
 
 - DHL Shipment Tracking – Unified integráció a Robo Sanyi lapon: státusz, utolsó ismert hely és eseményidő, tervezett érkezés. Saját DHL-csomag hozzáadásakor azonnali lekérés, a többi aktív DHL-csomaghoz kézi frissítés és megszakítás.

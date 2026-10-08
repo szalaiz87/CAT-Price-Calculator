@@ -20,15 +20,19 @@
         <DataTemplate x:Key="TableHeader">
             <Border Background="{DynamicResource InputSurface}" CornerRadius="6">
                 <Grid>
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="180" /><ColumnDefinition Width="104" /><ColumnDefinition Width="108" /><ColumnDefinition Width="112" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="148" /><ColumnDefinition Width="86" /><ColumnDefinition Width="90" /><ColumnDefinition Width="104" /><ColumnDefinition /><ColumnDefinition Width="68" /></Grid.ColumnDefinitions>
                     <TextBlock Text="Csomag / megjegyzés" Style="{StaticResource TableCell}" FontSize="10" FontWeight="SemiBold" />
                     <TextBlock Grid.Column="1" Text="Státusz" Style="{StaticResource TableCell}" FontSize="10" FontWeight="SemiBold" />
                     <TextBlock Grid.Column="2" Text="Utolsó hely" Style="{StaticResource TableCell}" FontSize="10" FontWeight="SemiBold" />
                     <TextBlock Grid.Column="3" Text="Esemény ideje" Style="{StaticResource TableCell}" FontSize="10" FontWeight="SemiBold" />
                     <TextBlock Grid.Column="4" Text="{Binding}" Style="{StaticResource TableCell}" FontSize="10" FontWeight="SemiBold" />
+                    <TextBlock Grid.Column="5" Text="Művelet" Style="{StaticResource TableCell}" FontSize="10" FontWeight="SemiBold" />
                 </Grid>
             </Border>
         </DataTemplate>
+        <Style x:Key="ParcelActionButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Width" Value="28" /><Setter Property="Height" Value="28" /><Setter Property="Padding" Value="6" />
+        </Style>
         <DataTemplate x:Key="ParcelRow">
             <Border Height="48" CornerRadius="6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource PanelBorder}">
                 <Border.Style><Style TargetType="Border"><Setter Property="Background" Value="Transparent" /><Style.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="{DynamicResource HoverSurface}" /></Trigger></Style.Triggers></Style></Border.Style>
@@ -38,7 +42,7 @@
                     </ToolTip>
                 </Border.ToolTip>
                 <Grid>
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="180" /><ColumnDefinition Width="104" /><ColumnDefinition Width="108" /><ColumnDefinition Width="112" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="148" /><ColumnDefinition Width="86" /><ColumnDefinition Width="90" /><ColumnDefinition Width="104" /><ColumnDefinition /><ColumnDefinition Width="68" /></Grid.ColumnDefinitions>
                     <StackPanel Margin="6,3" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal">
                             <Border Width="48" Height="12" Background="White" CornerRadius="3" Padding="3,1"><Image Source="{Binding Logo}" Stretch="Uniform" AutomationProperties.Name="{Binding CourierName}" /></Border>
@@ -56,12 +60,19 @@
                             <TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}"><Setter Property="Foreground" Value="{DynamicResource AccentText}" /><Style.Triggers><DataTrigger Binding="{Binding IsDelivered}" Value="True"><Setter Property="Foreground" Value="{DynamicResource SuccessText}" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                         </TextBlock>
                     </Border>
-                    <TextBlock Grid.Column="2" Text="{Binding Location}" Style="{StaticResource TableCell}" />
+                    <TextBlock Grid.Column="2" Text="{Binding Location}" Style="{StaticResource TableCell}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
                     <StackPanel Grid.Column="3" Margin="6,0" VerticalAlignment="Center">
                         <TextBlock Text="{Binding EventDate}" FontSize="11" /><TextBlock Text="{Binding EventTime}" FontSize="10" Foreground="{DynamicResource TextMuted}" />
                     </StackPanel>
                     <StackPanel Grid.Column="4" Margin="6,0" VerticalAlignment="Center">
                         <TextBlock Text="{Binding DeliveryDate}" FontSize="11" TextWrapping="Wrap" /><TextBlock Text="{Binding Retention}" FontSize="10" Foreground="{DynamicResource TextMuted}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="5" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,0">
+                        <Button Click="RefreshParcel" IsEnabled="{Binding CanRefresh}" ToolTip="{Binding RefreshHint}" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="Csomag frissítése" Margin="0,0,4,0">
+                            <Button.Style><Style TargetType="Button" BasedOn="{StaticResource ParcelActionButton}"><Style.Triggers><DataTrigger Binding="{Binding IsDelivered}" Value="True"><Setter Property="Visibility" Value="Collapsed" /></DataTrigger></Style.Triggers></Style></Button.Style>
+                            <Path Data="{StaticResource RefreshIcon}" Style="{StaticResource ButtonIcon}" Width="14" Height="14" Margin="0" />
+                        </Button>
+                        <Button Click="DeleteParcel" Style="{StaticResource ParcelActionButton}" IsEnabled="{Binding CanDelete}" ToolTip="Csomag törlése a listából" AutomationProperties.Name="Csomag törlése"><Path Data="{StaticResource TrashIcon}" Style="{StaticResource ButtonIcon}" Width="14" Height="14" Margin="0" /></Button>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -146,7 +157,7 @@
         </Border>
         <Grid Grid.Row="7" Margin="4,12,4,0"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="132" /><ColumnDefinition Width="8" /><ColumnDefinition Width="64" /><ColumnDefinition Width="8" /><ColumnDefinition Width="88" /></Grid.ColumnDefinitions>
             <TextBlock Text="Delivered by Deutsche Post DHL Group&#10;* Időzóna hiányzik; † megőrzés észleléstől." Style="{StaticResource Caption}" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,0,12,0" />
-            <Button x:Name="RefreshDhlButton" Grid.Column="1" Content="DHL frissítése" Click="RefreshDhl" Height="30" VerticalAlignment="Top" IsEnabled="False" />
+            <Button x:Name="RefreshDhlButton" Grid.Column="1" Content="Összes frissítése" Click="RefreshDhl" Height="30" VerticalAlignment="Top" IsEnabled="False" ToolTip="Az összes oldalon szereplő, úton lévő, API-val támogatott saját csomag frissítése. Jelenleg DHL; a minták és a kézbesített csomagok kimaradnak." ToolTipService.ShowOnDisabled="True" />
             <Button x:Name="CancelDhlButton" Grid.Column="3" Content="Stop" Click="CancelDhl" Height="30" VerticalAlignment="Top" IsEnabled="False" />
             <Button Grid.Column="5" Content="DHL API" Click="OpenDhlSettings" Height="30" VerticalAlignment="Top" />
         </Grid>

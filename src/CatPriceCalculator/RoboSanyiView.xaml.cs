@@ -9,12 +9,16 @@ namespace CatPriceCalculator;
 public partial class RoboSanyiView : UserControl, IDisposable
 {
     private sealed record CourierOption(Courier Code, string Name, ImageSource Logo);
-    private sealed class ParcelRow(Parcel parcel, CourierOption courier, DateTimeOffset now)
+    private sealed class ParcelRow(Parcel parcel, CourierOption courier, DateTimeOffset now, bool refreshAvailable, bool deleteAvailable)
     {
         private static readonly TimeZoneInfo HungarianZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Budapest");
         private static string Date(DateTimeOffset? value) => value.HasValue ? TimeZoneInfo.ConvertTime(value.Value, HungarianZone).ToString("yyyy.MM.dd.", PriceCalculator.Hungarian) : "Még nincs adat";
         public ImageSource Logo => courier.Logo;
         public string CourierName => courier.Name;
+        public Guid Id => parcel.Id;
+        public bool CanRefresh => refreshAvailable && ParcelBook.CanRefresh(parcel);
+        public bool CanDelete => deleteAvailable;
+        public string RefreshHint => parcel.IsSample ? "A mintacsomag nem indít API-lekérést." : parcel.Carrier != Courier.Dhl ? "Ehhez a futárhoz még nincs API-kapcsolat." : CanRefresh ? "Csak ennek a csomagnak a frissítése." : "Mentett DHL API-kulcs szükséges; aktív frissítés közben várj vagy kattints a Stop gombra.";
         public string SampleLabel => parcel.IsSample ? "MINTA" : "";
         public string TrackingNumber => parcel.TrackingNumber;
         public string Note => string.IsNullOrEmpty(parcel.Note) ? "—" : parcel.Note;
@@ -64,7 +68,7 @@ public partial class RoboSanyiView : UserControl, IDisposable
     { dhlService = service; connection = settings; appLifetime = lifetime; UpdateEntryState(); }
     public void ConnectionChanged()
     {
-        refreshLifetime?.Cancel(); UpdateEntryState();
+        refreshLifetime?.Cancel(); Render();
         ParcelStatusText.Text = connection?.Invoke().HasKey == true ? "DHL kulcs megadva • saját csomag követhető." : "A DHL követéshez ments API-kulcsot a Beállításokban.";
     }
 
@@ -132,7 +136,8 @@ public partial class RoboSanyiView : UserControl, IDisposable
         int page = Math.Clamp(delivered ? deliveredPage : transitPage, 0, pageCount - 1);
         if (delivered) deliveredPage = page; else transitPage = page;
         (delivered ? DeliveredRows : TransitRows).ItemsSource = items.Skip(page * ParcelBook.PageSize).Take(ParcelBook.PageSize)
-            .Select(p => new ParcelRow(p, couriers.First(c => c.Code == p.Carrier), now)).ToArray();
+            .Select(p => new ParcelRow(p, couriers.First(c => c.Code == p.Carrier), now,
+                !refreshing && connection?.Invoke().HasKey == true, !loadFailed)).ToArray();
         (delivered ? DeliveredEmpty : TransitEmpty).Visibility = items.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
         (delivered ? DeliveredPager : TransitPager).Text = items.Length == 0 ? "0 csomag" : $"{page + 1} / {pageCount} oldal • {items.Length} csomag";
         (delivered ? DeliveredPrev : TransitPrev).IsEnabled = page > 0;
@@ -149,12 +154,12 @@ public partial class RoboSanyiView : UserControl, IDisposable
     {
         if (AddButton == null || RefreshDhlButton == null) return;
         AddButton.IsEnabled = loaded && !loadFailed && !refreshing && !string.IsNullOrWhiteSpace(TrackingInput.Text) && CourierInput.SelectedItem is CourierOption;
-        RefreshDhlButton.IsEnabled = loaded && !loadFailed && !refreshing && connection?.Invoke().HasKey == true && parcels.Any(p => p.Carrier == Courier.Dhl && !p.IsSample && p.State != ParcelState.Delivered);
+        RefreshDhlButton.IsEnabled = loaded && !loadFailed && !refreshing && connection?.Invoke().HasKey == true && parcels.Any(ParcelBook.CanRefresh);
         CancelDhlButton.IsEnabled = refreshing;
     }
     private void EntryChanged(object sender, TextChangedEventArgs e) => UpdateEntryState();
     private void CourierChanged(object sender, SelectionChangedEventArgs e) => UpdateEntryState();
-    private async void AddParcel(object? sender, RoutedEventArgs? e)
+    private void AddParcel(object? sender, RoutedEventArgs? e)
     {
         if (!AddButton.IsEnabled || CourierInput.SelectedItem is not CourierOption courier) return;
         PruneExpired();
@@ -167,9 +172,8 @@ public partial class RoboSanyiView : UserControl, IDisposable
         if (!Commit(next)) return;
         TrackingInput.Clear(); NoteInput.Clear(); transitPage = 0;
         var added = next[^1];
-        ParcelStatusText.Text = added.Carrier == Courier.Dhl ? "Csomag mentve • DHL adatokra vár." : "Csomag mentve • ehhez a futárhoz még nincs API-kapcsolat.";
+        ParcelStatusText.Text = added.Carrier == Courier.Dhl ? "Csomag mentve • a sor frissítésével kérheted le az adatokat." : "Csomag mentve • ehhez a futárhoz még nincs API-kapcsolat.";
         Render(); TrackingInput.Focus();
-        if (added.Carrier == Courier.Dhl && connection?.Invoke().HasKey == true) await RefreshDhlAsync(added.Id);
     }
     private bool Commit(List<Parcel> next)
     {
@@ -201,17 +205,30 @@ public partial class RoboSanyiView : UserControl, IDisposable
         }
     }
     private async void RefreshDhl(object sender, RoutedEventArgs e) => await RefreshDhlAsync();
+    private async void RefreshParcel(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button { DataContext: ParcelRow row } && row.CanRefresh) await RefreshDhlAsync(row.Id);
+    }
+    private void DeleteParcel(object sender, RoutedEventArgs e)
+    {
+        if (loadFailed || sender is not Button { DataContext: ParcelRow row }) return;
+        var next = parcels.Where(p => p.Id != row.Id).ToList();
+        if (next.Count == parcels.Count || !Commit(next)) return;
+        ParcelStatusText.Text = "A csomag törölve a mentett listából.";
+        ParcelStatusText.ToolTip = null;
+        Render();
+    }
     private void CancelDhl(object sender, RoutedEventArgs e) => refreshLifetime?.Cancel();
     private void OpenDhlSettings(object sender, RoutedEventArgs e) => SettingsRequested?.Invoke(this, EventArgs.Empty);
     private async Task RefreshDhlAsync(Guid? only = null)
     {
         if (refreshing || loadFailed || connection == null || dhlService == null || !connection().HasKey) return;
         PruneExpired();
-        var targets = parcels.Where(p => p.Carrier == Courier.Dhl && !p.IsSample && p.State != ParcelState.Delivered && (!only.HasValue || p.Id == only.Value)).Select(p => p.Id).ToArray();
+        var targets = ParcelBook.RefreshTargets(parcels, only);
         if (targets.Length == 0) return;
         var settings = connection();
         using var cancel = CancellationTokenSource.CreateLinkedTokenSource(appLifetime);
-        refreshLifetime = cancel; refreshing = true; UpdateEntryState();
+        refreshLifetime = cancel; refreshing = true; Render();
         ParcelStatusText.ToolTip = null;
         int updated = 0, failed = 0;
         bool stopped = false;
@@ -221,7 +238,7 @@ public partial class RoboSanyiView : UserControl, IDisposable
             {
                 cancel.Token.ThrowIfCancellationRequested();
                 var parcel = parcels.FirstOrDefault(p => p.Id == targets[n]);
-                if (parcel == null) continue;
+                if (parcel == null || !ParcelBook.CanRefresh(parcel)) continue;
                 ParcelStatusText.Text = $"DHL frissítés • {n + 1}/{targets.Length} csomag…";
                 try
                 {
@@ -235,6 +252,8 @@ public partial class RoboSanyiView : UserControl, IDisposable
                 }
                 catch (DhlTrackingException ex)
                 {
+                    // A row deleted during an in-flight request must stay deleted, even on failure.
+                    if (!parcels.Any(p => p.Id == parcel.Id)) continue;
                     failed++;
                     var next = parcels.Select(p => p.Id == parcel.Id ? p with { TrackingError = ex.Message } : p).ToList();
                     if (!Commit(next)) { stopped = true; break; }
