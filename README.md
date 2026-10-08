@@ -1,6 +1,19 @@
-# Béta fejlesztési ág
+# Linser Hungary v1.1.0-beta.1 – Robo Sanyi előnézet
 
-A következő fejlesztések alapja `1.1.0-beta.1`; ez még nem publikált kiadás. A legfrissebb hivatalos stabil verzió **v1.0.0**, forrása a `stable` ágon van. Innentől új stabil kiadást csak a felhasználó kifejezett kérésére készítünk.
+- Harmadik funkcionális menüpont: **Robo Sanyi**, külön vektoros robotikonnal.
+- Felül csomagszám, logós DHL/FedEx/UPS/GLS futárválasztó, megjegyzés és helyi hozzáadás. API nincs; a saját csomag „Adatra vár” állapotban marad, kitalált követési adatok nélkül.
+- Két egymás alatti táblázat: úton lévő és megérkezett csomagok. Logó/csomagszám/megjegyzés, státusz, utolsó hely és eseményidő, valamint tervezett érkezés vagy kézbesítés/törlés. Mindkét táblázat négy sort mutat, külön lapozással; nincs görgetősáv.
+- Hat külön jelölt mintacsomag látható, köztük két kézbesített. A minták elrejthetők és visszaállíthatók a saját bejegyzések megtartásával.
+- Helyi, atomikus mentés a külön `robo-sanyi-preview.json` fájlba. Kézbesítéstől számított 48 óra után automatikus törlés; ellenőrzés percenként és minden programindításkor. Bezárt appnál a következő indítás tisztít. Üres mentést nem töltünk újra mintákkal; hibás fájlt nem írunk felül.
+- Változatlan 780×840 alapablak és 890×940 referenciakeret; a harmadik menühöz a logó körüli térközök tömörebbek. A kalkulátorok méretei és funkciói, a két téma, stabil/béta csatorna és visszatérés megmaradnak.
+
+[Windows béta letöltő, PowerShell nélkül](https://github.com/szalaiz87/CAT-Price-Calculator/releases/download/v1.1.0-beta.1/CAT-Letoltes-Windows-v1.1.0-beta.1.cmd). A stabil appban a béta-frissítési kapcsoló engedélyezésével is elérhető. Legfrissebb stabil: **v1.0.0**.
+
+A logók az internetről letöltött SVG-kből fagyasztott WPF-vektorok. Források: [SOURCES.md](src/CatPriceCalculator/Assets/Carriers/SOURCES.md). Nincs futás közbeni logóletöltés vagy külső SVG-renderelő.
+
+Ellenőrzés: **172 automatizált ellenőrzés**, benne pontos 48 órás határ, magyar óraátállítás, újraindítás utáni mentés/törlés, minták, duplikáció és hibás/üres fájl kezelése. Windows x64 publish és statikus XAML-ellenőrzés. A tényleges WPF-felület Linux alatt nem futtatható.
+
+További kiadások alapból béta státuszúak; stabil kiadás kizárólag kifejezett felhasználói kérésre.
 
 ---
 

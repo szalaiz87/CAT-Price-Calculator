@@ -2,7 +2,7 @@
 
 - **v1.0.0**: a jelenlegi funkcionalitás első hivatalos stabil főverziója, a mentett frissítési csatornával és stabilra visszatéréssel.
 - `stable`: a legutóbb jóváhagyott stabil kiadás teljes forrása.
-- `beta`: az új fejlesztések forrása; induló verzió `1.1.0-beta.1`, még nem publikált fejlesztési alap.
+- `beta`: az új fejlesztések forrása; első kiadás `1.1.0-beta.1`, Robo Sanyi API nélküli előnézet.
 - A történeti `main` ág és 0.x kiadások megmaradnak.
 
 Új fejlesztés alapból béta. Stabil kiadás csak kifejezett felhasználói kérésre. Béta `v1.1.0-beta.1`, `beta.2`, stb.; stabilra emeléskor `v1.1.0`. Mindkét projekt verzióját a Directory.Build.props határozza meg; a felület és a frissítő a tényleges assembly-metaadatból kapja a verziót.

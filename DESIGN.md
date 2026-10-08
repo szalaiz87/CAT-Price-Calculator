@@ -5,7 +5,7 @@
 - A v0.7.0-hoz képest körülbelül 25%-kal tömörebb megjelenés, kisebb térközök és panelek.
 - Sötét, modern neonkékre/cianra épülő arculat; aktív gomb és beviteli fókusz hangsúlyos.
 - Árfolyamnap és a tényleges sikeres lekérés dátuma/ideje külön szerepeljen. A lekérési idő mentés után is maradjon meg; régi mentéshez ne találjunk ki időpontot.
-- CAT és EUR kalkulátor egységes komponensekkel. Csomagkövetés nincs ebben a kiadásban.
+- CAT és EUR kalkulátor egységes komponensekkel. A csomagkövető felület v1.1.0-beta.1-től külön lapon, egyelőre API nélkül érhető el.
 
 - v0.7.2: fülváltáskor a külső referenciakeret, panelmagasságok és betűméretek állandók. Méretezés csak az ablak méretétől függhet. Külső margó 3 (korábban 6).
 - Mindkét kalkulátor ugyanazt a ×1,30–×2,00 szorzólistát használja.
@@ -33,3 +33,7 @@
 - v0.11.2: optimalizálás során az aktív arculat, színek, méretek és kötések változatlanok. Csak használatlan erőforrások törölhetők; dinamikus témaszínek nem fagyaszthatók. Vektorok/fotóforrás változatlan tartalommal fagyasztható. Online árfolyamváltásnál a végső újraszámítás megmarad; ár törlése, kézi beírás és revision-védelem változatlan.
 
 - v1.0.0: Beállításokban külön Frissítési csatorna kártya, a közös csúszókapcsolóval és lekerekített gombokkal. A béta-opt-in alapból kikapcsolt és mentett. A stabilra visszatérési gomb csak béta buildben látszik; helye a kártyában fenntartott. A futó verzió és csatorna látható. Tömörebb Beállítások-kártyák a meglévő fix referenciakereten belül; nincs görgetősáv vagy nézetváltási méretváltozás.
+
+- v1.1.0-beta.1: harmadik funkcionális menüpont Robo Sanyi, vektoros robotikonnal. Felül csomagszám, logós futárlista és megjegyzés, helyi hozzáadás; alatta úton lévő és kézbesített csomagok két fix táblázata. Négy sor/táblázat, külön lapozás, üres állapotok. Nincs görgetősáv vagy új ablakméret. A hosszú azonosító/megjegyzés teljes tartalma a sor eszköztippjében olvasható.
+- Eredeti internetes DHL/FedEx/UPS/GLS SVG-kből fagyasztott WPF-vektorok, fehér logójelvényeken. Mindkét témában közös színek, 10-es kártyasarkok, éles hover/fókusz; kézbesítettnél kontrasztos zöld státusz. MINTA jelölés és API nélküli előnézet felirat; valósnak tűnő kitalált követési adat nem adható saját csomaghoz.
+- A bal menüsáv logo-/felirattérközei összesen 52 referenciapixellel tömörebbek, ellensúlyozva az új 50 pixeles menüsor igényét. Külső keret és kalkulátorméretek változatlanok. A Robo Sanyi saját kompakt oldalsó összegzést kap. Kézbesítéskor 48 órás megőrzés, hátralévő idő kijelzése; percenkénti és induláskori helyi tisztítás.

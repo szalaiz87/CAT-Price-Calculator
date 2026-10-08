@@ -21,6 +21,8 @@ internal static class ThemePalette
         ("9CADC3", "#9BB1C9", "#4C637E"),
         ("B9CEE8", "#BDCEE1", "#36526F"),
         ("E8EDF5", "#E7EFF9", "#172B43"),
+        ("SuccessText", "#60DFAE", "#12744F"),
+        ("SuccessSurface", "#133B37", "#E4F5EB"),
         ("SelectedStart", "#148EFF", "#0B65C8"),
         ("SelectedEnd", "#0867DD", "#084FA5"),
         ("NavigationSelectedStart", "#163D67", "#DCEBFC"),

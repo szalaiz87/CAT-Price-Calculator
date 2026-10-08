@@ -1,10 +1,10 @@
-A Linser Hungary első hivatalos stabil főverziója, v1.0.0.
+Első béta kiadás: Robo Sanyi csomaglap, egyelőre futár-API integráció nélkül.
 
-- Alapból csak stabil frissítések; a Beállításokban menthető béta-frissítési kapcsoló.
-- Béta programban visszatérés a legfrissebb stabil verzióra, akár alacsonyabb verziószámra is. A béta csatorna ilyenkor kikapcsol; a többi beállítás és árfolyam megmarad.
-- Közös verziókezelés, teljes forrás külön `stable` és `beta` ágon. További kiadások béta státuszúak, stabil csak kifejezett felhasználói kérésre.
-- A CAT/EUR számítás, témák, szorzók, haszon/árrés és görgetősáv nélküli felület megmarad.
+- Új Robo Sanyi menüpont. Felül csomagszám, logós futárválasztó (DHL, FedEx, UPS, GLS), megjegyzés és helyi hozzáadás.
+- Két egymás alatti táblázat: úton lévő, majd megérkezett csomagok. Külön lapozás, görgetősáv nélkül, változatlan ablakmérettel; sötét és világos megjelenés.
+- Vektoros internetes futárlogók és külön jelölt mintacsomagok. A saját csomag követési adatokra vár; a prototípus nem kérdez le futár-API-t.
+- Helyi mentés és kézbesítéstől számított 48 órás automatikus törlés. Ellenőrzés percenként és programindításkor; bezárt appnál a következő indításkor. Hátralévő idő kijelzése, minták ki-/bekapcsolása a saját bejegyzések megtartásával.
 
-Windows: a CAT-Letoltes-Windows-v1.0.0.cmd fájlt töltsd le és futtasd. PowerShell nem szükséges. Telepítés előtt zárd be a korábbi programot. A csomag darabolt Windows EXE-t, teljes forrást és ellenőrzőösszeget tartalmaz.
+Windows telepítés: CAT-Letoltes-Windows-v1.1.0-beta.1.cmd, PowerShell nélkül. Futtatás előtt zárd be a programot. A stabil app Beállítások lapján kapcsold be a béta frissítéseket; a béta appból ugyanitt visszatérhetsz v1.0.0-ra. A v1.0.0 marad a legfrissebb hivatalos stabil.
 
-Ellenőrzés: 152 automatizált ellenőrzés stabil és béta builddel; hibamentes Windows x64 publish mindkét verzióval. A tényleges Windows-felület futtatása Linux alatt nem lehetséges.
+Ellenőrzés: 172 automatizált ellenőrzés; hibamentes Windows x64 publish. A tényleges WPF-felület Linux alatt nem futtatható. A futárlogók forrásait és a teljes kódot a Source.zip tartalmazza.

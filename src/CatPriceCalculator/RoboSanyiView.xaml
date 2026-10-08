@@ -1,0 +1,189 @@
+<UserControl x:Class="CatPriceCalculator.RoboSanyiView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             PreviewKeyDown="OnPreviewKeyDown">
+    <UserControl.Resources>
+        <DataTemplate x:Key="CourierTemplate">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Width="52" Height="22" Background="White" CornerRadius="5" Padding="4,3" Margin="0,0,8,0">
+                    <Image Source="{Binding Logo}" Stretch="Uniform" AutomationProperties.Name="{Binding Name}" />
+                </Border>
+                <TextBlock Text="{Binding Name}" FontSize="12" VerticalAlignment="Center" />
+            </StackPanel>
+        </DataTemplate>
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Padding" Value="8,6" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Template">
+                <Setter.Value><ControlTemplate TargetType="ComboBoxItem">
+                    <Border x:Name="Item" Padding="{TemplateBinding Padding}" CornerRadius="8" Background="Transparent">
+                        <ContentPresenter />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsHighlighted" Value="True"><Setter TargetName="Item" Property="Background" Value="{DynamicResource HoverSurface}" /></Trigger>
+                        <Trigger Property="IsSelected" Value="True"><Setter TargetName="Item" Property="Background" Value="{DynamicResource SummaryGradient}" /></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate></Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CourierCombo" TargetType="ComboBox">
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+            <Setter Property="Background" Value="{DynamicResource InputSurface}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource InputBorder}" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value><ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <Border x:Name="Surface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="10" />
+                        <ContentPresenter Margin="8,0,25,0" VerticalAlignment="Center" HorizontalAlignment="Left" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" IsHitTestVisible="False" />
+                        <Path Data="{StaticResource ChevronDownIcon}" Style="{StaticResource Icon}" Width="10" Height="6" HorizontalAlignment="Right" Margin="0,0,10,0" />
+                        <ToggleButton Focusable="False" IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" ClickMode="Press">
+                            <ToggleButton.Template><ControlTemplate TargetType="ToggleButton"><Border Background="Transparent" CornerRadius="10" /></ControlTemplate></ToggleButton.Template>
+                        </ToggleButton>
+                        <Popup x:Name="PART_Popup" Placement="Bottom" AllowsTransparency="True" Focusable="False" IsOpen="{TemplateBinding IsDropDownOpen}">
+                            <Border Background="{DynamicResource InputSurface}" BorderBrush="{DynamicResource FocusBorder}" BorderThickness="1" CornerRadius="10" Padding="4" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" Margin="0,4,0,0">
+                                <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
+                            </Border>
+                        </Popup>
+                        <Border x:Name="FocusRing" BorderBrush="{DynamicResource FocusBorder}" BorderThickness="2" CornerRadius="10" IsHitTestVisible="False" Opacity="0" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Surface" Property="BorderBrush" Value="{DynamicResource AccentText}" /></Trigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="FocusRing" Property="Opacity" Value="1" /></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate></Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="TableCell" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="6,0" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+        <DataTemplate x:Key="TableHeader">
+            <Border Background="{DynamicResource InputSurface}" CornerRadius="6">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="180" /><ColumnDefinition Width="104" /><ColumnDefinition Width="108" /><ColumnDefinition Width="112" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                    <TextBlock Text="Csomag / megjegyzés" Style="{StaticResource TableCell}" FontSize="10" FontWeight="SemiBold" />
+                    <TextBlock Grid.Column="1" Text="Státusz" Style="{StaticResource TableCell}" FontSize="10" FontWeight="SemiBold" />
+                    <TextBlock Grid.Column="2" Text="Utolsó hely" Style="{StaticResource TableCell}" FontSize="10" FontWeight="SemiBold" />
+                    <TextBlock Grid.Column="3" Text="Esemény ideje" Style="{StaticResource TableCell}" FontSize="10" FontWeight="SemiBold" />
+                    <TextBlock Grid.Column="4" Text="{Binding}" Style="{StaticResource TableCell}" FontSize="10" FontWeight="SemiBold" />
+                </Grid>
+            </Border>
+        </DataTemplate>
+        <DataTemplate x:Key="ParcelRow">
+            <Border Height="48" CornerRadius="6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource PanelBorder}">
+                <Border.Style><Style TargetType="Border"><Setter Property="Background" Value="Transparent" /><Style.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="{DynamicResource HoverSurface}" /></Trigger></Style.Triggers></Style></Border.Style>
+                <Border.ToolTip>
+                    <ToolTip Background="{DynamicResource InputSurface}" Foreground="{DynamicResource TextPrimary}" BorderBrush="{DynamicResource InputBorder}" Padding="10">
+                        <TextBlock Text="{Binding Details}" TextWrapping="Wrap" MaxWidth="380" FontSize="12" />
+                    </ToolTip>
+                </Border.ToolTip>
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="180" /><ColumnDefinition Width="104" /><ColumnDefinition Width="108" /><ColumnDefinition Width="112" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                    <StackPanel Margin="6,3" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="48" Height="12" Background="White" CornerRadius="3" Padding="3,1"><Image Source="{Binding Logo}" Stretch="Uniform" AutomationProperties.Name="{Binding CourierName}" /></Border>
+                            <TextBlock Text="{Binding SampleLabel}" Foreground="{DynamicResource AccentText}" FontSize="9" FontWeight="Bold" Margin="6,0,0,0" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding TrackingNumber}" FontSize="11" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="{Binding Note}" FontSize="10" Foreground="{DynamicResource TextMuted}" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                    <Border Grid.Column="1" Margin="4,8" CornerRadius="6" Padding="5,2">
+                        <Border.Style><Style TargetType="Border"><Setter Property="Background" Value="{DynamicResource SummaryGradient}" /><Style.Triggers><DataTrigger Binding="{Binding IsDelivered}" Value="True"><Setter Property="Background" Value="{DynamicResource SuccessSurface}" /></DataTrigger></Style.Triggers></Style></Border.Style>
+                        <TextBlock Text="{Binding Status}" FontSize="11" FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center">
+                            <TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}"><Setter Property="Foreground" Value="{DynamicResource AccentText}" /><Style.Triggers><DataTrigger Binding="{Binding IsDelivered}" Value="True"><Setter Property="Foreground" Value="{DynamicResource SuccessText}" /></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                        </TextBlock>
+                    </Border>
+                    <TextBlock Grid.Column="2" Text="{Binding Location}" Style="{StaticResource TableCell}" />
+                    <StackPanel Grid.Column="3" Margin="6,0" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding EventDate}" FontSize="11" /><TextBlock Text="{Binding EventTime}" FontSize="10" Foreground="{DynamicResource TextMuted}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="4" Margin="6,0" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding DeliveryDate}" FontSize="11" TextWrapping="Wrap" /><TextBlock Text="{Binding Retention}" FontSize="10" Foreground="{DynamicResource TextMuted}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+        <Style x:Key="PagingButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Width" Value="28" /><Setter Property="Height" Value="24" /><Setter Property="Padding" Value="7,4" />
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions><RowDefinition Height="100" /><RowDefinition Height="12" /><RowDefinition Height="144" /><RowDefinition Height="12" /><RowDefinition Height="292" /><RowDefinition Height="12" /><RowDefinition Height="292" /><RowDefinition /></Grid.RowDefinitions>
+        <Border Style="{StaticResource InsetCard}" Padding="20,16">
+            <Grid>
+                <Path Data="{StaticResource RobotIcon}" Style="{StaticResource Icon}" Width="72" Height="72" Opacity="0.15" HorizontalAlignment="Right" Margin="0" />
+                <StackPanel VerticalAlignment="Center">
+                    <Border Width="34" Height="3" CornerRadius="1.5" Background="{DynamicResource FocusBorder}" HorizontalAlignment="Left" Margin="0,0,0,10" />
+                    <TextBlock Text="ROBO SANYI" Style="{StaticResource PageHeading}" />
+                    <TextBlock Text="Beérkező csomagok egy helyen" Foreground="{DynamicResource TextSecondary}" Margin="0,5,0,0" />
+                </StackPanel>
+                <Border Background="{DynamicResource InputSurface}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="6" Padding="8,4" HorizontalAlignment="Right" VerticalAlignment="Top">
+                    <TextBlock Text="BÉTA • ELŐNÉZET" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource AccentText}" />
+                </Border>
+            </Grid>
+        </Border>
+        <Border Grid.Row="2" Style="{StaticResource Card}">
+            <Grid>
+                <Grid.RowDefinitions><RowDefinition Height="62" /><RowDefinition Height="8" /><RowDefinition Height="32" /><RowDefinition /></Grid.RowDefinitions>
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="190" /><ColumnDefinition Width="8" /><ColumnDefinition Width="156" /><ColumnDefinition Width="8" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                    <Grid><Grid.RowDefinitions><RowDefinition Height="18" /><RowDefinition Height="6" /><RowDefinition /></Grid.RowDefinitions>
+                        <TextBlock Text="Csomagszám" Style="{StaticResource FieldLabel}" />
+                        <TextBox x:Name="TrackingInput" Grid.Row="2" MaxLength="64" FontSize="13" TextChanged="EntryChanged" AutomationProperties.Name="Csomagszám" />
+                    </Grid>
+                    <Grid Grid.Column="2"><Grid.RowDefinitions><RowDefinition Height="18" /><RowDefinition Height="6" /><RowDefinition /></Grid.RowDefinitions>
+                        <TextBlock Text="Futárszolgálat" Style="{StaticResource FieldLabel}" />
+                        <ComboBox x:Name="CourierInput" Grid.Row="2" Style="{StaticResource CourierCombo}" ItemTemplate="{StaticResource CourierTemplate}" SelectionChanged="CourierChanged" AutomationProperties.Name="Futárszolgálat" />
+                    </Grid>
+                    <Grid Grid.Column="4"><Grid.RowDefinitions><RowDefinition Height="18" /><RowDefinition Height="6" /><RowDefinition /></Grid.RowDefinitions>
+                        <TextBlock Text="Megjegyzés" Style="{StaticResource FieldLabel}" />
+                        <TextBox x:Name="NoteInput" Grid.Row="2" MaxLength="160" FontSize="13" AutomationProperties.Name="Csomag megjegyzése" />
+                    </Grid>
+                </Grid>
+                <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="176" /></Grid.ColumnDefinitions>
+                    <TextBlock x:Name="ParcelStatusText" Text="Helyi rögzítés • API-kapcsolat még nincs" Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,0,12,0" />
+                    <Button x:Name="AddButton" Grid.Column="1" Click="AddParcel" IsEnabled="False" AutomationProperties.Name="Csomag hozzáadása">
+                        <StackPanel Orientation="Horizontal"><Path Data="{StaticResource PackageIcon}" Style="{StaticResource ButtonIcon}" Width="15" Height="15" /><TextBlock Text="Csomag hozzáadása" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" VerticalAlignment="Center" /></StackPanel>
+                    </Button>
+                </Grid>
+            </Grid>
+        </Border>
+        <Border Grid.Row="4" Style="{StaticResource Card}" Padding="10">
+            <Grid><Grid.RowDefinitions><RowDefinition Height="26" /><RowDefinition Height="24" /><RowDefinition Height="192" /><RowDefinition /></Grid.RowDefinitions>
+                <TextBlock x:Name="TransitTitle" Text="Úton lévő csomagok" Style="{StaticResource SectionHeading}" Margin="4,0" />
+                <ContentControl Grid.Row="1" Content="Tervezett érkezés" ContentTemplate="{StaticResource TableHeader}" />
+                <ItemsControl x:Name="TransitRows" Grid.Row="2" ItemTemplate="{StaticResource ParcelRow}" />
+                <TextBlock x:Name="TransitEmpty" Grid.Row="2" Text="Nincs úton lévő csomag. A fenti mezőkben hozzáadhatsz egyet." Style="{StaticResource Caption}" TextWrapping="Wrap" MaxWidth="390" HorizontalAlignment="Center" TextAlignment="Center" />
+                <Grid Grid.Row="3"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="28" /><ColumnDefinition Width="8" /><ColumnDefinition Width="28" /></Grid.ColumnDefinitions>
+                    <TextBlock x:Name="TransitPager" Style="{StaticResource Caption}" Margin="4,0" />
+                    <Button x:Name="TransitPrev" Grid.Column="1" Style="{StaticResource PagingButton}" Click="PageClicked" Tag="TransitPrev" AutomationProperties.Name="Úton lévő csomagok előző oldala"><Path Data="{StaticResource ChevronLeftIcon}" Style="{StaticResource ButtonIcon}" Width="6" Height="12" Margin="0" /></Button>
+                    <Button x:Name="TransitNext" Grid.Column="3" Style="{StaticResource PagingButton}" Click="PageClicked" Tag="TransitNext" AutomationProperties.Name="Úton lévő csomagok következő oldala"><Path Data="{StaticResource ChevronRightIcon}" Style="{StaticResource ButtonIcon}" Width="6" Height="12" Margin="0" /></Button>
+                </Grid>
+            </Grid>
+        </Border>
+        <Border Grid.Row="6" Style="{StaticResource Card}" Padding="10">
+            <Grid><Grid.RowDefinitions><RowDefinition Height="26" /><RowDefinition Height="24" /><RowDefinition Height="192" /><RowDefinition /></Grid.RowDefinitions>
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                    <TextBlock x:Name="DeliveredTitle" Text="Megérkezett csomagok" Style="{StaticResource SectionHeading}" Margin="4,0" />
+                    <TextBlock Grid.Column="1" Text="48 óra után automatikus törlés" Style="{StaticResource Caption}" Foreground="{DynamicResource SuccessText}" Margin="0,0,4,0" />
+                </Grid>
+                <ContentControl Grid.Row="1" Content="Érkezés / törlés" ContentTemplate="{StaticResource TableHeader}" />
+                <ItemsControl x:Name="DeliveredRows" Grid.Row="2" ItemTemplate="{StaticResource ParcelRow}" />
+                <TextBlock x:Name="DeliveredEmpty" Grid.Row="2" Text="Nincs megérkezett csomag. A kézbesített tételek 48 óráig maradnak itt." Style="{StaticResource Caption}" TextWrapping="Wrap" MaxWidth="390" HorizontalAlignment="Center" TextAlignment="Center" />
+                <Grid Grid.Row="3"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="28" /><ColumnDefinition Width="8" /><ColumnDefinition Width="28" /></Grid.ColumnDefinitions>
+                    <TextBlock x:Name="DeliveredPager" Style="{StaticResource Caption}" Margin="4,0" />
+                    <Button x:Name="DeliveredPrev" Grid.Column="1" Style="{StaticResource PagingButton}" Click="PageClicked" Tag="DeliveredPrev" AutomationProperties.Name="Megérkezett csomagok előző oldala"><Path Data="{StaticResource ChevronLeftIcon}" Style="{StaticResource ButtonIcon}" Width="6" Height="12" Margin="0" /></Button>
+                    <Button x:Name="DeliveredNext" Grid.Column="3" Style="{StaticResource PagingButton}" Click="PageClicked" Tag="DeliveredNext" AutomationProperties.Name="Megérkezett csomagok következő oldala"><Path Data="{StaticResource ChevronRightIcon}" Style="{StaticResource ButtonIcon}" Width="6" Height="12" Margin="0" /></Button>
+                </Grid>
+            </Grid>
+        </Border>
+        <Grid Grid.Row="7" Margin="4,12,4,0"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="108" /><ColumnDefinition Width="8" /><ColumnDefinition Width="96" /></Grid.ColumnDefinitions>
+            <TextBlock Text="API nélküli előnézet • az időpontok magyar idő szerint." Style="{StaticResource Caption}" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,4,16,0" />
+            <Button x:Name="RemoveSamplesButton" Grid.Column="1" Content="Minták nélkül" Click="RemoveSamples" Height="30" VerticalAlignment="Top" ToolTip="Csak a bemutató csomagokat törli, a saját bejegyzéseket megtartja." />
+            <Button x:Name="RestoreSamplesButton" Grid.Column="3" Content="Minták" Click="RestoreSamples" Height="30" VerticalAlignment="Top" ToolTip="Visszaállítja a bemutató csomagokat; a saját bejegyzéseket megtartja." />
+        </Grid>
+    </Grid>
+</UserControl>

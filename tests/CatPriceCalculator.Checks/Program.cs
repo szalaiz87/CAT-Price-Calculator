@@ -138,6 +138,7 @@ Check(eurQuote.Rate == 400m, "ECB direct EUR HUF without DKK conversion");
 await UpdateChecks.Run(Check);
 await OptimizationChecks.Run(Check);
 await UpdateChannelChecks.Run(Check);
+ParcelChecks.Run(Check);
 Console.WriteLine($"{passed} checks passed.");
 if (args.Contains("--live")) {
 using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(8) };
@@ -151,16 +152,18 @@ var euro = await new ExchangeRateService(http).FetchEuroAsync();
 Check(euro.Rate > 0 && euro.Rate < 1 && euro.Date <= DateOnly.FromDateTime(DateTime.UtcNow), "Live DKK/EUR");
 Console.WriteLine($"1 DKK = {euro.Rate} EUR; {euro.Source}; {euro.Date}");
 }
-if (args.Contains("--live-update")) {
+if (args.Contains("--live-update") || args.Contains("--live-beta-update")) {
 using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
 var service = new UpdateService(http);
-var release = await service.CheckAsync(new Version(0,6,0)) ?? throw new Exception("No release found");
+bool betaFeed = args.Contains("--live-beta-update");
+var release = await service.CheckAsync(new ReleaseVersion(new Version(0,6,0)), betaFeed) ?? throw new Exception("No release found");
+if (betaFeed) Check(release.IsBeta && release.DisplayVersion == BuildInfo.Current.ToString(), "Public beta feed selects the just-published beta build");
 var liveUpdateDirectory=Path.Combine(Path.GetTempPath(),"cat-live-update-"+Guid.NewGuid());
 try {
 var exe=await service.PrepareAsync(release,liveUpdateDirectory);
 using var file=File.OpenRead(exe);
 Check(file.ReadByte()==0x4d && file.ReadByte()==0x5a,"Live public update metadata, download, integrity and Windows executable");
-Console.WriteLine("Verified update: v"+release.Version);
+Console.WriteLine("Verified update: v"+release.DisplayVersion);
 } finally { if (Directory.Exists(liveUpdateDirectory)) Directory.Delete(liveUpdateDirectory,true); }
 }
 sealed class FakeHandler(string? body, HttpStatusCode status = HttpStatusCode.OK, string expectedEndpoint = ExchangeRateService.Endpoint) : HttpMessageHandler {

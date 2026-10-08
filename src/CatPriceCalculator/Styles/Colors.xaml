@@ -32,6 +32,10 @@
     <SolidColorBrush x:Key="TextPrimary" Color="{DynamicResource ColorE8EDF5}" />
     <SolidColorBrush x:Key="TextSecondary" Color="{DynamicResource ColorB9CEE8}" />
     <SolidColorBrush x:Key="TextMuted" Color="{DynamicResource Color9CADC3}" />
+    <Color x:Key="ColorSuccessText">#60DFAE</Color>
+    <Color x:Key="ColorSuccessSurface">#133B37</Color>
+    <SolidColorBrush x:Key="SuccessText" Color="{DynamicResource ColorSuccessText}" />
+    <SolidColorBrush x:Key="SuccessSurface" Color="{DynamicResource ColorSuccessSurface}" />
     <LinearGradientBrush x:Key="PanelGradient" StartPoint="0,0" EndPoint="1,1">
         <GradientStop Color="{DynamicResource Color152A43}" Offset="0" />
         <GradientStop Color="{DynamicResource Color0D192A}" Offset="1" />

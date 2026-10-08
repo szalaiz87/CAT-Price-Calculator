@@ -80,22 +80,32 @@ public partial class MainWindow : Window
         if (!e.Canceled) toggle.SetCurrentValue(System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty, Math.Abs(switchDrag) < 4 ? toggle.IsChecked != true : switchDrag > 0);
         switchDrag = 0; e.Handled = true;
     }
-    private bool settingsOpen, lightTheme;
+    private bool settingsOpen, roboOpen, lightTheme;
     private readonly AppearanceStore appearanceStore = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "appearance.json"));
     private void OpenSettings(object sender, RoutedEventArgs e)
     {
-        settingsOpen = true; CalculatorPage.Visibility = Visibility.Hidden;
+        settingsOpen = true; roboOpen = false; RoboSanyiPage.Visibility = Visibility.Collapsed; CalculatorPage.Visibility = Visibility.Hidden;
         SettingsPage.Visibility = Visibility.Visible; ApplyMenuTheme();
     }
     private void ShowCalculator()
     {
-        settingsOpen = false; SettingsPage.Visibility = Visibility.Collapsed;
+        settingsOpen = false; roboOpen = false; RoboSanyiPage.Visibility = Visibility.Collapsed; SettingsPage.Visibility = Visibility.Collapsed;
         CalculatorPage.Visibility = Visibility.Visible; ApplyMenuTheme();
     }
     private void ApplyMenuTheme()
     {
         ApplyModeLabels();
         SetSelected(SettingsMenu, settingsOpen);
+        SetSelected(RoboMenu, roboOpen);
+        CalculatorSidebar.Visibility = roboOpen ? Visibility.Collapsed : Visibility.Visible;
+        RoboSidebar.Visibility = roboOpen ? Visibility.Visible : Visibility.Collapsed;
+    }
+    private void OpenRoboSanyi(object sender, RoutedEventArgs e)
+    {
+        settingsOpen = false; roboOpen = true;
+        CalculatorPage.Visibility = Visibility.Hidden; SettingsPage.Visibility = Visibility.Collapsed;
+        RoboSanyiPage.Visibility = Visibility.Visible;
+        ApplyMenuTheme(); RoboSanyiPage.Open();
     }
     private void ApplyAppearance()
     {
@@ -136,8 +146,8 @@ public partial class MainWindow : Window
         EurHelp.Visibility = eurMode ? Visibility.Visible : Visibility.Collapsed;
         EuroLabel.Text = eurMode ? "Beszerzési ár euróban" : "CAT ár euróban";
         DealerLabel.Text = eurMode ? "Alapár (felár nélkül)" : "Dealer ár +10%";
-        SetSelected(CatMenu, !settingsOpen && !eurMode);
-        SetSelected(EurMenu, !settingsOpen && eurMode);
+        SetSelected(CatMenu, !settingsOpen && !roboOpen && !eurMode);
+        SetSelected(EurMenu, !settingsOpen && !roboOpen && eurMode);
     }
     private void UpdateSidebar()
     {
@@ -176,6 +186,7 @@ public partial class MainWindow : Window
         rateService = new ExchangeRateService(http, LogRateFailure);
         updateService = new UpdateService(updateHttp);
         InitializeComponent();
+        RoboSanyiPage.SummaryChanged += (_, _) => { RoboTransitCount.Text = RoboSanyiPage.TransitCount.ToString(); RoboDeliveredCount.Text = RoboSanyiPage.DeliveredCount.ToString(); };
         AddHandler(System.Windows.Controls.Primitives.Thumb.DragDeltaEvent, new System.Windows.Controls.Primitives.DragDeltaEventHandler(DragTopmostSwitch));
         AddHandler(System.Windows.Controls.Primitives.Thumb.DragCompletedEvent, new System.Windows.Controls.Primitives.DragCompletedEventHandler(FinishTopmostSwitch));
         var startupPreferences = startupPreferencesStore.Load();
@@ -208,10 +219,11 @@ public partial class MainWindow : Window
         SourceInitialized += (_, _) => WindowTheme.Apply(this, lightTheme);
         Loaded += async (_, _) =>
         {
+            RoboSanyiPage.InitializeData();
             PriceInput.Focus();
             await Task.WhenAll(StartupRatesAsync(startupPreferences.RefreshRates), CheckUpdatesAsync(false));
         };
-        Closed += (_, _) => { lifetime.Cancel(); http.Dispose(); updateHttp.Dispose(); lifetime.Dispose(); };
+        Closed += (_, _) => { RoboSanyiPage.Dispose(); lifetime.Cancel(); http.Dispose(); updateHttp.Dispose(); lifetime.Dispose(); };
     }
     private string QuoteInfo(decimal rate, string source, DateOnly? date, string currency = "HUF", DateTimeOffset? retrievedAt = null)
     {
@@ -510,6 +522,7 @@ public partial class MainWindow : Window
     }
     private void OnKeyDown(object sender, KeyEventArgs e)
     {
+        if (roboOpen) return;
         if (settingsOpen) { if (e.Key == Key.Escape) { ShowCalculator(); e.Handled = true; } return; }
         if (e.Key == Key.Escape || (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.N)) { NewCalculation(null, null); e.Handled = true; }
         else if (Keyboard.Modifiers == ModifierKeys.Control && e.Key >= Key.D1 && e.Key <= Key.D7) { SelectMultiplier((eurMode ? PriceCalculator.EuroSellingMultipliers : PriceCalculator.SellingMultipliers)[(int)e.Key - (int)Key.D1]); e.Handled = true; }
