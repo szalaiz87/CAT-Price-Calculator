@@ -1,0 +1,77 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="Palette65B5FF" Color="#65B5FF" />
+    <SolidColorBrush x:Key="Palette9CADC3" Color="#9BB1C9" />
+    <Color x:Key="Color0B1522">#0A1322</Color>
+    <Color x:Key="Color0D192A">#101D30</Color>
+    <Color x:Key="Color101D2D">#0E1B2D</Color>
+    <Color x:Key="Color112D46">#173751</Color>
+    <Color x:Key="Color142E4A">#203F5E</Color>
+    <Color x:Key="Color152A43">#15283E</Color>
+    <Color x:Key="Color1B3352">#19334F</Color>
+    <Color x:Key="Color202C3C">#0D1A2B</Color>
+    <Color x:Key="Color235A83">#2C4A68</Color>
+    <Color x:Key="Color28425E">#2A405B</Color>
+    <Color x:Key="Color29384D">#1B2E46</Color>
+    <Color x:Key="Color389CFF">#389CFF</Color>
+    <Color x:Key="Color4EEAFF">#57D5FF</Color>
+    <Color x:Key="Color65B5FF">#65B5FF</Color>
+    <Color x:Key="Color9CADC3">#9BB1C9</Color>
+    <Color x:Key="ColorB9CEE8">#BDCEE1</Color>
+    <Color x:Key="ColorE8EDF5">#E7EFF9</Color>
+    <SolidColorBrush x:Key="WindowSurface" Color="{DynamicResource Color0B1522}" />
+    <SolidColorBrush x:Key="SidebarSurface" Color="{DynamicResource Color101D2D}" />
+    <SolidColorBrush x:Key="InputSurface" Color="{DynamicResource Color202C3C}" />
+    <SolidColorBrush x:Key="ButtonSurface" Color="{DynamicResource Color29384D}" />
+    <SolidColorBrush x:Key="HoverSurface" Color="{DynamicResource Color142E4A}" />
+    <SolidColorBrush x:Key="PressedSurface" Color="{DynamicResource Color112D46}" />
+    <SolidColorBrush x:Key="PanelBorder" Color="{DynamicResource Color28425E}" />
+    <SolidColorBrush x:Key="InputBorder" Color="{DynamicResource Color235A83}" />
+    <SolidColorBrush x:Key="Accent" Color="{DynamicResource Color389CFF}" />
+    <SolidColorBrush x:Key="FocusBorder" Color="{DynamicResource Color4EEAFF}" />
+    <SolidColorBrush x:Key="AccentText" Color="{DynamicResource Color65B5FF}" />
+    <SolidColorBrush x:Key="TextPrimary" Color="{DynamicResource ColorE8EDF5}" />
+    <SolidColorBrush x:Key="TextSecondary" Color="{DynamicResource ColorB9CEE8}" />
+    <SolidColorBrush x:Key="TextMuted" Color="{DynamicResource Color9CADC3}" />
+    <LinearGradientBrush x:Key="PanelGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{DynamicResource Color152A43}" Offset="0" />
+        <GradientStop Color="{DynamicResource Color0D192A}" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="SummaryGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{DynamicResource Color1B3352}" Offset="0" />
+        <GradientStop Color="{DynamicResource Color152A43}" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="SelectedGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{DynamicResource ColorSelectedStart}" Offset="0" />
+        <GradientStop Color="{DynamicResource ColorSelectedEnd}" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="NavigationSelectedGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{DynamicResource ColorNavigationSelectedStart}" Offset="0" />
+        <GradientStop Color="{DynamicResource ColorNavigationSelectedEnd}" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="ResultGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{DynamicResource ColorResultStart}" Offset="0" />
+        <GradientStop Color="{DynamicResource ColorResultEnd}" Offset="1" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="SelectedBorder" Color="{DynamicResource ColorSelectionEdge}" />
+    <SolidColorBrush x:Key="PressedSelectedSurface" Color="#0758AF" />
+    <Color x:Key="ColorSelectedStart">#148EFF</Color>
+    <Color x:Key="ColorSelectedEnd">#0867DD</Color>
+    <Color x:Key="ColorNavigationSelectedStart">#163D67</Color>
+    <Color x:Key="ColorNavigationSelectedEnd">#112D50</Color>
+    <Color x:Key="ColorNavigationSelectedText">#FFFFFF</Color>
+    <Color x:Key="ColorSelectionEdge">#70D6FF</Color>
+    <Color x:Key="ColorResultStart">#057DE5</Color>
+    <Color x:Key="ColorResultEnd">#123B87</Color>
+    <Color x:Key="ColorResultText">#FFFFFF</Color>
+    <Color x:Key="ColorResultDetail">#DEEEFF</Color>
+    <Color x:Key="ColorHeroStart">#F20A1423</Color>
+    <Color x:Key="ColorHeroMiddle">#D90A1423</Color>
+    <Color x:Key="ColorHeroEnd">#300A1423</Color>
+    <Color x:Key="ColorHeroText">#FFFFFF</Color>
+    <Color x:Key="ColorHeroDetail">#C8DFF4</Color>
+    <SolidColorBrush x:Key="NavigationSelectedForeground" Color="{DynamicResource ColorNavigationSelectedText}" />
+    <SolidColorBrush x:Key="ResultForeground" Color="{DynamicResource ColorResultText}" />
+    <SolidColorBrush x:Key="ResultDetailForeground" Color="{DynamicResource ColorResultDetail}" />
+    <SolidColorBrush x:Key="HeroForeground" Color="{DynamicResource ColorHeroText}" />
+    <SolidColorBrush x:Key="HeroDetailForeground" Color="{DynamicResource ColorHeroDetail}" />
+</ResourceDictionary>

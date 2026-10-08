@@ -1,0 +1,79 @@
+@echo off
+setlocal
+title Linser Hungary letoltes
+echo Linser Hungary @@TAG@@ - Windows letolto
+echo Frissites elott zarja be a regi kalkulatort.
+echo Ez a letolto nem hasznal PowerShellt.
+echo.
+tasklist.exe /FI "IMAGENAME eq CAT-Price-Calculator.exe" /NH | findstr.exe /I /C:"CAT-Price-Calculator.exe" >nul
+if not errorlevel 1 (
+  echo HIBA: A kalkulator meg fut. Zarja be az alkalmazas ablakot az X gombbal, majd inditsa ujra ezt a letoltot.
+  goto endfailed
+)
+where curl.exe >nul 2>&1
+if errorlevel 1 goto missing
+where tar.exe >nul 2>&1
+if errorlevel 1 goto missing
+where certutil.exe >nul 2>&1
+if errorlevel 1 goto missing
+set "WORK=%TEMP%\LS-CAT-%RANDOM%-%RANDOM%"
+set "APP=%LOCALAPPDATA%\Programs\LS-Germany-CAT"
+mkdir "%WORK%"
+if errorlevel 1 goto failed
+for /L %%I in (1,1,@@PART_COUNT@@) do (
+  call :download %%I
+  if errorlevel 1 goto failed
+)
+echo A csomag osszeallitasa...
+pushd "%WORK%"
+if errorlevel 1 goto failed
+copy /b @@PART_JOIN@@ CAT.zip >nul
+if errorlevel 1 goto copyfailed
+certutil.exe -hashfile CAT.zip SHA256 >hash.txt
+if errorlevel 1 goto copyfailed
+findstr.exe /I /X /C:"@@SHA256@@" hash.txt >nul
+if errorlevel 1 goto hashfailed
+echo Az ellenorzoosszeg megfelelo.
+if not exist "%APP%" mkdir "%APP%"
+if errorlevel 1 goto copyfailed
+tar.exe -xf CAT.zip -C "%APP%"
+if errorlevel 1 goto copyfailed
+popd
+if not exist "%APP%\CAT-Price-Calculator.exe" goto failed
+echo.
+echo A program helye: "%APP%\CAT-Price-Calculator.exe"
+echo Asztali parancsikon: az EXE fajlon jobb klikk, majd
+echo Tovabbi beallitasok megjelenitese - Kuldes - Asztal.
+start "" "%APP%\CAT-Price-Calculator.exe"
+if errorlevel 1 goto failed
+explorer.exe "%APP%"
+rmdir /s /q "%WORK%"
+echo.
+echo Elkeszult. Az ablak billentyunyomasra bezarul.
+pause
+exit /b 0
+:download
+set "NUM=0%~1"
+set "NUM=%NUM:~-2%"
+echo Letoltes: %~1/@@PART_COUNT@@
+curl.exe --fail --location --show-error --connect-timeout 15 --max-time 120 --output "%WORK%\part%NUM%" "https://github.com/szalaiz87/CAT-Price-Calculator/releases/download/@@TAG@@/CAT-Windows-x64.zip.part%NUM%"
+exit /b %errorlevel%
+:hashfailed
+echo HIBA: Az ellenorzoosszeg nem egyezik. A programot nem inditjuk.
+popd
+goto failed
+:copyfailed
+popd
+goto failed
+:missing
+echo HIBA: Egy szukseges Windows-eszkoz nem erheto el.
+echo Szukseges: curl.exe, tar.exe, certutil.exe.
+goto endfailed
+:failed
+echo.
+echo HIBA: A letoltes vagy telepites nem sikerult.
+echo Kerlek kuldd el a fenti hibauzenetet.
+if defined WORK echo Ideiglenes fajlok: "%WORK%"
+:endfailed
+pause
+exit /b 1

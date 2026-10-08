@@ -1,0 +1,194 @@
+{
+  "Runtime": ".NET 10.0.12",
+  "OS": "Debian GNU/Linux 13 (trixie)",
+  "Sink": 3560927806.02795,
+  "Results": [
+    {
+      "Area": "number_parse",
+      "Variant": "before",
+      "Pass": 0,
+      "Calls": 400000,
+      "Milliseconds": 47.8083,
+      "AllocatedBytes": 16000096
+    },
+    {
+      "Area": "number_parse",
+      "Variant": "after",
+      "Pass": 0,
+      "Calls": 400000,
+      "Milliseconds": 23.5417,
+      "AllocatedBytes": 96
+    },
+    {
+      "Area": "number_parse",
+      "Variant": "after",
+      "Pass": 1,
+      "Calls": 400000,
+      "Milliseconds": 22.1556,
+      "AllocatedBytes": 96
+    },
+    {
+      "Area": "number_parse",
+      "Variant": "before",
+      "Pass": 1,
+      "Calls": 400000,
+      "Milliseconds": 40.9844,
+      "AllocatedBytes": 16000096
+    },
+    {
+      "Area": "number_parse",
+      "Variant": "before",
+      "Pass": 2,
+      "Calls": 400000,
+      "Milliseconds": 46.0204,
+      "AllocatedBytes": 16000096
+    },
+    {
+      "Area": "number_parse",
+      "Variant": "after",
+      "Pass": 2,
+      "Calls": 400000,
+      "Milliseconds": 65.2131,
+      "AllocatedBytes": 96
+    },
+    {
+      "Area": "number_parse",
+      "Variant": "after",
+      "Pass": 3,
+      "Calls": 400000,
+      "Milliseconds": 67.8123,
+      "AllocatedBytes": 96
+    },
+    {
+      "Area": "number_parse",
+      "Variant": "before",
+      "Pass": 3,
+      "Calls": 400000,
+      "Milliseconds": 107.011,
+      "AllocatedBytes": 16000096
+    },
+    {
+      "Area": "number_parse",
+      "Variant": "before",
+      "Pass": 4,
+      "Calls": 400000,
+      "Milliseconds": 30.9949,
+      "AllocatedBytes": 16000096
+    },
+    {
+      "Area": "number_parse",
+      "Variant": "after",
+      "Pass": 4,
+      "Calls": 400000,
+      "Milliseconds": 24.0288,
+      "AllocatedBytes": 96
+    },
+    {
+      "Area": "number_parse",
+      "Variant": "after",
+      "Pass": 5,
+      "Calls": 400000,
+      "Milliseconds": 19.9494,
+      "AllocatedBytes": 96
+    },
+    {
+      "Area": "number_parse",
+      "Variant": "before",
+      "Pass": 5,
+      "Calls": 400000,
+      "Milliseconds": 32.702,
+      "AllocatedBytes": 16000096
+    },
+    {
+      "Area": "number_parse",
+      "Variant": "before",
+      "Pass": 6,
+      "Calls": 400000,
+      "Milliseconds": 30.9656,
+      "AllocatedBytes": 16000096
+    },
+    {
+      "Area": "number_parse",
+      "Variant": "after",
+      "Pass": 6,
+      "Calls": 400000,
+      "Milliseconds": 20.5242,
+      "AllocatedBytes": 96
+    },
+    {
+      "Area": "update_download",
+      "Variant": "before",
+      "Pass": 0,
+      "PayloadBytes": 8388754,
+      "Parts": 3,
+      "Milliseconds": 21.6888,
+      "AllocatedBytes": 16951088
+    },
+    {
+      "Area": "update_download",
+      "Variant": "after",
+      "Pass": 0,
+      "PayloadBytes": 8388754,
+      "Parts": 3,
+      "Milliseconds": 18.7511,
+      "AllocatedBytes": 109528
+    },
+    {
+      "Area": "update_download",
+      "Variant": "after",
+      "Pass": 1,
+      "PayloadBytes": 8388754,
+      "Parts": 3,
+      "Milliseconds": 16.7155,
+      "AllocatedBytes": 41608
+    },
+    {
+      "Area": "update_download",
+      "Variant": "before",
+      "Pass": 1,
+      "PayloadBytes": 8388754,
+      "Parts": 3,
+      "Milliseconds": 18.8986,
+      "AllocatedBytes": 16819448
+    },
+    {
+      "Area": "update_download",
+      "Variant": "before",
+      "Pass": 2,
+      "PayloadBytes": 8388754,
+      "Parts": 3,
+      "Milliseconds": 20.8954,
+      "AllocatedBytes": 16819416
+    },
+    {
+      "Area": "update_download",
+      "Variant": "after",
+      "Pass": 2,
+      "PayloadBytes": 8388754,
+      "Parts": 3,
+      "Milliseconds": 16.18,
+      "AllocatedBytes": 42904
+    },
+    {
+      "Area": "update_download",
+      "Variant": "after",
+      "Pass": 3,
+      "PayloadBytes": 8388754,
+      "Parts": 3,
+      "Milliseconds": 16.4414,
+      "AllocatedBytes": 41608
+    },
+    {
+      "Area": "update_download",
+      "Variant": "before",
+      "Pass": 3,
+      "PayloadBytes": 8388754,
+      "Parts": 3,
+      "Milliseconds": 23.1515,
+      "AllocatedBytes": 16819416
+    }
+  ],
+  "BeforeVersion": "0.11.1",
+  "AfterVersion": "0.11.2",
+  "Method": "Release .NET 10 on Linux; warmup then 7 alternating parsing rounds (400000 mixed inputs) and 4 update rounds (8 MiB stored ZIP in 3 parts, synthetic HTTP response streams). Medians; allocation counters include small fixed harness overhead. Not Windows app RAM, CPU or network throughput."
+}

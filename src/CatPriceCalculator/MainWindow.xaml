@@ -1,0 +1,282 @@
+<Window x:Class="CatPriceCalculator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Linser Hungary - segédprogram" Icon="Assets/LS-Germany.ico"
+        Width="780" Height="840" MinWidth="620" MinHeight="500"
+        Background="{DynamicResource WindowSurface}" FontFamily="{StaticResource AppFont}" FontSize="13"
+        TextOptions.TextFormattingMode="Display" UseLayoutRounding="True" SnapsToDevicePixels="True"
+        WindowStartupLocation="CenterScreen" PreviewKeyDown="OnKeyDown">
+    <Border CornerRadius="10" Background="{DynamicResource WindowSurface}">
+        <!-- A single reference frame keeps the CAT, EUR and Settings views the same size. -->
+        <Viewbox Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3">
+            <Grid Width="890" Height="940">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="224" /><ColumnDefinition /></Grid.ColumnDefinitions>
+
+                <!-- Navigation, exchange-rate status and bottom utility area. -->
+                <Border Background="{DynamicResource SidebarSurface}" BorderBrush="{DynamicResource PanelBorder}"
+                        BorderThickness="0,0,1,0" Padding="12,16" CornerRadius="10">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Top">
+                            <Border Background="White" CornerRadius="10" Width="116" Height="108" Padding="8"
+                                    Margin="0,0,0,12" HorizontalAlignment="Center">
+                                <Image Source="{StaticResource LisVectorLogo}" Stretch="Uniform" AutomationProperties.Name="LIS vektoros logó" />
+                            </Border>
+                            <TextBlock Text="LINSER HUNGARY" FontWeight="Bold" FontSize="14" HorizontalAlignment="Center" Margin="0,0,0,18" />
+                            <Grid Height="28" Margin="2,0,2,16">
+                                <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                <TextBlock Text="Mindig előtérben" Style="{StaticResource FieldLabel}" />
+                                <ToggleButton x:Name="AlwaysOnTopSwitch" Grid.Column="1" Style="{StaticResource SlideSwitch}"
+                                              IsChecked="{Binding Topmost, RelativeSource={RelativeSource AncestorType=Window}, Mode=TwoWay}"
+                                              ToolTip="A segédprogram a többi ablak fölött marad" AutomationProperties.Name="Mindig előtérben"
+                                              AutomationProperties.HelpText="Kapcsoló. Bekapcsolva a program más ablakok fölött marad." />
+                            </Grid>
+                            <Button x:Name="CatMenu" Click="SwitchCalculator" Tag="CAT" Style="{StaticResource NavigationButton}" Margin="0,0,0,6">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Style="{StaticResource ButtonIcon}" Data="{StaticResource CalculatorIcon}" />
+                                    <TextBlock Text="CAT árkalkulátor" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="EurMenu" Click="SwitchCalculator" Tag="EUR" Style="{StaticResource NavigationButton}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Style="{StaticResource ButtonIcon}" Data="{StaticResource EuroIcon}" />
+                                    <TextBlock Text="EUR árkalkulátor" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <StackPanel DockPanel.Dock="Bottom">
+                            <Border Height="1" Background="{DynamicResource PanelBorder}" Margin="0,0,0,12" />
+                            <Button x:Name="SettingsMenu" Click="OpenSettings" Style="{StaticResource NavigationButton}" Margin="0,0,0,6">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Style="{StaticResource ButtonIcon}" Data="{StaticResource SettingsIcon}" />
+                                    <TextBlock Text="Beállítások" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="UpdateButton" Click="UpdatesClicked" Style="{StaticResource NavigationButton}" Margin="0,0,0,10">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Style="{StaticResource ButtonIcon}" Data="{StaticResource RefreshIcon}" />
+                                    <TextBlock Text="Frissítések" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                </StackPanel>
+                            </Button>
+                            <TextBlock Text="Linser Hungary" Foreground="{DynamicResource AccentText}" Margin="4,0,0,4" />
+                            <TextBlock Text="Belső vállalati segédprogram" Style="{StaticResource Caption}" Margin="4,0,0,8" />
+                            <TextBlock x:Name="CurrentVersionText" Text="v1.0.0" Style="{StaticResource Caption}" Margin="4,0,0,0" />
+                            <TextBlock x:Name="UpdateInfo" TextWrapping="Wrap" Style="{StaticResource Caption}" Margin="4,5,0,0" />
+                        </StackPanel>
+                        <Border x:Name="CalculatorSidebar" Style="{StaticResource Card}" Padding="12" Margin="0,16,0,16">
+                            <Grid>
+                                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="12" /><RowDefinition Height="*" /><RowDefinition Height="36" /></Grid.RowDefinitions>
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Style="{StaticResource Icon}" Data="{StaticResource ChartIcon}" Width="16" Height="16" Margin="0,0,6,0" />
+                                    <TextBlock Text="Árfolyam-információk" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                </StackPanel>
+                                <Border Grid.Row="1" Height="1" Background="{DynamicResource PanelBorder}" VerticalAlignment="Center" />
+                                <TextBlock x:Name="SidebarRate" Grid.Row="2" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondary}" FontSize="11" LineHeight="15" Margin="0,4,0,12" />
+                                <Button x:Name="RefreshAllButton" Grid.Row="3" Click="RefreshAll" Padding="6,4">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Style="{StaticResource ButtonIcon}" Data="{StaticResource RefreshIcon}" Width="16" Height="16" Margin="0,0,6,0" />
+                                        <TextBlock Text="Összes frissítése" FontSize="11" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </DockPanel>
+                </Border>
+
+                <!-- Every section has a stable row, including the EUR replacement of the DKK/EUR fields. -->
+                <Grid x:Name="CalculatorPage" Grid.Column="1" Margin="14,12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="100" /><RowDefinition Height="12" />
+                        <RowDefinition Height="312" /><RowDefinition Height="12" />
+                        <RowDefinition Height="100" /><RowDefinition Height="12" />
+                        <RowDefinition Height="112" /><RowDefinition Height="12" />
+                        <RowDefinition Height="132" /><RowDefinition Height="12" />
+                        <RowDefinition Height="40" /><RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Border CornerRadius="10" BorderBrush="{DynamicResource PanelBorder}" BorderThickness="1">
+                        <Border.Background><ImageBrush ImageSource="{StaticResource MachineBackground}" Stretch="UniformToFill" AlignmentX="Right" AlignmentY="Center" /></Border.Background>
+                        <Border CornerRadius="10" Padding="20,16">
+                            <Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,0"><GradientStop Color="{DynamicResource ColorHeroStart}" Offset="0" /><GradientStop Color="{DynamicResource ColorHeroMiddle}" Offset="0.48" /><GradientStop Color="{DynamicResource ColorHeroEnd}" Offset="1" /></LinearGradientBrush></Border.Background>
+                            <StackPanel VerticalAlignment="Center">
+                                <Border Width="34" Height="3" CornerRadius="1.5" Background="{DynamicResource FocusBorder}" HorizontalAlignment="Left" Margin="0,0,0,10" />
+                                <TextBlock x:Name="PageTitle" Text="CAT ÁRKALKULÁTOR" Style="{StaticResource HeroTitle}" Foreground="{DynamicResource HeroForeground}" />
+                                <TextBlock Text="Linser Hungary" Foreground="{DynamicResource HeroDetailForeground}" Margin="0,5,0,0" />
+                            </StackPanel>
+                        </Border>
+                    </Border>
+
+                    <Border Grid.Row="2" Style="{StaticResource Card}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="70" /><RowDefinition Height="106" /><RowDefinition Height="106" /></Grid.RowDefinitions>
+                            <Grid>
+                                <Grid.RowDefinitions><RowDefinition Height="18" /><RowDefinition Height="6" /><RowDefinition Height="44" /></Grid.RowDefinitions>
+                                <TextBlock x:Name="PriceLabel" Text="CAT ár (DKK)" Style="{StaticResource FieldLabel}" />
+                                <Grid Grid.Row="2">
+                                    <TextBox x:Name="PriceInput" TextChanged="InputsChanged" AutomationProperties.Name="Beszerzési ár" FontSize="22" Padding="12,4,46,4" />
+                                    <Button x:Name="ClearPriceButton" Click="ClearPrice" Style="{StaticResource ClearPriceButton}"
+                                            HorizontalAlignment="Right" VerticalAlignment="Center" ToolTip="Beírt ár törlése"
+                                            AutomationProperties.Name="Beírt ár törlése" AutomationProperties.HelpText="Csak a beírt árat törli; az árfolyamok és a szorzó megmaradnak.">
+                                        <Path Style="{StaticResource ButtonIcon}" Data="{StaticResource ClearIcon}" Width="14" Height="14" Margin="0" />
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                            <Grid Grid.Row="1">
+                                <Grid.RowDefinitions><RowDefinition Height="18" /><RowDefinition Height="4" /><RowDefinition Height="36" /><RowDefinition Height="32" /><RowDefinition Height="16" /></Grid.RowDefinitions>
+                                <TextBlock x:Name="RateLabel" Text="DKK/HUF árfolyam" Style="{StaticResource FieldLabel}" />
+                                <Grid Grid.Row="2">
+                                    <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                    <TextBox x:Name="RateInput" TextChanged="RateChanged" AutomationProperties.Name="Forint árfolyam" />
+                                    <Button x:Name="FetchButton" Grid.Column="1" Click="FetchRate" Style="{StaticResource RateFetchButton}">
+                                        <StackPanel Orientation="Horizontal"><Path Style="{StaticResource ButtonIcon}" Data="{StaticResource RefreshIcon}" /><TextBlock Text="Árfolyam lekérése" FontSize="12" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></StackPanel>
+                                    </Button>
+                                </Grid>
+                                <TextBlock x:Name="RateInfo" Grid.Row="3" Style="{StaticResource RateMetadata}" />
+                                <TextBlock x:Name="RateWarning" Grid.Row="4" Style="{StaticResource RateWarningText}" Visibility="Collapsed" />
+                            </Grid>
+                            <Grid Grid.Row="2">
+                                <Grid x:Name="DkkEuroSection">
+                                    <Grid.RowDefinitions><RowDefinition Height="18" /><RowDefinition Height="4" /><RowDefinition Height="36" /><RowDefinition Height="32" /><RowDefinition Height="16" /></Grid.RowDefinitions>
+                                    <TextBlock Text="DKK/EUR árfolyam (1 DKK = X EUR)" Style="{StaticResource FieldLabel}" />
+                                    <Grid Grid.Row="2">
+                                        <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                                        <TextBox x:Name="EuroRateInput" TextChanged="EuroRateChanged" AutomationProperties.Name="DKK EUR árfolyam" />
+                                        <Button x:Name="EuroFetchButton" Grid.Column="1" Click="FetchEuroRate" Style="{StaticResource RateFetchButton}">
+                                            <StackPanel Orientation="Horizontal"><Path Style="{StaticResource ButtonIcon}" Data="{StaticResource RefreshIcon}" /><TextBlock Text="Árfolyam lekérése" FontSize="12" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></StackPanel>
+                                        </Button>
+                                    </Grid>
+                                    <TextBlock x:Name="EuroRateInfo" Grid.Row="3" Style="{StaticResource RateMetadata}" />
+                                    <TextBlock x:Name="EuroRateWarning" Grid.Row="4" Style="{StaticResource RateWarningText}" Visibility="Collapsed" />
+                                </Grid>
+                                <Border x:Name="EurHelp" Visibility="Collapsed" Style="{StaticResource InsetCard}" Padding="12" Margin="0,4,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="EUR alapú számítás" Style="{StaticResource FieldLabel}" Foreground="{DynamicResource AccentText}" />
+                                        <TextBlock Text="Az eurós beszerzési ár közvetlenül kerül átváltásra forintra. Dealer felár nélkül, a kiválasztott eladási szorzóval számolunk." TextWrapping="Wrap" FontSize="12" Foreground="{DynamicResource TextSecondary}" Margin="0,6,0,0" />
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Row="4" Style="{StaticResource InsetCard}">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="32" /><ColumnDefinition /><ColumnDefinition Width="220" /></Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions><RowDefinition /><RowDefinition /><RowDefinition /></Grid.RowDefinitions>
+                            <Path Grid.RowSpan="3" Style="{StaticResource Icon}" Data="{StaticResource CoinsIcon}" Width="20" Height="20" VerticalAlignment="Top" Margin="0,3,10,0" />
+                            <TextBlock x:Name="EuroLabel" Grid.Column="1" Text="CAT ár euróban" Style="{StaticResource FieldLabel}" FontWeight="Normal" />
+                            <TextBlock x:Name="EuroText" Grid.Column="2" Text="—" Style="{StaticResource SummaryValue}" />
+                            <TextBlock x:Name="DealerLabel" Grid.Column="1" Grid.Row="1" Text="Dealer ár +10%" Style="{StaticResource FieldLabel}" FontWeight="Normal" />
+                            <TextBlock x:Name="DealerText" Grid.Column="2" Grid.Row="1" Text="—" Style="{StaticResource SummaryValue}" />
+                            <TextBlock Grid.Column="1" Grid.Row="2" Text="Bekerülési ár" Style="{StaticResource FieldLabel}" />
+                            <TextBlock x:Name="CostText" Grid.Column="2" Grid.Row="2" Text="—" Style="{StaticResource SummaryValue}" Foreground="{DynamicResource AccentText}" />
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Row="6">
+                        <Grid.RowDefinitions><RowDefinition Height="20" /><RowDefinition Height="4" /><RowDefinition /></Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal" Margin="3,0,0,0">
+                            <TextBlock Text="%" FontSize="16" Foreground="{DynamicResource AccentText}" FontWeight="SemiBold" Margin="0,0,8,0" />
+                            <TextBlock Text="Eladási szorzó" Style="{StaticResource SectionHeading}" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <UniformGrid x:Name="MultiplierPanel" Grid.Row="2" Columns="5" Rows="3" />
+                    </Grid>
+
+                    <Border Grid.Row="8" CornerRadius="10" Padding="16,10" Background="{DynamicResource ResultGradient}" BorderBrush="{DynamicResource SelectedBorder}" BorderThickness="1">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="22" /><RowDefinition Height="46" /><RowDefinition Height="20" /><RowDefinition /></Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <Path Style="{StaticResource Icon}" Data="{StaticResource TagIcon}" Stroke="{DynamicResource ResultDetailForeground}" />
+                                <TextBlock Text="ELADÁSI ÁR" Foreground="{DynamicResource ResultForeground}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            </StackPanel>
+                            <TextBlock x:Name="SellingText" Grid.Row="1" Text="—" FontSize="36" FontWeight="Bold" Foreground="{DynamicResource ResultForeground}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" />
+                            <TextBlock x:Name="SelectedText" Grid.Row="2" Foreground="{DynamicResource ResultDetailForeground}" FontSize="12" VerticalAlignment="Center" />
+                            <TextBlock x:Name="ProfitText" Grid.Row="3" Text="Haszon: —" Foreground="{DynamicResource ResultForeground}" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" />
+                        </Grid>
+                    </Border>
+                    <Grid Grid.Row="10">
+                        <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="10" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                        <Button x:Name="CopyButton" Click="CopyPrice" IsEnabled="False">
+                            <StackPanel Orientation="Horizontal"><Path Style="{StaticResource ButtonIcon}" Data="{StaticResource CopyIcon}" /><TextBlock Text="Másolás" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></StackPanel>
+                        </Button>
+                        <Button Grid.Column="2" Click="NewCalculation">
+                            <StackPanel Orientation="Horizontal"><Path Style="{StaticResource ButtonIcon}" Data="{StaticResource TrashIcon}" /><TextBlock Text="Új számítás" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></StackPanel>
+                        </Button>
+                    </Grid>
+                    <Grid Grid.Row="11" Margin="2,6,2,0">
+                        <Grid.RowDefinitions><RowDefinition /><RowDefinition Height="16" /></Grid.RowDefinitions>
+                        <TextBlock x:Name="StatusText" TextWrapping="Wrap" Style="{StaticResource Caption}" Foreground="{DynamicResource AccentText}" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" />
+                        <TextBlock Grid.Row="1" Text="Ctrl+1–7: szorzó • Esc / Ctrl+N: új számítás" Style="{StaticResource Caption}" />
+                    </Grid>
+                </Grid>
+
+                <Grid x:Name="SettingsPage" Grid.Column="1" Margin="14,12" Visibility="Collapsed">
+                    <Grid.RowDefinitions><RowDefinition Height="64" /><RowDefinition Height="212" /><RowDefinition Height="12" /><RowDefinition Height="230" /><RowDefinition Height="12" /><RowDefinition Height="218" /><RowDefinition Height="12" /><RowDefinition Height="152" /><RowDefinition /></Grid.RowDefinitions>
+                    <StackPanel VerticalAlignment="Center" Margin="4,0">
+                        <TextBlock Text="BEÁLLÍTÁSOK" Style="{StaticResource PageHeading}" />
+                        <TextBlock Text="Megjelenés, indítás és frissítések" Foreground="{DynamicResource TextMuted}" Margin="0,6,0,0" />
+                    </StackPanel>
+                    <Border Grid.Row="1" Style="{StaticResource Card}" Padding="14">
+                        <StackPanel>
+                            <TextBlock Text="Megjelenés" Style="{StaticResource SectionHeading}" Margin="0,0,0,12" />
+                            <TextBlock Text="Válassz sötét vagy világos megjelenést. A választás azonnal életbe lép, és a következő indításkor is megmarad." TextWrapping="Wrap" Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,16" />
+                            <UniformGrid Columns="2" Height="48">
+                                <Button x:Name="DarkThemeButton" Content="Sötét megjelenés" Tag="Dark" Click="ChooseTheme" Margin="0,0,5,0" AutomationProperties.Name="Sötét megjelenés" />
+                                <Button x:Name="LightThemeButton" Content="Világos megjelenés" Tag="Light" Click="ChooseTheme" Margin="5,0,0,0" AutomationProperties.Name="Világos megjelenés" />
+                            </UniformGrid>
+                            <TextBlock x:Name="ThemeStatus" Style="{StaticResource Caption}" Margin="0,12,0,0" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Row="3" Style="{StaticResource Card}" Padding="14">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="28" /><RowDefinition Height="64" /><RowDefinition Height="1" /><RowDefinition Height="10" /><RowDefinition Height="64" /><RowDefinition /></Grid.RowDefinitions>
+                            <TextBlock Text="Indítási beállítások" Style="{StaticResource SectionHeading}" />
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="52" /></Grid.ColumnDefinitions>
+                                <StackPanel Margin="0,0,18,0">
+                                    <TextBlock Text="Induláskor mindig előtérben" FontWeight="SemiBold" />
+                                    <TextBlock Text="A következő indításkor a program más ablakok fölött jelenjen meg." TextWrapping="Wrap" Style="{StaticResource Caption}" Margin="0,6,0,0" />
+                                </StackPanel>
+                                <ToggleButton x:Name="StartupTopmostSwitch" Grid.Column="1" Style="{StaticResource SlideSwitch}" Checked="StartupPreferencesChanged" Unchecked="StartupPreferencesChanged" VerticalAlignment="Top" HorizontalAlignment="Right" AutomationProperties.Name="Induláskor mindig előtérben" />
+                            </Grid>
+                            <Border Grid.Row="2" Height="1" Background="{DynamicResource PanelBorder}" />
+                            <Grid Grid.Row="4">
+                                <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="52" /></Grid.ColumnDefinitions>
+                                <StackPanel Margin="0,0,18,0">
+                                    <TextBlock Text="Árfolyamok frissítése minden indításkor" FontWeight="SemiBold" />
+                                    <TextBlock Text="Bekapcsolva mindhárom árfolyam frissül. Kikapcsolva a legutóbb beállított értékekkel számol; az eltérésellenőrzés nem írja át őket." TextWrapping="Wrap" Style="{StaticResource Caption}" Margin="0,6,0,0" />
+                                </StackPanel>
+                                <ToggleButton x:Name="StartupRateSwitch" Grid.Column="1" Style="{StaticResource SlideSwitch}" Checked="StartupPreferencesChanged" Unchecked="StartupPreferencesChanged" VerticalAlignment="Top" HorizontalAlignment="Right" AutomationProperties.Name="Árfolyamok frissítése minden indításkor" />
+                            </Grid>
+                            <TextBlock x:Name="StartupPreferenceStatus" Grid.Row="5" Style="{StaticResource Caption}" TextWrapping="Wrap" />
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="5" Style="{StaticResource Card}" Padding="14">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="22" /><RowDefinition Height="10" /><RowDefinition Height="54" /><RowDefinition Height="8" /><RowDefinition Height="36" /><RowDefinition Height="8" /><RowDefinition /></Grid.RowDefinitions>
+                            <TextBlock Text="Frissítési csatorna" Style="{StaticResource SectionHeading}" />
+                            <Grid Grid.Row="2">
+                                <Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="52" /></Grid.ColumnDefinitions>
+                                <StackPanel Margin="0,0,18,0">
+                                    <TextBlock Text="Béta frissítések engedélyezése" FontWeight="SemiBold" />
+                                    <TextBlock Text="Bekapcsolva a stabil és béta kiadások közül a legújabbat kapod." Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,6,0,0" />
+                                </StackPanel>
+                                <ToggleButton x:Name="BetaUpdatesSwitch" Grid.Column="1" Style="{StaticResource SlideSwitch}" Checked="BetaUpdatesChanged" Unchecked="BetaUpdatesChanged" HorizontalAlignment="Right" VerticalAlignment="Top" AutomationProperties.Name="Béta frissítések engedélyezése" />
+                            </Grid>
+                            <Button x:Name="RestoreStableButton" Grid.Row="4" Click="RestoreStableClicked" Visibility="Collapsed" AutomationProperties.Name="Visszatérés a legfrissebb stabil verzióra">
+                                <StackPanel Orientation="Horizontal"><Path Style="{StaticResource ButtonIcon}" Data="{StaticResource RefreshIcon}" /><TextBlock Text="Visszatérés a legfrissebb stabil verzióra" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></StackPanel>
+                            </Button>
+                            <TextBlock x:Name="BetaUpdateStatus" Grid.Row="6" Style="{StaticResource Caption}" TextWrapping="Wrap" />
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="7" Style="{StaticResource Card}" Padding="14">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><Path Style="{StaticResource Icon}" Data="{StaticResource DocumentIcon}" /><TextBlock x:Name="ReleaseNotesTitle" Text="Legújabb verzió • v1.0.0" Style="{StaticResource SectionHeading}" /></StackPanel>
+                            <TextBlock Text="• 1.0 stabil kiadás és külön béta frissítési csatorna." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Mentett béta kapcsoló, alapból csak stabil frissítések." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Béta verzióból visszatérés a legfrissebb stabil kiadásra." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Megőrzött kalkulátorok, arculat és optimalizálások." TextWrapping="Wrap" Margin="0,4,0,0" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Grid>
+        </Viewbox>
+    </Border>
+</Window>
