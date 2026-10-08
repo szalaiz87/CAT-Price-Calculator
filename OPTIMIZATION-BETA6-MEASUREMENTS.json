@@ -1,0 +1,82 @@
+{
+  "baselineVersion": "1.1.0-beta.5",
+  "optimizedVersion": "1.1.0-beta.6",
+  "environment": "Linux, .NET 10, Release",
+  "scenario": "1000 immediately persisted API log appends, starting at 200 entries, retaining 200, five repetitions",
+  "baseline": [
+    {
+      "scenario": "API log 1000 appends at capacity",
+      "run": 0,
+      "allocatedBytes": 425909704,
+      "milliseconds": 2305.2883
+    },
+    {
+      "scenario": "API log 1000 appends at capacity",
+      "run": 1,
+      "allocatedBytes": 425843104,
+      "milliseconds": 762.1318
+    },
+    {
+      "scenario": "API log 1000 appends at capacity",
+      "run": 2,
+      "allocatedBytes": 425709704,
+      "milliseconds": 620.974
+    },
+    {
+      "scenario": "API log 1000 appends at capacity",
+      "run": 3,
+      "allocatedBytes": 425709704,
+      "milliseconds": 612.9626
+    },
+    {
+      "scenario": "API log 1000 appends at capacity",
+      "run": 4,
+      "allocatedBytes": 425709704,
+      "milliseconds": 578.9949
+    }
+  ],
+  "optimized": [
+    {
+      "scenario": "API log 1000 appends at capacity",
+      "run": 0,
+      "allocatedBytes": 3408264,
+      "milliseconds": 452.1284
+    },
+    {
+      "scenario": "API log 1000 appends at capacity",
+      "run": 1,
+      "allocatedBytes": 3408264,
+      "milliseconds": 405.8278
+    },
+    {
+      "scenario": "API log 1000 appends at capacity",
+      "run": 2,
+      "allocatedBytes": 3408264,
+      "milliseconds": 266.8304
+    },
+    {
+      "scenario": "API log 1000 appends at capacity",
+      "run": 3,
+      "allocatedBytes": 3408264,
+      "milliseconds": 105.0657
+    },
+    {
+      "scenario": "API log 1000 appends at capacity",
+      "run": 4,
+      "allocatedBytes": 3408264,
+      "milliseconds": 110.5713
+    }
+  ],
+  "preCommitPublishBytes": {
+    "baselineExe": 67725626,
+    "optimizedExe": 64302948,
+    "baselineZip": 61600176,
+    "optimizedZip": 58185654
+  },
+  "notes": [
+    "Total allocated bytes are not process RAM.",
+    "Publish sizes may vary by a few bytes with source/build metadata.",
+    "Benchmark temporary path length can slightly affect allocation counts.",
+    "Elapsed time is not claimed as Windows application speed."
+  ]
+}

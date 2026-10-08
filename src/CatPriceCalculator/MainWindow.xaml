@@ -295,10 +295,10 @@
                     <Border Grid.Row="6" Style="{StaticResource Card}" Padding="14">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><Path Style="{StaticResource Icon}" Data="{StaticResource DocumentIcon}" /><TextBlock x:Name="ReleaseNotesTitle" Text="Legújabb verzió • v1.0.0" Style="{StaticResource SectionHeading}" /></StackPanel>
-                            <TextBlock Text="• UPS API: külön beállításfül és kézi teszt." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Client ID / Secret védett mentése, szemikon." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Közös DHL / UPS frissítés és API-napló." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Nincs automata lekérés; változatlan méret." TextWrapping="Wrap" Margin="0,4,0,0" />
+                            <TextBlock Text="• Kisebb Windows-csomag, minden funkcióval." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Közös titkos adatmezők és fájlkezelés." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Kevesebb naplómemória és háttérmunka." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Kézi követés, két téma, változatlan méret." TextWrapping="Wrap" Margin="0,4,0,0" />
                         </StackPanel>
                     </Border>
                     </Grid>

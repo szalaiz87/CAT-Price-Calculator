@@ -1,3 +1,16 @@
+# Linser Hungary v1.1.0-beta.6 – optimalizáció
+
+- Kisebb önálló Windows EXE: **67,73 → 64,30 MB (−5,1%)**. Windows ZIP: **61,60 → 58,19 MB (−5,5%)**; a magyar felülethez szükséges erőforrások és a teljes .NET/WPF futtatókörnyezet megmarad.
+- Korlátos API-naplócache és közvetlen UTF-8 fájlkezelés: 1000 naplóírás összes memóriaallokációja **425,71 → 3,41 MB (−99,2%)** az izolált Linux-mérésben. Ez nem a teljes Windows-app RAM-használata. Azonnali mentés, külső fájlváltozás és hibás fájl felismerése megmarad.
+- Közös DHL/UPS titkos adatmező, hat tároló közös atomi JSON-kezelője és egy közös futárkliens. Közös csomaglapozás; rejtett csomagoldalon nincs percenkénti táblázat-újraépítés. A 48 órás helyi tisztítás továbbra is fut.
+- Minden funkció, kézi követés, mentés/titkosítás, ablakméret, világos/sötét téma és görgetősáv nélküli megjelenés megmarad. Stabil továbbra is **v1.0.0**.
+
+**[Windows béta letöltő, PowerShell nélkül](https://github.com/szalaiz87/CAT-Price-Calculator/releases/download/v1.1.0-beta.6/CAT-Letoltes-Windows-v1.1.0-beta.6.cmd)**. Telepítés előtt zárd be az appot. Béta frissítés engedélyezésével az app Frissítések gombja is ezt kínálja.
+
+**[Részletes optimalizáció és mérési módszer](OPTIMIZATION.md)**. **398 ellenőrzés**, hibamentes Windows x64 publish; a tényleges WPF/DPAPI-futtatás Linuxon nem tesztelhető. Futárhozzáférés: [DHL](DHL-CONNECTION.md), [UPS](UPS-CONNECTION.md).
+
+---
+
 # Linser Hungary v1.1.0-beta.5 – UPS csomagkövetés
 
 - **Beállítások → UPS API**: külön fül a DHL-éhez hasonló elrendezéssel, UPS vektorlogóval. Client ID / Client Secret mezők karakterszámmal és szemgombbal, Windows-felhasználóhoz kötött titkosított mentés/törlés, opcionális ügyfélszám, helyi lekérési keret és kézi teszt.

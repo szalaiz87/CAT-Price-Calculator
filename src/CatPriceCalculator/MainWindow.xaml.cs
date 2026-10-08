@@ -27,9 +27,8 @@ public partial class MainWindow : Window
     private decimal? multiplier, selling;
     private readonly HttpClient updateHttp = new() { Timeout = TimeSpan.FromSeconds(60) };
     private readonly UpdateService updateService;
-    private readonly HttpClient dhlHttp = new(new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(20), MaxResponseContentBufferSize = 2 * 1024 * 1024 };
+    private readonly HttpClient trackingHttp = new(new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(20), MaxResponseContentBufferSize = 2 * 1024 * 1024 };
     private readonly DhlTrackingService dhlService;
-    private readonly HttpClient upsHttp = new(new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(20), MaxResponseContentBufferSize = 2 * 1024 * 1024 };
     private readonly UpsTrackingService upsService;
     private string settingsSection = "General";
     private UpdateRelease? availableUpdate;
@@ -204,8 +203,8 @@ public partial class MainWindow : Window
         rateService = new ExchangeRateService(http, LogRateFailure);
         updateService = new UpdateService(updateHttp);
         var dhlLog = new ApiLogStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-api-log.json"));
-        dhlService = new DhlTrackingService(dhlHttp, new TrackingRequestBudget(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-request-budget.json")), log: entry => { dhlLog.Append(entry); });
-        upsService = new UpsTrackingService(upsHttp, new TrackingRequestBudget(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "ups-request-budget.json"), carrier: "UPS"), log: entry => { dhlLog.Append(entry); });
+        dhlService = new DhlTrackingService(trackingHttp, new TrackingRequestBudget(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-request-budget.json")), log: entry => { dhlLog.Append(entry); });
+        upsService = new UpsTrackingService(trackingHttp, new TrackingRequestBudget(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "ups-request-budget.json"), carrier: "UPS"), log: entry => { dhlLog.Append(entry); });
         InitializeComponent();
         DhlLogPage.Configure(dhlLog);
         DhlSettingsPage.Configure(new DhlSettingsStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-connection.bin"), new WindowsSecretProtector()), dhlService, lifetime.Token);
@@ -252,7 +251,7 @@ public partial class MainWindow : Window
             PriceInput.Focus();
             await Task.WhenAll(StartupRatesAsync(startupPreferences.RefreshRates), CheckUpdatesAsync(false));
         };
-        Closed += (_, _) => { lifetime.Cancel(); RoboSanyiPage.Dispose(); dhlHttp.Dispose(); upsHttp.Dispose(); upsService.ForgetToken(); http.Dispose(); updateHttp.Dispose(); lifetime.Dispose(); };
+        Closed += (_, _) => { lifetime.Cancel(); RoboSanyiPage.Dispose(); trackingHttp.Dispose(); upsService.ForgetToken(); http.Dispose(); updateHttp.Dispose(); lifetime.Dispose(); };
     }
     private string QuoteInfo(decimal rate, string source, DateOnly? date, string currency = "HUF", DateTimeOffset? retrievedAt = null)
     {

@@ -142,6 +142,8 @@ ParcelChecks.Run(Check);
 await DhlChecks.Run(Check);
 await DhlLogChecks.Run(Check);
 await UpsChecks.Run(Check);
+StorageOptimizationChecks.Run(Check);
+await TrackingTransportChecks.Run(Check);
 Console.WriteLine($"{passed} checks passed.");
 if (args.Contains("--live")) {
 using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(8) };
@@ -169,6 +171,8 @@ Check(file.ReadByte()==0x4d && file.ReadByte()==0x5a,"Live public update metadat
 Console.WriteLine("Verified update: v"+release.DisplayVersion);
 } finally { if (Directory.Exists(liveUpdateDirectory)) Directory.Delete(liveUpdateDirectory,true); }
 }
+if (args.Contains("--benchmark")) CoreBenchmarks.Run();
+
 sealed class FakeHandler(string? body, HttpStatusCode status = HttpStatusCode.OK, string expectedEndpoint = ExchangeRateService.Endpoint) : HttpMessageHandler {
 protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token) {
 if (request.RequestUri?.AbsoluteUri == ExchangeRateService.EcbEndpoint) return Task.FromResult(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));

@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
     <!-- Change this single value on the beta branch to e.g. 1.1.0-beta.1. -->
-    <Version>1.1.0-beta.5</Version>
+    <Version>1.1.0-beta.6</Version>
   </PropertyGroup>
 </Project>

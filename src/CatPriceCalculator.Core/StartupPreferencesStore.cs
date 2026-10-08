@@ -5,15 +5,11 @@ public sealed class StartupPreferencesStore(string path)
 {
     public StartupPreferences Load()
     {
-        try { return JsonSerializer.Deserialize<StartupPreferences>(File.ReadAllText(path)) ?? new(); }
+        try { return LocalJsonFile.Read<StartupPreferences>(path) ?? new(); }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException or ArgumentException) { return new(); }
     }
     public bool Save(StartupPreferences preferences)
     {
-        try {
-            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-            File.WriteAllText(path + ".tmp", JsonSerializer.Serialize(preferences));
-            File.Move(path + ".tmp", path, true); return true;
-        } catch (Exception e) when (e is IOException or UnauthorizedAccessException) { return false; }
+        return LocalJsonFile.Write(path, preferences);
     }
 }

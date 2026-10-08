@@ -113,17 +113,28 @@ public partial class RoboSanyiView : UserControl, IDisposable
         InitializeData();
         TrackingInput.Focus();
     }
-    private void PruneExpired()
+    private bool PruneExpired()
     {
-        if (loadFailed) return;
+        if (loadFailed) return false;
         int removed = parcels.RemoveAll(p => ParcelBook.IsExpired(p, DateTimeOffset.UtcNow));
         if (removed > 0 || pendingSave)
         {
             pendingSave = !store.Save(parcels);
             ParcelStatusText.Text = pendingSave ? "A csomaglista most nem menthető; a mentést újra megpróbáljuk." : removed > 0 ? $"{removed} lejárt csomag automatikusan törölve." : "A csomaglista helyben mentve.";
         }
+        return removed > 0;
     }
-    private void RetentionTick(object? sender, EventArgs e) { PruneExpired(); Render(); }
+    private void RetentionTick(object? sender, EventArgs e)
+    {
+        bool removed = PruneExpired();
+        if (IsVisible)
+        {
+            // Only delivered rows have a time-based retention label. Hidden views need no redraw.
+            RenderTable(true, DateTimeOffset.UtcNow);
+            DeliveredTitle.Text = $"Megérkezett csomagok • {DeliveredCount}";
+        }
+        if (removed) SummaryChanged?.Invoke(this, EventArgs.Empty);
+    }
     private void Render()
     {
         var now = DateTimeOffset.UtcNow;
@@ -135,19 +146,17 @@ public partial class RoboSanyiView : UserControl, IDisposable
     }
     private void RenderTable(bool delivered, DateTimeOffset now)
     {
-        var items = parcels.Where(p => (p.State == ParcelState.Delivered) == delivered)
-            .OrderByDescending(p => delivered ? p.DeliveredAt : p.AddedAt).ToArray();
-        int pageCount = Math.Max(1, (items.Length + ParcelBook.PageSize - 1) / ParcelBook.PageSize);
-        int page = Math.Clamp(delivered ? deliveredPage : transitPage, 0, pageCount - 1);
-        if (delivered) deliveredPage = page; else transitPage = page;
-        (delivered ? DeliveredRows : TransitRows).ItemsSource = items.Skip(page * ParcelBook.PageSize).Take(ParcelBook.PageSize)
-            .Select(p => new ParcelRow(p, couriers.First(c => c.Code == p.Carrier), now,
+        var result = ParcelBook.Page(parcels, delivered, delivered ? deliveredPage : transitPage);
+        if (delivered) deliveredPage = result.Index; else transitPage = result.Index;
+        (delivered ? DeliveredRows : TransitRows).ItemsSource = result.Rows
+            .Select(p => new ParcelRow(p, couriers[(int)p.Carrier], now,
                 !refreshing && HasConnection(p.Carrier), !loadFailed)).ToArray();
-        (delivered ? DeliveredEmpty : TransitEmpty).Visibility = items.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
-        (delivered ? DeliveredPager : TransitPager).Text = items.Length == 0 ? "0 csomag" : $"{page + 1} / {pageCount} oldal • {items.Length} csomag";
-        (delivered ? DeliveredPrev : TransitPrev).IsEnabled = page > 0;
-        (delivered ? DeliveredNext : TransitNext).IsEnabled = page + 1 < pageCount;
+        (delivered ? DeliveredEmpty : TransitEmpty).Visibility = result.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        (delivered ? DeliveredPager : TransitPager).Text = result.Count == 0 ? "0 csomag" : $"{result.Index + 1} / {result.Pages} oldal • {result.Count} csomag";
+        (delivered ? DeliveredPrev : TransitPrev).IsEnabled = result.Index > 0;
+        (delivered ? DeliveredNext : TransitNext).IsEnabled = result.Index + 1 < result.Pages;
     }
+
     private void PageClicked(object sender, RoutedEventArgs e)
     {
         string tag = (string)((Button)sender).Tag;

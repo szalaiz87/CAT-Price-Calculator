@@ -9,10 +9,22 @@ public sealed record Parcel(Guid Id, string TrackingNumber, Courier Carrier, str
     string? StatusDetail = null, string? LastEventRawTimestamp = null, string? EstimatedDeliveryRawTimestamp = null,
     DateTimeOffset? LastCheckedAt = null, string? TrackingError = null, string? DhlService = null, bool RetentionFromObservation = false);
 
+public sealed record ParcelPage(Parcel[] Rows, int Count, int Index, int Pages);
+
 public static class ParcelBook
 {
     public static readonly TimeSpan DeliveredRetention = TimeSpan.FromHours(48);
     public const int PageSize = 4;
+    public static ParcelPage Page(IEnumerable<Parcel> parcels, bool delivered, int requestedPage)
+    {
+        var matching = parcels.Where(p => (p.State == ParcelState.Delivered) == delivered);
+        int count = matching.Count(), pages = Math.Max(1, (count + PageSize - 1) / PageSize);
+        int page = Math.Clamp(requestedPage, 0, pages - 1);
+        // Keep only visible rows; LINQ's ordered partition sorts the requested range.
+        var rows = matching.OrderByDescending(p => delivered ? p.DeliveredAt : p.AddedAt)
+            .Skip(page * PageSize).Take(PageSize).ToArray();
+        return new(rows, count, page, pages);
+    }
     public static bool CanRefresh(Parcel parcel) => parcel.Carrier is (Courier.Dhl or Courier.Ups) && !parcel.IsSample && parcel.State != ParcelState.Delivered;
     public static Guid[] RefreshTargets(IEnumerable<Parcel> parcels, Guid? only = null) => parcels
         .Where(p => CanRefresh(p) && (!only.HasValue || p.Id == only.Value)).Select(p => p.Id).ToArray();
@@ -45,7 +57,7 @@ public sealed class ParcelStore(string path)
         try
         {
             if (!File.Exists(path)) return new([], IsNew: true);
-            var parcels = JsonSerializer.Deserialize<List<Parcel>>(File.ReadAllText(path));
+            var parcels = LocalJsonFile.Read<List<Parcel>>(path);
             if (parcels == null || parcels.Any(p => p == null || p.Id == Guid.Empty ||
                 !Enum.IsDefined(p.Carrier) || !Enum.IsDefined(p.State) || string.IsNullOrWhiteSpace(p.TrackingNumber) ||
                 p.TrackingNumber.Length > 64 || p.Note == null || p.Note.Length > 160 ||
@@ -57,13 +69,6 @@ public sealed class ParcelStore(string path)
     }
     public bool Save(IEnumerable<Parcel> parcels)
     {
-        try
-        {
-            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-            File.WriteAllText(path + ".tmp", JsonSerializer.Serialize(parcels));
-            File.Move(path + ".tmp", path, true);
-            return true;
-        }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { return false; }
+        return LocalJsonFile.Write(path, parcels);
     }
 }

@@ -10,41 +10,61 @@ public sealed class ApiLogStore(string path)
 {
     public const int MaxEntries = 200;
     private readonly object gate = new();
+    private readonly record struct FileStamp(bool Exists, long Length, DateTime LastWrite, DateTime Created);
+    private List<ApiLogEntry>? cached;
+    private FileStamp cachedStamp;
     public string FilePath => path;
     public bool LastWriteFailed { get; private set; }
+    private FileStamp Stamp()
+    {
+        var file = new FileInfo(path);
+        return file.Exists ? new(true, file.Length, file.LastWriteTimeUtc, file.CreationTimeUtc) : default;
+    }
+    private List<ApiLogEntry>? ReadCurrent()
+    {
+        try
+        {
+            var stamp = Stamp();
+            if (cached != null && stamp == cachedStamp) return cached;
+            var entries = stamp.Exists ? LocalJsonFile.Read<List<ApiLogEntry>>(path) : [];
+            if (entries == null || entries.Any(e => e == null || e.Stage == null || e.Message == null || e.Carrier is not ("DHL" or "UPS")))
+            { cached = null; return null; }
+            if (entries.Count > MaxEntries) entries.RemoveRange(0, entries.Count - MaxEntries);
+            cached = entries; cachedStamp = stamp;
+            return entries;
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException)
+        { cached = null; return null; }
+    }
     public ApiLogLoad Load()
     {
         lock (gate)
         {
-            try
-            {
-                if (!File.Exists(path)) return new([]);
-                var entries = JsonSerializer.Deserialize<List<ApiLogEntry>>(File.ReadAllText(path));
-                if (entries == null || entries.Any(e => e == null || e.Stage == null || e.Message == null || e.Carrier is not ("DHL" or "UPS"))) return new([], true);
-                return new(entries.TakeLast(MaxEntries).ToList());
-            }
-            catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException) { return new([], true); }
+            var entries = ReadCurrent();
+            // A caller can modify its snapshot without corrupting our bounded cache.
+            return entries == null ? new([], true) : new(new(entries));
         }
     }
     public bool Append(ApiLogEntry entry)
     {
         lock (gate)
         {
-            var loaded = Load();
-            if (loaded.Failed) { LastWriteFailed = true; return false; }
-            bool saved = Write([.. loaded.Entries.TakeLast(MaxEntries - 1), entry]);
-            LastWriteFailed = !saved; return saved;
+            var entries = ReadCurrent();
+            if (entries == null) { LastWriteFailed = true; return false; }
+            List<ApiLogEntry> next = new(MaxEntries);
+            next.AddRange(entries.Count == MaxEntries ? entries.Skip(1) : entries);
+            next.Add(entry);
+            bool saved = Write(next); LastWriteFailed = !saved; return saved;
         }
     }
     public bool Clear() { lock (gate) { bool saved = Write([]); LastWriteFailed = !saved; return saved; } }
     private bool Write(List<ApiLogEntry> entries)
     {
-        try
-        {
-            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-            File.WriteAllText(path + ".tmp", JsonSerializer.Serialize(entries));
-            File.Move(path + ".tmp", path, true); return true;
-        }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { return false; }
+        if (!LocalJsonFile.Write(path, entries)) return false;
+        cached = null;
+        // Cache only after a successful atomic write. Every diagnostic is still persisted immediately.
+        try { cachedStamp = Stamp(); cached = entries; }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { }
+        return true;
     }
 }

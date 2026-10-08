@@ -5,18 +5,11 @@ public sealed class SettingsStore(string path)
 {
     public RateSettings? Load()
     {
-        try { var value = JsonSerializer.Deserialize<RateSettings>(File.ReadAllText(path)); return value?.Rate > 0 ? value : null; }
+        try { var value = LocalJsonFile.Read<RateSettings>(path); return value?.Rate > 0 ? value : null; }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException or ArgumentException) { return null; }
     }
     public bool Save(RateSettings value)
     {
-        try
-        {
-            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-            File.WriteAllText(path + ".tmp", JsonSerializer.Serialize(value));
-            File.Move(path + ".tmp", path, true);
-            return true;
-        }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { return false; }
+        return LocalJsonFile.Write(path, value);
     }
 }

@@ -10,7 +10,7 @@ public sealed class TrackingRequestBudget(string path, Func<DateTimeOffset>? clo
     public async Task ReserveAsync(int limit, CancellationToken token)
     {
         List<DateTimeOffset> requests;
-        try { requests = File.Exists(path) ? JsonSerializer.Deserialize<List<DateTimeOffset>>(File.ReadAllText(path)) ?? throw new JsonException() : []; }
+        try { requests = File.Exists(path) ? LocalJsonFile.Read<List<DateTimeOffset>>(path) ?? throw new JsonException() : []; }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException)
         { throw new ParcelTrackingException(TrackingErrorCode.Configuration, $"A {carrier} lekérdezési keret nem olvasható. A lekérés nem indult el."); }
         if (limit is < 1 or > 100000 || requests.Any(t => t > now().AddSeconds(5)))
@@ -22,13 +22,7 @@ public sealed class TrackingRequestBudget(string path, Func<DateTimeOffset>? clo
         if (spacing > TimeSpan.Zero) await wait(spacing, token);
         token.ThrowIfCancellationRequested();
         requests.Add(now());
-        try
-        {
-            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-            File.WriteAllText(path + ".tmp", JsonSerializer.Serialize(requests));
-            File.Move(path + ".tmp", path, true);
-        }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
-        { throw new ParcelTrackingException(TrackingErrorCode.Configuration, $"A {carrier} lekérdezési keret nem menthető. A lekérés nem indult el."); }
+        if (!LocalJsonFile.Write(path, requests))
+            throw new ParcelTrackingException(TrackingErrorCode.Configuration, $"A {carrier} lekérdezési keret nem menthető. A lekérés nem indult el.");
     }
 }

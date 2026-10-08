@@ -1,3 +1,50 @@
+# Optimalizáció – v1.1.0-beta.6
+
+Összehasonlítás: az utolsó kiadott v1.1.0-beta.5 és a beta.6 Release build. Minden felhasználói funkció, kalkuláció, téma, mentett beállítás, kézi csomagkövetés, titkosítás, 48 órás megőrzés és frissítési csatorna megmarad.
+
+## Mérhető eredmény
+
+| Mért adat | beta.5 | beta.6 | Csökkenés |
+| --- | ---: | ---: | ---: |
+| Windows x64, önálló, tömörített EXE | 67,73 MB | 64,30 MB | 5,1% / kb. 3,42 MB |
+| EXE-t tartalmazó Windows ZIP | 61,60 MB | 58,19 MB | 5,5% / kb. 3,41 MB |
+| Összes memóriaallokáció 1000 naplóbejegyzés írásakor | 425,71 MB | 3,41 MB | 99,2% |
+
+MB = 1 000 000 bájt. A fájlméretek ugyanazzal a self-contained win-x64 / PublishSingleFile / IncludeNativeLibrariesForSelfExtract beállítással készültek; a single-file tömörítés már a beta.5-ben is aktív volt. A pontos méret a build metaadataival pár bájtot változhat.
+
+A naplómérés 200 meglévő bejegyzés mellé 1000 új bejegyzést ír, végig 200-as korláttal és azonnali fájlmentéssel. Nyers adatok: [OPTIMIZATION-BETA6-MEASUREMENTS.json](OPTIMIZATION-BETA6-MEASUREMENTS.json). Öt ismétlés mediánja: beta.5 **425 709 704 bájt**, beta.6 **3 408 264 bájt**. Release / .NET 10, azonos Linux környezet, helyi ideiglenes fájlok, API-hívás nélkül. Ez az összes létrehozott, később felszabaduló memóriát méri, **nem a teljes Windows-alkalmazás RAM-használatát**. Folyamat-RAM és tényleges WPF futási/indulási sebesség Linuxon nem mérhető; ezekre nem adunk százalékos ígéretet. A futásidő függ a fájlrendszertől és annak gyorsítótárától, ezért azt nem használjuk általános sebességígéretként.
+
+## Mi változott?
+
+- **Hat JSON-tároló egy közös fájlkezelővel:** árfolyam, téma, indulási beállítások, csomaglista, lekérési keret és API-napló. Közvetlen UTF-8 stream olvasás/írás, teljes UTF-16 JSON-szöveg köztes létrehozása nélkül. Az atomi ideiglenes fájl + átnevezés, a régi adatformátumok, a hibakezelés és UTF-8 BOM kompatibilitás megmarad. A titkos hozzáférések továbbra is kizárólag DPAPI-védett bináris mentést kapnak.
+- **200 bejegyzéses naplócache:** minden diagnosztika azonnal mentődik, de a saját, változatlan fájlt nem olvassuk/feldolgozzuk újra minden bejegyzésnél. Fájlméret/időbélyeg változásakor újraolvasás; külső törlés és hibás fájl felismerve. A visszaadott lista önálló másolat; sikertelen írás nem módosítja a cache-t vagy a korábbi fájlt. Csak kifejezett naplótörlés javít hibás fájlt.
+- **Egy SecretEntry a DHL/UPS mezőknek:** közös szemgomb, karakterszám, téma, betű, kurzor és alapból rejtett tartalom. Mentéskor/lapelhagyáskor a látható másolat ürül. A DHL mező az eredeti 18+6+42 pixeles területet foglalja el.
+- **Négy helyett három HttpClient:** a DHL és UPS közös, 20 másodperces, 2 MB-os, átirányítás nélküli követési klienst használ. Kulcs / Basic / Bearer kizárólag az adott kérés fejlécébe kerül. A szolgáltatói hitelesítés, token, keret, öt másodperces ütemezés és megszakítás továbbra is külön kezelt. Árfolyam és frissítő megtartja saját időkorlátját.
+- **Kevesebb táblázatmunka:** a két csomagtábla közös lapozása csak a látható négy sort adja vissza, azonos rendezéssel. A percenkénti helyi tisztítás megmarad, de rejtett Robo Sanyi esetén nincs táblázat-újraépítés. Látható oldalon csak az időfüggő, megérkezett táblázat frissül az időzítőből.
+- **Kisebb Windows-csomag:** az app magyar felületéhez nem szükséges runtime nyelvi erőforrások kimaradnak (`SatelliteResourceLanguages=hu;en`); az angol semleges fallback és a magyar kultúra/időkezelés megmarad. A teljes önálló .NET/WPF futtatókörnyezet, natív komponensek és grafika megmarad; nincs WPF-funkciókat kockáztató trimming vagy AOT.
+
+## Ellenőrzés és ismételhető próba
+
+**398 automatizált ellenőrzés**, beleértve az eddigi kalkulátor/mentés/frissítés/DHL/UPS eseteket, cache-változás/törlés/hibás fájl/sikertelen atomi írás, párhuzamos naplózás, BOM/szöveg kompatibilitás, lapozás/rendezési holtversenyek és közös kliens fejléc-elkülönítés. Hibamentes Windows x64 publish; XAML és fix mezőmagasság ellenőrzése. A tényleges WPF-felületet és Windows DPAPI futását Linux alatt nem tudjuk elindítani, élő céges futárkulcsos próba nem történt.
+
+Ellenőrzés:
+
+```text
+dotnet run --project tests/CatPriceCalculator.Checks -c Release
+```
+
+A naplózási mérés kézzel, ideiglenes fájlokkal és hálózat nélkül indítható:
+
+```text
+dotnet run --project tests/CatPriceCalculator.Checks -c Release -- --benchmark
+```
+
+Öt mérés JSON-eredményét adja az ellenőrzések után. A beta.5 alapmérés ugyanezzel a naplózási forgatókönyvvel, a módosítások előtt készült. Az eltérő ideiglenes útvonal hossza néhány bájttal módosíthatja az allokációs értéket.
+
+---
+
+## Korábbi optimalizáció mérési eredményei
+
 # v0.11.2 optimalizálás – változatlan funkciók és arculat
 
 Mérések a v0.11.1 forrásával összevetve, Release .NET 10.0 Linux alatt. Nyers adatok: OPTIMIZATION-MEASUREMENTS.json. A közvetlenül érintett műveleteket mértük; ez nem a teljes Windows-folyamat RAM-, CPU- vagy indulásiidő-mérése.
