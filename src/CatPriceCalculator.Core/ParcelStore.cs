@@ -2,10 +2,12 @@ using System.Text.Json;
 namespace CatPriceCalculator.Core;
 
 public enum Courier { Dhl, FedEx, Ups, Gls }
-public enum ParcelState { AwaitingConnection, InTransit, OutForDelivery, Customs, Delivered }
+public enum ParcelState { AwaitingConnection, InTransit, OutForDelivery, Customs, Delivered, PreTransit, Exception, Unknown }
 public sealed record Parcel(Guid Id, string TrackingNumber, Courier Carrier, string Note, ParcelState State,
     string? Location, DateTimeOffset? LastEventAt, DateTimeOffset? EstimatedDeliveryAt,
-    DateTimeOffset? DeliveredAt, DateTimeOffset AddedAt, bool IsSample = false);
+    DateTimeOffset? DeliveredAt, DateTimeOffset AddedAt, bool IsSample = false,
+    string? StatusDetail = null, string? LastEventRawTimestamp = null, string? EstimatedDeliveryRawTimestamp = null,
+    DateTimeOffset? LastCheckedAt = null, string? TrackingError = null, string? DhlService = null, bool RetentionFromObservation = false);
 
 public static class ParcelBook
 {

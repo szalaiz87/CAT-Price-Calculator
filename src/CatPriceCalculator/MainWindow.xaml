@@ -81,7 +81,7 @@
                                 </Grid>
                                 <TextBlock Grid.Row="4" Text="48 órás megőrzés" Style="{StaticResource FieldLabel}" />
                                 <TextBlock Grid.Row="5" Text="Kézbesítés után. Bezárt programnál a következő indításkor törlünk." Style="{StaticResource Caption}" TextWrapping="Wrap" />
-                                <TextBlock Grid.Row="7" Text="MINTA = bemutató adat&#10;Saját csomag = adatra vár" Style="{StaticResource Caption}" TextWrapping="Wrap" />
+                                <TextBlock Grid.Row="7" Text="MINTA = bemutató adat&#10;DHL = API-követés" Style="{StaticResource Caption}" TextWrapping="Wrap" />
                             </Grid>
                         </Border>
                         <Border x:Name="CalculatorSidebar" Style="{StaticResource Card}" Padding="12" Margin="0,16,0,16">
@@ -233,23 +233,24 @@
                 <local:RoboSanyiView x:Name="RoboSanyiPage" Grid.Column="1" Margin="14,12" Visibility="Collapsed" />
 
                 <Grid x:Name="SettingsPage" Grid.Column="1" Margin="14,12" Visibility="Collapsed">
-                    <Grid.RowDefinitions><RowDefinition Height="64" /><RowDefinition Height="212" /><RowDefinition Height="12" /><RowDefinition Height="230" /><RowDefinition Height="12" /><RowDefinition Height="218" /><RowDefinition Height="12" /><RowDefinition Height="152" /><RowDefinition /></Grid.RowDefinitions>
-                    <StackPanel VerticalAlignment="Center" Margin="4,0">
-                        <TextBlock Text="BEÁLLÍTÁSOK" Style="{StaticResource PageHeading}" />
-                        <TextBlock Text="Megjelenés, indítás és frissítések" Foreground="{DynamicResource TextMuted}" Margin="0,6,0,0" />
-                    </StackPanel>
-                    <Border Grid.Row="1" Style="{StaticResource Card}" Padding="14">
+                    <Grid.RowDefinitions><RowDefinition Height="100" /><RowDefinition /></Grid.RowDefinitions>
+                    <Grid Margin="4,0"><Grid.RowDefinitions><RowDefinition Height="52" /><RowDefinition Height="10" /><RowDefinition Height="32" /><RowDefinition /></Grid.RowDefinitions>
+                        <StackPanel><TextBlock Text="BEÁLLÍTÁSOK" Style="{StaticResource PageHeading}" /><TextBlock Text="Megjelenés, indítás és kapcsolatok" Foreground="{DynamicResource TextMuted}" Margin="0,4,0,0" /></StackPanel>
+                        <UniformGrid Grid.Row="2" Columns="2"><Button x:Name="GeneralSettingsButton" Content="Általános" Tag="General" Click="ChooseSettingsSection" Margin="0,0,6,0" /><Button x:Name="DhlSettingsButton" Tag="DHL" Click="ChooseSettingsSection" Margin="6,0,0,0"><StackPanel Orientation="Horizontal"><Border Background="White" CornerRadius="4" Width="44" Height="14" Padding="2" Margin="0,0,8,0"><Image Source="{StaticResource DhlLogo}" /></Border><TextBlock Text="DHL API" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></StackPanel></Button></UniformGrid>
+                    </Grid>
+                    <Grid x:Name="GeneralSettingsPanel" Grid.Row="1"><Grid.RowDefinitions><RowDefinition Height="176" /><RowDefinition Height="12" /><RowDefinition Height="230" /><RowDefinition Height="12" /><RowDefinition Height="218" /><RowDefinition Height="12" /><RowDefinition Height="152" /><RowDefinition /></Grid.RowDefinitions>
+                    <Border Grid.Row="0" Style="{StaticResource Card}" Padding="12">
                         <StackPanel>
-                            <TextBlock Text="Megjelenés" Style="{StaticResource SectionHeading}" Margin="0,0,0,12" />
-                            <TextBlock Text="Válassz sötét vagy világos megjelenést. A választás azonnal életbe lép, és a következő indításkor is megmarad." TextWrapping="Wrap" Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,16" />
-                            <UniformGrid Columns="2" Height="48">
+                            <TextBlock Text="Megjelenés" Style="{StaticResource SectionHeading}" Margin="0,0,0,8" />
+                            <TextBlock Text="Válassz sötét vagy világos megjelenést. A választás azonnal életbe lép, és a következő indításkor is megmarad." TextWrapping="Wrap" Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,8" />
+                            <UniformGrid Columns="2" Height="40">
                                 <Button x:Name="DarkThemeButton" Content="Sötét megjelenés" Tag="Dark" Click="ChooseTheme" Margin="0,0,5,0" AutomationProperties.Name="Sötét megjelenés" />
                                 <Button x:Name="LightThemeButton" Content="Világos megjelenés" Tag="Light" Click="ChooseTheme" Margin="5,0,0,0" AutomationProperties.Name="Világos megjelenés" />
                             </UniformGrid>
-                            <TextBlock x:Name="ThemeStatus" Style="{StaticResource Caption}" Margin="0,12,0,0" TextWrapping="Wrap" />
+                            <TextBlock x:Name="ThemeStatus" Style="{StaticResource Caption}" Margin="0,10,0,0" TextWrapping="Wrap" />
                         </StackPanel>
                     </Border>
-                    <Border Grid.Row="3" Style="{StaticResource Card}" Padding="14">
+                    <Border Grid.Row="2" Style="{StaticResource Card}" Padding="14">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="28" /><RowDefinition Height="64" /><RowDefinition Height="1" /><RowDefinition Height="10" /><RowDefinition Height="64" /><RowDefinition /></Grid.RowDefinitions>
                             <TextBlock Text="Indítási beállítások" Style="{StaticResource SectionHeading}" />
@@ -273,7 +274,7 @@
                             <TextBlock x:Name="StartupPreferenceStatus" Grid.Row="5" Style="{StaticResource Caption}" TextWrapping="Wrap" />
                         </Grid>
                     </Border>
-                    <Border Grid.Row="5" Style="{StaticResource Card}" Padding="14">
+                    <Border Grid.Row="4" Style="{StaticResource Card}" Padding="14">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="22" /><RowDefinition Height="10" /><RowDefinition Height="54" /><RowDefinition Height="8" /><RowDefinition Height="36" /><RowDefinition Height="8" /><RowDefinition /></Grid.RowDefinitions>
                             <TextBlock Text="Frissítési csatorna" Style="{StaticResource SectionHeading}" />
@@ -291,15 +292,17 @@
                             <TextBlock x:Name="BetaUpdateStatus" Grid.Row="6" Style="{StaticResource Caption}" TextWrapping="Wrap" />
                         </Grid>
                     </Border>
-                    <Border Grid.Row="7" Style="{StaticResource Card}" Padding="14">
+                    <Border Grid.Row="6" Style="{StaticResource Card}" Padding="14">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><Path Style="{StaticResource Icon}" Data="{StaticResource DocumentIcon}" /><TextBlock x:Name="ReleaseNotesTitle" Text="Legújabb verzió • v1.0.0" Style="{StaticResource SectionHeading}" /></StackPanel>
-                            <TextBlock Text="• Robo Sanyi: új csomaglap, két táblázattal, API nélkül." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Felső beviteli mezők és négy vektoros futárlogó." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Helyi mentés, lapozás és 48 órás automatikus törlés." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Változatlan ablakméret, világos és sötét arculat." TextWrapping="Wrap" Margin="0,4,0,0" />
+                            <TextBlock Text="• DHL élő követés a Robo Sanyi csomaglapján." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Védett API-kulcs és teszt a Beállításokban." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Lekérdezési keret és kímélő DHL frissítés." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Megőrzött adatok, 48 órás törlés és két téma." TextWrapping="Wrap" Margin="0,4,0,0" />
                         </StackPanel>
                     </Border>
+                    </Grid>
+                    <local:DhlSettingsView x:Name="DhlSettingsPage" Grid.Row="1" Visibility="Collapsed" />
                 </Grid>
             </Grid>
         </Viewbox>

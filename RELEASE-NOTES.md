@@ -1,10 +1,12 @@
-Első béta kiadás: Robo Sanyi csomaglap, egyelőre futár-API integráció nélkül.
+DHL csomagkövetés – v1.1.0-beta.2. A v1.0.0 marad a legfrissebb hivatalos stabil.
 
-- Új Robo Sanyi menüpont. Felül csomagszám, logós futárválasztó (DHL, FedEx, UPS, GLS), megjegyzés és helyi hozzáadás.
-- Két egymás alatti táblázat: úton lévő, majd megérkezett csomagok. Külön lapozás, görgetősáv nélkül, változatlan ablakmérettel; sötét és világos megjelenés.
-- Vektoros internetes futárlogók és külön jelölt mintacsomagok. A saját csomag követési adatokra vár; a prototípus nem kérdez le futár-API-t.
-- Helyi mentés és kézbesítéstől számított 48 órás automatikus törlés. Ellenőrzés percenként és programindításkor; bezárt appnál a következő indításkor. Hátralévő idő kijelzése, minták ki-/bekapcsolása a saját bejegyzések megtartásával.
+- DHL Shipment Tracking – Unified a Robo Sanyi lapon: valós státusz, utolsó hely/esemény, tervezett érkezés. Saját DHL-csomag hozzáadáskor automatikus, egyébként kézi frissítés; megszakítható sorozat. Minták, FedEx, UPS és GLS nem indítanak DHL-kérést.
+- Beállítások / DHL API: Consumer Key védett Windows DPAPI-mentéssel, kulcstörlés, opcionális irányítószám/szolgáltatás, jóváhagyott keret és saját csomagszámos kapcsolatpróba. Consumer Secret és OAuth nem kell. Hozzáférési lista: DHL-CONNECTION.md.
+- Legalább öt másodperc két kérés között, mentett gördülő 24 órás keret (alapból 250), DHL Retry-After kezelés. Hibák esetén megmaradó korábbi adatok, sorjelzés és részletes eszköztipp. A kezdő DHL-keret fejlesztési célú; éles felhasználáshoz Request Upgrade és DHL-jóváhagyás szükséges.
+- Változatlan ablakméret és kalkulátorok, két téma, görgetősáv nélküli lapozás és 48 órás törlés. Ismeretlen időzónánál eredeti idő *, pontos kézbesítési idő hiányában első igazolt észleléstől megőrzés †. Korábbi béta csomagadatok átvehetők.
 
-Windows telepítés: CAT-Letoltes-Windows-v1.1.0-beta.1.cmd, PowerShell nélkül. Futtatás előtt zárd be a programot. A stabil app Beállítások lapján kapcsold be a béta frissítéseket; a béta appból ugyanitt visszatérhetsz v1.0.0-ra. A v1.0.0 marad a legfrissebb hivatalos stabil.
+Windows telepítés: CAT-Letoltes-Windows-v1.1.0-beta.2.cmd, PowerShell nélkül. Futtatás előtt zárd be a programot. Az alkalmazáson belül a Beállítások / Általános alatt engedélyezd a béta frissítéseket, majd Frissítések. A stabilra visszatérés megmarad.
 
-Ellenőrzés: 172 automatizált ellenőrzés; hibamentes Windows x64 publish. A tényleges WPF-felület Linux alatt nem futtatható. A futárlogók forrásait és a teljes kódot a Source.zip tartalmazza.
+Hozzáférés: https://developer.dhl.com/tracking → Get Access → Create App → jóváhagyás → My Apps → saját alkalmazás → Credentials → Consumer Key → Show. A kulcsot kizárólag az appban add meg. Üzemi jogosultság/keret: a saját alkalmazás API-listájában Request Upgrade.
+
+Ellenőrzés: 246 automatizált ellenőrzés, hivatalos DHL-válaszséma és szimulált jogosultsági/kvóta/hálózati hibák; hibamentes Windows x64 publish. Saját jóváhagyott DHL-kulcs hiányában élő céges DHL-csomaggal még nem volt teszt. Linux alatt a WPF-megjelenés és a Windows DPAPI-futtatás nem ellenőrizhető.

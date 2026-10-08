@@ -5,7 +5,7 @@
 - A v0.7.0-hoz képest körülbelül 25%-kal tömörebb megjelenés, kisebb térközök és panelek.
 - Sötét, modern neonkékre/cianra épülő arculat; aktív gomb és beviteli fókusz hangsúlyos.
 - Árfolyamnap és a tényleges sikeres lekérés dátuma/ideje külön szerepeljen. A lekérési idő mentés után is maradjon meg; régi mentéshez ne találjunk ki időpontot.
-- CAT és EUR kalkulátor egységes komponensekkel. A csomagkövető felület v1.1.0-beta.1-től külön lapon, egyelőre API nélkül érhető el.
+- CAT és EUR kalkulátor egységes komponensekkel. A csomagkövető felület v1.1.0-beta.1-től külön lapon, v1.1.0-beta.2-től DHL API-kapcsolattal érhető el; a többi futár még API nélküli.
 
 - v0.7.2: fülváltáskor a külső referenciakeret, panelmagasságok és betűméretek állandók. Méretezés csak az ablak méretétől függhet. Külső margó 3 (korábban 6).
 - Mindkét kalkulátor ugyanazt a ×1,30–×2,00 szorzólistát használja.
@@ -37,3 +37,6 @@
 - v1.1.0-beta.1: harmadik funkcionális menüpont Robo Sanyi, vektoros robotikonnal. Felül csomagszám, logós futárlista és megjegyzés, helyi hozzáadás; alatta úton lévő és kézbesített csomagok két fix táblázata. Négy sor/táblázat, külön lapozás, üres állapotok. Nincs görgetősáv vagy új ablakméret. A hosszú azonosító/megjegyzés teljes tartalma a sor eszköztippjében olvasható.
 - Eredeti internetes DHL/FedEx/UPS/GLS SVG-kből fagyasztott WPF-vektorok, fehér logójelvényeken. Mindkét témában közös színek, 10-es kártyasarkok, éles hover/fókusz; kézbesítettnél kontrasztos zöld státusz. MINTA jelölés és API nélküli előnézet felirat; valósnak tűnő kitalált követési adat nem adható saját csomaghoz.
 - A bal menüsáv logo-/felirattérközei összesen 52 referenciapixellel tömörebbek, ellensúlyozva az új 50 pixeles menüsor igényét. Külső keret és kalkulátorméretek változatlanok. A Robo Sanyi saját kompakt oldalsó összegzést kap. Kézbesítéskor 48 órás megőrzés, hátralévő idő kijelzése; percenkénti és induláskori helyi tisztítás.
+
+- v1.1.0-beta.2: Beállítások fejlécében két alfül, Általános és DHL API; így az API-kulcs, opcionális irányítószám/szolgáltatás, 24 órás keret, mentés/törlés, teszt és hozzáférési útmutató a változatlan ablakban fér el. Maszkolt kulcsmező közös 10-es sarkokkal és éles fókuszkerettel, sötét/világos dinamikus színekkel; a futárlista stílusa közös erőforrás.
+- Robo Sanyi: DHL frissítés, megszakítás és DHL API gyorsgomb a fix alsó sorban, mintagombok a fejlécben. A két négysoros táblázat és lapozás változatlan. Hibajelzés a soron, teljes DHL-státusz és lekérési idő az eszköztippben; időzóna nélküli időpont *, észleléstől számított megőrzés † jelöléssel. DHL-attribúció az alsó sorban. Hiányzó követési adatok nem helyettesíthetők feltételezéssel.

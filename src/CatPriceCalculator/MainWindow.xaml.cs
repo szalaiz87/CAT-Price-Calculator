@@ -27,6 +27,9 @@ public partial class MainWindow : Window
     private decimal? multiplier, selling;
     private readonly HttpClient updateHttp = new() { Timeout = TimeSpan.FromSeconds(60) };
     private readonly UpdateService updateService;
+    private readonly HttpClient dhlHttp = new(new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(20), MaxResponseContentBufferSize = 2 * 1024 * 1024 };
+    private readonly DhlTrackingService dhlService;
+    private bool dhlSettingsSection;
     private UpdateRelease? availableUpdate;
     private bool updateBusy;
     private static readonly ReleaseVersion AppVersion = BuildInfo.Current;
@@ -99,6 +102,14 @@ public partial class MainWindow : Window
         SetSelected(RoboMenu, roboOpen);
         CalculatorSidebar.Visibility = roboOpen ? Visibility.Collapsed : Visibility.Visible;
         RoboSidebar.Visibility = roboOpen ? Visibility.Visible : Visibility.Collapsed;
+        SetSelected(GeneralSettingsButton, !dhlSettingsSection);
+        SetSelected(DhlSettingsButton, dhlSettingsSection);
+        GeneralSettingsPanel.Visibility = dhlSettingsSection ? Visibility.Collapsed : Visibility.Visible;
+        DhlSettingsPage.Visibility = dhlSettingsSection ? Visibility.Visible : Visibility.Collapsed;
+    }
+    private void ChooseSettingsSection(object sender, RoutedEventArgs e)
+    {
+        dhlSettingsSection = (string)((Button)sender).Tag == "DHL"; ApplyMenuTheme();
     }
     private void OpenRoboSanyi(object sender, RoutedEventArgs e)
     {
@@ -185,7 +196,12 @@ public partial class MainWindow : Window
     {
         rateService = new ExchangeRateService(http, LogRateFailure);
         updateService = new UpdateService(updateHttp);
+        dhlService = new DhlTrackingService(dhlHttp, new DhlRequestBudget(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-request-budget.json")));
         InitializeComponent();
+        DhlSettingsPage.Configure(new DhlSettingsStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-connection.bin"), new WindowsSecretProtector()), dhlService, lifetime.Token);
+        RoboSanyiPage.ConfigureDhl(dhlService, () => DhlSettingsPage.CurrentSettings, lifetime.Token);
+        DhlSettingsPage.ConnectionChanged += (_, _) => RoboSanyiPage.ConnectionChanged();
+        RoboSanyiPage.SettingsRequested += (_, _) => { dhlSettingsSection = true; OpenSettings(this, new RoutedEventArgs()); };
         RoboSanyiPage.SummaryChanged += (_, _) => { RoboTransitCount.Text = RoboSanyiPage.TransitCount.ToString(); RoboDeliveredCount.Text = RoboSanyiPage.DeliveredCount.ToString(); };
         AddHandler(System.Windows.Controls.Primitives.Thumb.DragDeltaEvent, new System.Windows.Controls.Primitives.DragDeltaEventHandler(DragTopmostSwitch));
         AddHandler(System.Windows.Controls.Primitives.Thumb.DragCompletedEvent, new System.Windows.Controls.Primitives.DragCompletedEventHandler(FinishTopmostSwitch));
@@ -223,7 +239,7 @@ public partial class MainWindow : Window
             PriceInput.Focus();
             await Task.WhenAll(StartupRatesAsync(startupPreferences.RefreshRates), CheckUpdatesAsync(false));
         };
-        Closed += (_, _) => { RoboSanyiPage.Dispose(); lifetime.Cancel(); http.Dispose(); updateHttp.Dispose(); lifetime.Dispose(); };
+        Closed += (_, _) => { lifetime.Cancel(); RoboSanyiPage.Dispose(); dhlHttp.Dispose(); http.Dispose(); updateHttp.Dispose(); lifetime.Dispose(); };
     }
     private string QuoteInfo(decimal rate, string source, DateOnly? date, string currency = "HUF", DateTimeOffset? retrievedAt = null)
     {

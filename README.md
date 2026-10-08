@@ -1,3 +1,18 @@
+# Linser Hungary v1.1.0-beta.2 – DHL csomagkövetés
+
+- DHL Shipment Tracking – Unified integráció a Robo Sanyi lapon: státusz, utolsó ismert hely és eseményidő, tervezett érkezés. Saját DHL-csomag hozzáadásakor azonnali lekérés, a többi aktív DHL-csomaghoz kézi frissítés és megszakítás.
+- **Beállítások → DHL API**: maszkolt Consumer Key mező, Windows-felhasználóhoz kötött DPAPI-titkosítás, mentés/törlés, opcionális irányítószám és szolgáltatás, keret, valamint saját csomagszámos tesztlekérés.
+- Megőrzött követési adatok hiba esetén, újraindítást túlélő 24 órás keret, legalább öt másodperc két kérés között. Valós követés csak saját jóváhagyott kulccsal; a minták és a többi futár nem indítanak DHL-kérést.
+- Változatlan ablakméret, két lapozható táblázat és görgetősáv nélküli elrendezés. Pontos kézbesítési idő hiányában jelölt megőrzés az első igazolt észleléstől; 48 órás törlés. Kalkulátorok és két téma megmaradnak.
+
+[Windows béta letöltő, PowerShell nélkül](https://github.com/szalaiz87/CAT-Price-Calculator/releases/download/v1.1.0-beta.2/CAT-Letoltes-Windows-v1.1.0-beta.2.cmd). A stabil programban engedélyezd a béta frissítéseket, majd kattints a Frissítésekre. Telepítés előtt zárd be a futó programot. A legfrissebb hivatalos stabil továbbra is **v1.0.0**.
+
+**Mit kell a DHL-től beszerezni?** Saját Developer Portal fiók, Shipment Tracking – Unified jóváhagyás és Consumer Key. Éles használathoz Request Upgrade szükséges; a kezdő 250/nap keret fejlesztési célú. Consumer Secret/OAuth nem kell. Lépésenkénti lista és aktiválás: **[DHL-CONNECTION.md](DHL-CONNECTION.md)**, hivatalos forrás: [developer.dhl.com/tracking](https://developer.dhl.com/tracking).
+
+Ellenőrzés: **246 automatizált ellenőrzés**, a hivatalos DHL-séma szerinti válaszokkal és szimulált hibákkal; hibamentes Windows x64 publish. Saját jóváhagyott DHL-kulcs hiányában élő céges csomaglekérés még nem történt. A tényleges Windows WPF-felület és DPAPI-futtatás Linux alatt nem ellenőrizhető.
+
+---
+
 # Linser Hungary v1.1.0-beta.1 – Robo Sanyi előnézet
 
 - Harmadik funkcionális menüpont: **Robo Sanyi**, külön vektoros robotikonnal.

@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 <PropertyGroup><OutputType>WinExe</OutputType><TargetFramework>net10.0-windows</TargetFramework><UseWPF>true</UseWPF><EnableWindowsTargeting>true</EnableWindowsTargeting><ImplicitUsings>disable</ImplicitUsings><Nullable>enable</Nullable><EnableCompressionInSingleFile>true</EnableCompressionInSingleFile><ApplicationIcon>Assets/LS-Germany.ico</ApplicationIcon><AssemblyName>CAT-Price-Calculator</AssemblyName></PropertyGroup>
 <ItemGroup><ProjectReference Include="../CatPriceCalculator.Core/CatPriceCalculator.Core.csproj" /></ItemGroup>
+<ItemGroup><PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.0" /></ItemGroup>
 <ItemGroup><Resource Include="Assets/CAT-Excavator.png"/><Resource Include="Assets/LS-Germany.ico"/></ItemGroup>
 </Project>
