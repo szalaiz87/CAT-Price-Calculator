@@ -140,6 +140,7 @@ await OptimizationChecks.Run(Check);
 await UpdateChannelChecks.Run(Check);
 ParcelChecks.Run(Check);
 await DhlChecks.Run(Check);
+await DhlLogChecks.Run(Check);
 Console.WriteLine($"{passed} checks passed.");
 if (args.Contains("--live")) {
 using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(8) };

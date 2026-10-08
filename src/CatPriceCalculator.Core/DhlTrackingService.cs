@@ -35,7 +35,7 @@ public static class DhlTimestamp
         (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var local) ? local.Ticks : 0);
 }
 
-public sealed class DhlTrackingService(HttpClient client, DhlRequestBudget budget, Func<DateTimeOffset>? clock = null)
+public sealed class DhlTrackingService(HttpClient client, DhlRequestBudget budget, Func<DateTimeOffset>? clock = null, Action<DhlLogEntry>? log = null)
 {
     public const string Endpoint = "https://api-eu.dhl.com/track/shipments";
     private readonly SemaphoreSlim gate = new(1, 1);
@@ -43,12 +43,25 @@ public sealed class DhlTrackingService(HttpClient client, DhlRequestBudget budge
     private DateTimeOffset blockedUntil;
     public async Task<DhlTrackingResult> FetchAsync(DhlConnectionSettings settings, string number, CancellationToken token = default)
     {
-        if (!settings.IsValid || !settings.HasKey) throw new DhlTrackingException(DhlError.Configuration, "Előbb ments egy saját DHL API-kulcsot a Beállítások / DHL API lapon.");
-        number = number.Trim();
-        if (number.Length is < 1 or > 64) throw new DhlTrackingException(DhlError.Configuration, "Adj meg egy érvényes DHL csomagszámot.");
-        await gate.WaitAsync(token);
+        long started = System.Diagnostics.Stopwatch.GetTimestamp();
+        string reference = "…" + new string((number ?? "").Where(char.IsLetterOrDigit).TakeLast(4).ToArray());
+        string stage = "Beállítás";
+        bool acquired = false;
+        void Trace(string message, bool error = false, int? status = null)
+        {
+            if (log == null) return;
+            try { log(new(now(), stage, message, status, reference, (long)System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds, error)); }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException) { /* Logging must not interrupt tracking. */ }
+        }
         try
         {
+            Trace("Kézzel indított DHL lekérés.");
+            if (!settings.IsValid || !settings.HasKey) throw new DhlTrackingException(DhlError.Configuration, "Előbb ments egy saját DHL API-kulcsot a Beállítások / DHL API lapon.");
+            number = (number ?? "").Trim();
+            if (number.Length is < 1 or > 64) throw new DhlTrackingException(DhlError.Configuration, "Adj meg egy érvényes DHL csomagszámot.");
+            stage = "Várakozás";
+            await gate.WaitAsync(token); acquired = true;
+            stage = "Keret";
             if (now() < blockedUntil) throw new DhlTrackingException(DhlError.Quota, "A DHL korlátozta a lekéréseket. Próbáld újra később.");
             await budget.ReserveAsync(settings.DailyLimit, token);
             string url = Endpoint + "?trackingNumber=" + Uri.EscapeDataString(number) + "&language=hu&requesterCountryCode=HU";
@@ -57,7 +70,10 @@ public sealed class DhlTrackingService(HttpClient client, DhlRequestBudget budge
             using var request = new HttpRequestMessage(HttpMethod.Get, url);
             request.Headers.Add("DHL-API-Key", settings.ApiKey);
             request.Headers.UserAgent.ParseAdd(BuildInfo.UserAgent);
+            stage = "HTTP";
+            Trace("GET kérés a DHL európai követési végpontjára.");
             using var response = await client.SendAsync(request, token);
+            Trace("DHL HTTP-válasz érkezett.", !response.IsSuccessStatusCode, (int)response.StatusCode);
             if (response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden)
                 throw new DhlTrackingException(DhlError.Authentication, "A DHL nem engedélyezte a hozzáférést. Ellenőrizd a Consumer Key értékét és a Shipment Tracking – Unified jóváhagyását.");
             if (response.StatusCode == HttpStatusCode.NotFound) throw new DhlTrackingException(DhlError.NotFound, "A DHL még nem találja ezt a csomagot. Ellenőrizd a számot; friss feladásnál próbáld később.");
@@ -67,14 +83,19 @@ public sealed class DhlTrackingService(HttpClient client, DhlRequestBudget budge
                 throw new DhlTrackingException(DhlError.Quota, "A DHL lekérdezési limitet jelzett. A többi lekérést leállítottuk; próbáld később.");
             }
             if (!response.IsSuccessStatusCode) throw new DhlTrackingException(DhlError.Offline, "A DHL szolgáltatás most nem elérhető. A korábbi követési adatok megmaradnak.");
+            stage = "Feldolgozás";
             using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync(token));
-            return Parse(document.RootElement, number);
+            var result = Parse(document.RootElement, number);
+            Trace("A DHL követési válasza sikeresen feldolgozva.");
+            return result;
         }
+        catch (DhlTrackingException ex) { Trace(ex.Message, true); throw; }
         catch (OperationCanceledException) when (!token.IsCancellationRequested)
-        { throw new DhlTrackingException(DhlError.Offline, "A DHL lekérése túllépte az időkorlátot. Próbáld később."); }
-        catch (HttpRequestException) { throw new DhlTrackingException(DhlError.Offline, "A DHL nem érhető el. Ellenőrizd az internetkapcsolatot; a korábbi adatok megmaradnak."); }
-        catch (JsonException) { throw new DhlTrackingException(DhlError.InvalidResponse, "A DHL válasza nem értelmezhető. A korábbi követési adatok megmaradnak."); }
-        finally { gate.Release(); }
+        { const string message = "A DHL lekérése túllépte az időkorlátot. Próbáld később."; Trace(message, true); throw new DhlTrackingException(DhlError.Offline, message); }
+        catch (OperationCanceledException) { Trace("A kézi DHL lekérés megszakítva."); throw; }
+        catch (HttpRequestException) { const string message = "A DHL nem érhető el. Ellenőrizd az internetkapcsolatot; a korábbi adatok megmaradnak."; Trace(message, true); throw new DhlTrackingException(DhlError.Offline, message); }
+        catch (JsonException) { const string message = "A DHL válasza nem értelmezhető. A korábbi követési adatok megmaradnak."; Trace(message, true); throw new DhlTrackingException(DhlError.InvalidResponse, message); }
+        finally { if (acquired) gate.Release(); }
     }
     private static string? Text(JsonElement element, string name) => element.ValueKind == JsonValueKind.Object && element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() : null;
     private static JsonElement Object(JsonElement element, string name) => element.ValueKind == JsonValueKind.Object && element.TryGetProperty(name, out var value) ? value : default;

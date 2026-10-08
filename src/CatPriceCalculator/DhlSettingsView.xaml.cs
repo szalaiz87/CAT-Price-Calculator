@@ -11,10 +11,10 @@ public partial class DhlSettingsView : UserControl
     private DhlSettingsStore? store;
     private DhlTrackingService? service;
     private CancellationToken token;
-    private bool loading, dirty, busy;
+    private bool loading, dirty, busy, syncingKey;
     public DhlConnectionSettings CurrentSettings { get; private set; } = new();
     public event EventHandler? ConnectionChanged;
-    public DhlSettingsView() { InitializeComponent(); }
+    public DhlSettingsView() { InitializeComponent(); IsVisibleChanged += (_, _) => { if (!IsVisible) HideKey(); }; }
     public void Configure(DhlSettingsStore settingsStore, DhlTrackingService trackingService, CancellationToken lifetime)
     {
         store = settingsStore; service = trackingService; token = lifetime;
@@ -26,7 +26,7 @@ public partial class DhlSettingsView : UserControl
         ApiKeyInput.Password = CurrentSettings.ApiKey; PostalInput.Text = CurrentSettings.RecipientPostalCode;
         ServiceInput.SelectedItem = options.First(o => o.Code == CurrentSettings.Service);
         DailyLimitInput.Text = CurrentSettings.DailyLimit.ToString(CultureInfo.InvariantCulture);
-        loading = false; dirty = false;
+        loading = false; dirty = false; HideKey(); UpdateKeyPresence();
         ConnectionStatus.Text = result.Failed ? "A korábbi kulcs nem olvasható ezzel a Windows-felhasználóval. Add meg és mentsd újra." : CurrentSettings.HasKey ? "DHL kulcs mentve, védett tárolásban. A kapcsolat tesztelhető." : "Még nincs DHL API-kulcs. Add meg a saját Consumer Key értékét.";
         UpdateButtons();
     }
@@ -36,7 +36,43 @@ public partial class DhlSettingsView : UserControl
         dirty = true; ConnectionStatus.Text = "Módosított beállítások • mentés szükséges a használathoz.";
         UpdateButtons();
     }
-    private void OptionsChanged(object sender, RoutedEventArgs e) => Changed();
+    private void UpdateKeyPresence()
+    {
+        if (KeyPresenceText == null) return;
+        int length = ApiKeyInput.Password.Length;
+        KeyPresenceText.Text = length == 0 ? "Nincs beírt kulcs" : $"Beírva: {length} karakter";
+    }
+    private void OptionsChanged(object sender, RoutedEventArgs e)
+    {
+        if (loading || syncingKey) return;
+        UpdateKeyPresence(); Changed();
+    }
+    private void RevealedKeyChanged(object sender, TextChangedEventArgs e)
+    {
+        if (loading || syncingKey || ApiKeyInput == null) return;
+        syncingKey = true; ApiKeyInput.Password = RevealedApiKeyInput.Text; syncingKey = false;
+        UpdateKeyPresence(); Changed();
+    }
+    private void HideKey()
+    {
+        if (RevealKeyButton == null) return;
+        syncingKey = true;
+        ApiKeyInput.Visibility = Visibility.Visible; RevealedApiKeyInput.Visibility = Visibility.Collapsed;
+        RevealedApiKeyInput.Clear(); syncingKey = false;
+        RevealKeyIcon.Data = (System.Windows.Media.Geometry)FindResource("EyeIcon");
+        RevealKeyButton.ToolTip = "API-kulcs megjelenítése";
+        System.Windows.Automation.AutomationProperties.SetName(RevealKeyButton, "API-kulcs megjelenítése");
+    }
+    private void ToggleKeyVisibility(object sender, RoutedEventArgs e)
+    {
+        if (RevealedApiKeyInput.Visibility == Visibility.Visible) { HideKey(); ApiKeyInput.Focus(); return; }
+        syncingKey = true; RevealedApiKeyInput.Text = ApiKeyInput.Password; syncingKey = false;
+        ApiKeyInput.Visibility = Visibility.Collapsed; RevealedApiKeyInput.Visibility = Visibility.Visible;
+        RevealKeyIcon.Data = (System.Windows.Media.Geometry)FindResource("EyeOffIcon");
+        RevealKeyButton.ToolTip = "API-kulcs elrejtése";
+        System.Windows.Automation.AutomationProperties.SetName(RevealKeyButton, "API-kulcs elrejtése");
+        RevealedApiKeyInput.Focus(); RevealedApiKeyInput.CaretIndex = RevealedApiKeyInput.Text.Length;
+    }
     private void TextOptionChanged(object sender, TextChangedEventArgs e) => Changed();
     private void ServiceChanged(object sender, SelectionChangedEventArgs e) => Changed();
     private void TestEntryChanged(object sender, TextChangedEventArgs e) => UpdateButtons();
@@ -54,7 +90,7 @@ public partial class DhlSettingsView : UserControl
         var settings = new DhlConnectionSettings(ApiKeyInput.Password.Trim(), PostalInput.Text.Trim(), option.Code, limit);
         if (!settings.IsValid || !settings.HasKey) { ConnectionStatus.Text = "Adj meg saját, nem demo API-kulcsot és érvényes irányítószámot/keretet."; return; }
         if (!store.Save(settings)) { ConnectionStatus.Text = "A mentés nem sikerült. A korábbi kapcsolatbeállítás megmaradt."; return; }
-        CurrentSettings = settings; dirty = false;
+        CurrentSettings = settings; dirty = false; HideKey(); UpdateKeyPresence();
         ConnectionStatus.Text = "DHL beállítások mentve, Windows-felhasználóhoz kötött titkosítással.";
         UpdateButtons(); ConnectionChanged?.Invoke(this, EventArgs.Empty);
     }
@@ -65,7 +101,7 @@ public partial class DhlSettingsView : UserControl
         PostalInput.Text = CurrentSettings.RecipientPostalCode;
         ServiceInput.SelectedItem = ServiceInput.Items.Cast<ServiceOption>().First(o => o.Code == CurrentSettings.Service);
         DailyLimitInput.Text = CurrentSettings.DailyLimit.ToString(CultureInfo.InvariantCulture);
-        loading = false; dirty = false;
+        loading = false; dirty = false; HideKey(); UpdateKeyPresence();
         ConnectionStatus.Text = "A mentett DHL API-kulcs törölve. Új kulcsig a követés nem indít lekérést.";
         UpdateButtons(); ConnectionChanged?.Invoke(this, EventArgs.Empty);
     }

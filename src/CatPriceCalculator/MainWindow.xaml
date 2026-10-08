@@ -236,7 +236,7 @@
                     <Grid.RowDefinitions><RowDefinition Height="100" /><RowDefinition /></Grid.RowDefinitions>
                     <Grid Margin="4,0"><Grid.RowDefinitions><RowDefinition Height="52" /><RowDefinition Height="10" /><RowDefinition Height="32" /><RowDefinition /></Grid.RowDefinitions>
                         <StackPanel><TextBlock Text="BEÁLLÍTÁSOK" Style="{StaticResource PageHeading}" /><TextBlock Text="Megjelenés, indítás és kapcsolatok" Foreground="{DynamicResource TextMuted}" Margin="0,4,0,0" /></StackPanel>
-                        <UniformGrid Grid.Row="2" Columns="2"><Button x:Name="GeneralSettingsButton" Content="Általános" Tag="General" Click="ChooseSettingsSection" Margin="0,0,6,0" /><Button x:Name="DhlSettingsButton" Tag="DHL" Click="ChooseSettingsSection" Margin="6,0,0,0"><StackPanel Orientation="Horizontal"><Border Background="White" CornerRadius="4" Width="44" Height="14" Padding="2" Margin="0,0,8,0"><Image Source="{StaticResource DhlLogo}" /></Border><TextBlock Text="DHL API" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></StackPanel></Button></UniformGrid>
+                        <UniformGrid Grid.Row="2" Columns="3"><Button x:Name="GeneralSettingsButton" Content="Általános" Tag="General" Click="ChooseSettingsSection" Margin="0,0,6,0" /><Button x:Name="DhlSettingsButton" Tag="DHL" Click="ChooseSettingsSection" Margin="3,0"><StackPanel Orientation="Horizontal"><Border Background="White" CornerRadius="4" Width="44" Height="14" Padding="2" Margin="0,0,8,0"><Image Source="{StaticResource DhlLogo}" /></Border><TextBlock Text="DHL API" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></StackPanel></Button><Button x:Name="DhlLogButton" Tag="Log" Click="ChooseSettingsSection" Margin="6,0,0,0"><StackPanel Orientation="Horizontal"><Path Data="{StaticResource DocumentIcon}" Style="{StaticResource ButtonIcon}" Width="14" Height="14" /><TextBlock Text="API-napló" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></StackPanel></Button></UniformGrid>
                     </Grid>
                     <Grid x:Name="GeneralSettingsPanel" Grid.Row="1"><Grid.RowDefinitions><RowDefinition Height="176" /><RowDefinition Height="12" /><RowDefinition Height="230" /><RowDefinition Height="12" /><RowDefinition Height="218" /><RowDefinition Height="12" /><RowDefinition Height="152" /><RowDefinition /></Grid.RowDefinitions>
                     <Border Grid.Row="0" Style="{StaticResource Card}" Padding="12">
@@ -295,14 +295,15 @@
                     <Border Grid.Row="6" Style="{StaticResource Card}" Padding="14">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><Path Style="{StaticResource Icon}" Data="{StaticResource DocumentIcon}" /><TextBlock x:Name="ReleaseNotesTitle" Text="Legújabb verzió • v1.0.0" Style="{StaticResource SectionHeading}" /></StackPanel>
-                            <TextBlock Text="• Csomagkövetés kizárólag kézi indítással." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Összes frissítése és frissítés soronként." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Törlés gomb minden csomagsor végén." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Azonos méret, két téma, görgetősáv nélkül." TextWrapping="Wrap" Margin="0,4,0,0" />
+                            <TextBlock Text="• Olvasható API-kulcsmező és szemikon." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Beillesztett kulcs karakterszám-kijelzése." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• API-napló: lépések, HTTP-kódok és hibák." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Kézi követés, védett kulcs, két téma." TextWrapping="Wrap" Margin="0,4,0,0" />
                         </StackPanel>
                     </Border>
                     </Grid>
                     <local:DhlSettingsView x:Name="DhlSettingsPage" Grid.Row="1" Visibility="Collapsed" />
+                    <local:DhlApiLogView x:Name="DhlLogPage" Grid.Row="1" Visibility="Collapsed" />
                 </Grid>
             </Grid>
         </Viewbox>

@@ -37,12 +37,14 @@
         <Setter Property="CaretBrush" Value="{DynamicResource AccentText}" />
         <Setter Property="SelectionBrush" Value="{DynamicResource Accent}" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Disabled" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
                     <Grid>
                         <Border x:Name="InputSurface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10">
-                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}" VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
                         </Border>
                         <Border x:Name="FocusRing" BorderBrush="{DynamicResource FocusBorder}" BorderThickness="2" CornerRadius="10" Opacity="0" IsHitTestVisible="False" />
                     </Grid>
@@ -272,9 +274,9 @@
         </Style>
 
     <Style TargetType="PasswordBox">
-        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" /><Setter Property="Background" Value="{DynamicResource InputSurface}" /><Setter Property="BorderBrush" Value="{DynamicResource InputBorder}" /><Setter Property="FontSize" Value="16" /><Setter Property="Padding" Value="12,8" /><Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" /><Setter Property="Background" Value="{DynamicResource InputSurface}" /><Setter Property="BorderBrush" Value="{DynamicResource InputBorder}" /><Setter Property="FontFamily" Value="{StaticResource AppFont}" /><Setter Property="FontSize" Value="16" /><Setter Property="PasswordChar" Value="●" /><Setter Property="CaretBrush" Value="{DynamicResource TextPrimary}" /><Setter Property="SelectionBrush" Value="{DynamicResource Accent}" /><Setter Property="VerticalContentAlignment" Value="Center" /><Setter Property="Padding" Value="12,4" /><Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="PasswordBox"><Grid>
-            <Border x:Name="Surface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="10"><ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" /></Border>
+            <Border x:Name="Surface" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="10"><ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" Foreground="{TemplateBinding Foreground}" FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" VerticalAlignment="Center" Focusable="False" /></Border>
             <Border x:Name="FocusRing" BorderBrush="{DynamicResource FocusBorder}" BorderThickness="2" CornerRadius="10" Opacity="0" IsHitTestVisible="False" />
         </Grid><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Surface" Property="BorderBrush" Value="{DynamicResource AccentText}" /></Trigger><Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="FocusRing" Property="Opacity" Value="1" /></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter>
     </Style>

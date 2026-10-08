@@ -1,4 +1,4 @@
-# DHL bekötés – v1.1.0-beta.3
+# DHL bekötés – v1.1.0-beta.4
 
 A Robo Sanyi a **DHL Shipment Tracking – Unified** API-t használja. Ez csomagkövetés; nem címkenyomtatási vagy fuvarrendelési API. Egyetlen saját, jóváhagyott **Consumer Key / API-kulcs** szükséges a hitelesítéshez.
 
@@ -24,6 +24,21 @@ A Robo Sanyi a **DHL Shipment Tracking – Unified** API-t használja. Ez csomag
 4. A **Robo Sanyi** lapon válaszd a DHL-t és add hozzá a csomagot; a hozzáadás csak helyben ment, lekérést nem indít. A sor végi **frissítésikon** kizárólag azt a csomagot kéri le. Az **Összes frissítése** az összes oldalon szereplő saját, még nem kézbesített, API-val támogatott csomagot frissíti (jelenleg DHL). A **Stop** megszakítja a hátralévő lekéréseket; a már mentett válaszok megmaradnak. A **kukaikon** mindkét táblázatban törli az adott csomagot a mentett listából.
 
 Az API-kulcs maszkolt mezőben látható, és Windows DPAPI-titkosítással, az aktuális Windows-felhasználóhoz kötve mentődik a `%LOCALAPPDATA%\CAT-Price-Calculator\dhl-connection.bin` fájlba. Másik gépen vagy Windows-felhasználóval újra meg kell adni. A program nem menti sima szövegként és nem írja naplóba; a HTTP-kérésben kizárólag a `DHL-API-Key` fejlécben használja. A **Mentett API-kulcs törlése** kikapcsolja a kapcsolatot. A kulcsot az alkalmazásba írd, ne nyilvános GitHub-bejegyzésbe vagy chatbe.
+
+Beillesztés után a mező felett a beírt karakterek száma látszik. A jobb oldali **szemikon** a kulcs tényleges szövegét megjeleníti/elrejti, anélkül hogy az értéket módosítaná. Mentéskor és a lap elhagyásakor ismét maszkolt lesz. A mentéshez továbbra is a DHL beállítások mentése gomb szükséges.
+
+## API-napló
+
+A **Beállítások → API-napló** lapon látható, melyik szakaszig jutott a kézi lekérés: Beállítás, Várakozás, Keret, HTTP, Feldolgozás. A napló tartalmazza a tényleges lekérés idejét, a HTTP-kódot, a biztonságos hibaüzenetet, kitakart csomagszám-véget és az eltelt időt (részletes eszköztippben).
+
+- HTTP 401/403: a kulcs vagy a DHL-jóváhagyás ellenőrzése szükséges.
+- HTTP 404: nem található csomag; ellenőrizd a számot, új feladásnál próbáld később.
+- HTTP 429 vagy Keret szakasz: DHL/helyi lekérési korlát; várakozás vagy jóváhagyott keret szükséges.
+- HTTP szakasz válaszkód nélkül: hálózati hiba vagy időkorlát. Feldolgozás: nem értelmezhető / hiányos DHL-válasz.
+
+A **Napló frissítése** csak a helyi fájlt olvassa újra, nem indít API-kérést. A legutóbbi 200 bejegyzést őrzi, hat soros lapozással, görgetősáv nélkül. Újraindítás után is megmarad: `%LOCALAPPDATA%\CAT-Price-Calculator\dhl-api-log.json`. A mappa megnyitható és a napló törölhető az appból. Naplótörléskor a kulcs, csomagok és lekérési számláló megmarad.
+
+**Kulcs, kérésfejléc, nyers URL/query és DHL-választörzs nem kerül a naplóba.** Naplóírási hiba nem akadályozza a követést; a naplónézet jelzi, ha bejegyzések hiányozhatnak.
 
 ## Keret és frissítési működés
 

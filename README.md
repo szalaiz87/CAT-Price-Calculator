@@ -1,3 +1,18 @@
+# Linser Hungary v1.1.0-beta.4 – API-kulcs megjelenítése és napló
+
+- Javított API-kulcsmező: témához kötött szöveg, font és kurzor, középre igazított tartalom. Vektoros szemgomb a tényleges kulcs megjelenítéséhez/elrejtéséhez és beillesztett karakterszám. Mentéskor/lapelhagyáskor újra rejtett, az érték és a DPAPI-védelem megmarad.
+- **Beállítások → API-napló**: a kézi DHL-lekérés szakasza, tényleges idő, HTTP-kód, biztonságos hibaüzenet, kitakart csomagszám-vég és időtartam. API-kulcs, fejléc, URL/query és nyers DHL-válasz nem kerül a naplóba.
+- Legutóbbi 200 helyi bejegyzés, hat soros lapozás, újraolvasás, mappa megnyitása és törlés. A naplóírás hibája nem akadályozza a követést. Napló frissítése kizárólag helyi olvasás.
+- Változatlan ablakméret, kalkulátorok, Robo Sanyi műveletek, két téma és görgetősáv nélküli elrendezés. A csomagkövetés továbbra is kizárólag kézi; újabb stabil kiadás nincs.
+
+[Windows béta letöltő, PowerShell nélkül](https://github.com/szalaiz87/CAT-Price-Calculator/releases/download/v1.1.0-beta.4/CAT-Letoltes-Windows-v1.1.0-beta.4.cmd). Telepítés előtt zárd be a futó appot. A béta csatorna engedélyezése után az app Frissítések gombjával is telepíthető. **v1.0.0 marad a stabil.**
+
+[DHL kapcsolat és napló használata](DHL-CONNECTION.md). Napló: `%LOCALAPPDATA%\CAT-Price-Calculator\dhl-api-log.json`.
+
+Ellenőrzés: **273 automatizált ellenőrzés**, köztük naplókorlát, újraindítás/törlés, hibás fájl és titkos értéket tartalmazó válasz/hibaszöveg kizárása. Hibamentes Windows x64 publish és statikus XAML/kontraszt ellenőrzés. A tényleges WPF-felület Linux alatt nem futtatható; saját jóváhagyott DHL-kulcs nélkül élő céges csomagteszt nem történt.
+
+---
+
 # Linser Hungary v1.1.0-beta.3 – kézi csomagkezelés
 
 - **Nincs automatikus csomaglekérés**, hozzáadáskor, induláskor és lapváltáskor sem. A DHL kapcsolatpróba továbbra is kizárólag kézi tesztgombbal indul.

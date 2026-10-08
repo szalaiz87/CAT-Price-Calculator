@@ -49,4 +49,6 @@
         </DrawingImage.Drawing>
     </DrawingImage>
     <Geometry x:Key="ClearIcon" po:Freeze="True">M6,6 L18,18 M18,6 L6,18</Geometry>
+    <Geometry x:Key="EyeIcon" po:Freeze="True">M1,12 Q12,-3 23,12 Q12,27 1,12 Z M16,12 A4,4 0 1 1 8,12 A4,4 0 1 1 16,12</Geometry>
+    <Geometry x:Key="EyeOffIcon" po:Freeze="True">M1,12 Q12,-3 23,12 Q12,27 1,12 Z M16,12 A4,4 0 1 1 8,12 A4,4 0 1 1 16,12 M1,1 L23,23</Geometry>
 </ResourceDictionary>

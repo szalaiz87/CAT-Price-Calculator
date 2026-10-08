@@ -30,6 +30,7 @@ public partial class MainWindow : Window
     private readonly HttpClient dhlHttp = new(new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(20), MaxResponseContentBufferSize = 2 * 1024 * 1024 };
     private readonly DhlTrackingService dhlService;
     private bool dhlSettingsSection;
+    private bool dhlLogSection;
     private UpdateRelease? availableUpdate;
     private bool updateBusy;
     private static readonly ReleaseVersion AppVersion = BuildInfo.Current;
@@ -102,14 +103,17 @@ public partial class MainWindow : Window
         SetSelected(RoboMenu, roboOpen);
         CalculatorSidebar.Visibility = roboOpen ? Visibility.Collapsed : Visibility.Visible;
         RoboSidebar.Visibility = roboOpen ? Visibility.Visible : Visibility.Collapsed;
-        SetSelected(GeneralSettingsButton, !dhlSettingsSection);
+        SetSelected(GeneralSettingsButton, !dhlSettingsSection && !dhlLogSection);
         SetSelected(DhlSettingsButton, dhlSettingsSection);
-        GeneralSettingsPanel.Visibility = dhlSettingsSection ? Visibility.Collapsed : Visibility.Visible;
+        SetSelected(DhlLogButton, dhlLogSection);
+        GeneralSettingsPanel.Visibility = dhlSettingsSection || dhlLogSection ? Visibility.Collapsed : Visibility.Visible;
         DhlSettingsPage.Visibility = dhlSettingsSection ? Visibility.Visible : Visibility.Collapsed;
+        DhlLogPage.Visibility = dhlLogSection ? Visibility.Visible : Visibility.Collapsed;
     }
     private void ChooseSettingsSection(object sender, RoutedEventArgs e)
     {
-        dhlSettingsSection = (string)((Button)sender).Tag == "DHL"; ApplyMenuTheme();
+        string section = (string)((Button)sender).Tag;
+        dhlSettingsSection = section == "DHL"; dhlLogSection = section == "Log"; ApplyMenuTheme();
     }
     private void OpenRoboSanyi(object sender, RoutedEventArgs e)
     {
@@ -196,12 +200,14 @@ public partial class MainWindow : Window
     {
         rateService = new ExchangeRateService(http, LogRateFailure);
         updateService = new UpdateService(updateHttp);
-        dhlService = new DhlTrackingService(dhlHttp, new DhlRequestBudget(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-request-budget.json")));
+        var dhlLog = new DhlLogStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-api-log.json"));
+        dhlService = new DhlTrackingService(dhlHttp, new DhlRequestBudget(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-request-budget.json")), log: entry => { dhlLog.Append(entry); });
         InitializeComponent();
+        DhlLogPage.Configure(dhlLog);
         DhlSettingsPage.Configure(new DhlSettingsStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-connection.bin"), new WindowsSecretProtector()), dhlService, lifetime.Token);
         RoboSanyiPage.ConfigureDhl(dhlService, () => DhlSettingsPage.CurrentSettings, lifetime.Token);
         DhlSettingsPage.ConnectionChanged += (_, _) => RoboSanyiPage.ConnectionChanged();
-        RoboSanyiPage.SettingsRequested += (_, _) => { dhlSettingsSection = true; OpenSettings(this, new RoutedEventArgs()); };
+        RoboSanyiPage.SettingsRequested += (_, _) => { dhlSettingsSection = true; dhlLogSection = false; OpenSettings(this, new RoutedEventArgs()); };
         RoboSanyiPage.SummaryChanged += (_, _) => { RoboTransitCount.Text = RoboSanyiPage.TransitCount.ToString(); RoboDeliveredCount.Text = RoboSanyiPage.DeliveredCount.ToString(); };
         AddHandler(System.Windows.Controls.Primitives.Thumb.DragDeltaEvent, new System.Windows.Controls.Primitives.DragDeltaEventHandler(DragTopmostSwitch));
         AddHandler(System.Windows.Controls.Primitives.Thumb.DragCompletedEvent, new System.Windows.Controls.Primitives.DragCompletedEventHandler(FinishTopmostSwitch));

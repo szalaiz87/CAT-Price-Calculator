@@ -1,10 +1,10 @@
-Robo Sanyi kézi csomagkezelés – v1.1.0-beta.3. A v1.0.0 marad a legfrissebb hivatalos stabil.
+API-kulcs megjelenítése és API-napló – v1.1.0-beta.4. A v1.0.0 marad a hivatalos stabil.
 
-- Csomagkövetés kizárólag kézi indítással: hozzáadáskor, induláskor, lapváltáskor és időzítve sincs automatikus API-kérés. A Beállítások kapcsolatpróbája továbbra is csak a Tesztlekérés gombbal indul.
-- Összes frissítése gomb a Robo Sanyi lapon, az összes oldal úton lévő, támogatott saját csomagjához. Soronkénti frissítésikon az úton lévő csomagok végén. Jelenleg DHL; minták és API nélküli futárok frissítése inaktív, a kézbesített csomagok kimaradnak.
-- Kukaikon minden sor végén, mindkét táblázatban. Törlés a mentett listából, frissítés közben is; a később érkező API-válasz nem hozza vissza a törölt csomagot.
-- Változatlan ablak- és táblázatméret, négy sor és külön lapozás, görgetősáv nélkül. Lekerekített, vektoros műveletgombok sötét és világos témában. DHL-kulcs, keret, öt másodperces ütemezés, 48 órás helyi törlés és kalkulátorok megmaradnak.
+- Javított DHL-kulcsmező: explicit témaszínek/font/kurzor és középre igazítás; vektoros szemikon a kulcs megjelenítéséhez/elrejtéséhez. Karakterszám jelzi a beillesztett értéket. Mentéskor/lapelhagyáskor újra rejtett, az érték és titkosított mentése megmarad.
+- Beállítások / API-napló: kézi lekérés szakasza, magyar idő, HTTP-kód, biztonságos hiba, kitakart csomagszám-vég és eltelt idő. Kulcs, kérésfejléc, URL/query és nyers DHL-válasz nem kerül a naplóba.
+- Legutóbbi 200 helyi bejegyzés, hat soros lapozás görgetősáv nélkül; újraolvasás, mappa megnyitása és naplótörlés. Naplóírási hiba nem akadályozza a követést. Törléskor a kulcs, csomagok és keret megmarad.
+- Változatlan ablakméret, kalkulátorok, Robo Sanyi kézi frissítés/törlés és két téma. Nincs automatikus csomaglekérés; a napló frissítése csak helyi olvasás.
 
-Windows letöltő: CAT-Letoltes-Windows-v1.1.0-beta.3.cmd, PowerShell nélkül. Telepítés előtt zárd be a programot. Az alkalmazásban a béta csatorna engedélyezése után Frissítések. A legfrissebb stabilra visszatérés megmarad.
+Windows: CAT-Letoltes-Windows-v1.1.0-beta.4.cmd, PowerShell nélkül. Telepítés előtt zárd be a programot. Appon belül béta csatorna engedélyezése, majd Frissítések. A teljes forrás és a DHL-CONNECTION.md útmutató a kiadásban található.
 
-Ellenőrzés: 252 automatizált ellenőrzés, statikus XAML- és eseménykötés-ellenőrzés, hibamentes Windows x64 publish. A tényleges Windows WPF-felület Linux alatt nem futtatható; saját jóváhagyott DHL-kulcs nélkül élő céges csomagteszt nem történt. A teljes forrás és a frissített DHL-CONNECTION.md útmutató a kiadásban található.
+Ellenőrzés: 273 automatizált ellenőrzés, naplómezők/HTTP-hibák/titokmentesség/korlát/tárolás ellenőrzésével, statikus XAML/kontraszt ellenőrzés és hibamentes Windows x64 publish. Linux alatt a tényleges WPF-felület nem futtatható; saját jóváhagyott DHL-kulcs nélkül élő céges csomagteszt nem történt.
