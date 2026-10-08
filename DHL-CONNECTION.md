@@ -1,4 +1,4 @@
-# DHL bekötés – v1.1.0-beta.4
+# DHL bekötés – v1.1.0-beta.7
 
 A Robo Sanyi a **DHL Shipment Tracking – Unified** API-t használja. Ez csomagkövetés; nem címkenyomtatási vagy fuvarrendelési API. Egyetlen saját, jóváhagyott **Consumer Key / API-kulcs** szükséges a hitelesítéshez.
 
@@ -8,7 +8,7 @@ A Robo Sanyi a **DHL Shipment Tracking – Unified** API-t használja. Ez csomag
 |---|---|---|
 | DHL Developer Portal fiók | Igen | [Regisztráció és API-oldal](https://developer.dhl.com/tracking). A regisztráció valódi cégnévvel történjen; céges e-mail használata ajánlott. A szokásos DHL ügyfélportál belépése önmagában nem API-jogosultság. |
 | Shipment Tracking – Unified hozzáférés | Igen | Az API oldalán **Get Access → Create App**; add meg az alkalmazást, a céget és a felhasználási célt (saját cégnek érkező csomagok követése). Várd meg a DHL jóváhagyását. |
-| Consumer Key / API-kulcs | Igen | Jóváhagyás után **My Apps → saját alkalmazás → Credentials → Consumer Key → Show**. Ezt másold az app Beállítások / DHL API lapjára. |
+| Consumer Key / API-kulcs | Igen | Jóváhagyás után **My Apps → saját alkalmazás → Credentials → Consumer Key → Show**. Ezt másold az app Beállítások / DHL lapjára. |
 | Saját DHL csomagszám | A követéshez és teszthez igen | A beszállító feladási értesítéséből, DHL értesítésből vagy ügyfélportálból. Valós, friss csomaggal tesztelj. |
 | Éles használati jogosultság és jóváhagyott keret | Üzemi használathoz igen | **My Apps → saját alkalmazás → API-lista → Request Upgrade**. Írd le a csomagszámok mennyiségét, várható napi lekéréseket és a céges felhasználást. A jóváhagyást, feltételeket és keretet a DHL határozza meg. |
 | Címzett irányítószáma | Nem kötelező | A csomag célcíméből. Egyes DHL szolgáltatásoknál, különösen Parcel DE/NL esetében részletesebb adatokhoz szükséges lehet. A beállított érték minden DHL lekérésre vonatkozik. |
@@ -19,13 +19,13 @@ A Robo Sanyi a **DHL Shipment Tracking – Unified** API-t használja. Ez csomag
 ## Aktiválás az alkalmazásban
 
 1. Telepítsd a béta kiadást, vagy engedélyezd a béta frissítést a Beállítások / Általános alatt, majd kattints a Frissítésekre.
-2. **Beállítások → DHL API**: másold be a Consumer Key értékét. Az irányítószám maradhat üres, a szolgáltatás Automatikus, a keret kezdetben 250.
-3. Kattints a **DHL beállítások mentése** gombra. Írj be egy saját DHL csomagszámot a tesztmezőbe, majd **Tesztlekérés**.
-4. A **Robo Sanyi** lapon válaszd a DHL-t és add hozzá a csomagot; a hozzáadás csak helyben ment, lekérést nem indít. A sor végi **frissítésikon** kizárólag azt a csomagot kéri le. Az **Összes frissítése** az összes oldalon szereplő saját, még nem kézbesített, API-val támogatott csomagot frissíti (jelenleg DHL). A **Stop** megszakítja a hátralévő lekéréseket; a már mentett válaszok megmaradnak. A **kukaikon** mindkét táblázatban törli az adott csomagot a mentett listából.
+2. **Beállítások → DHL**: másold be a Consumer Key értékét. Az irányítószám maradhat üres, a szolgáltatás Automatikus, a keret kezdetben 250.
+3. Kattints a **Hozzáférés mentése** gombra. Írj be egy saját DHL csomagszámot a tesztmezőbe, majd **Kapcsolat tesztelése**.
+4. A **Robo Sanyi** lapon válaszd a DHL-t és add hozzá a csomagot; a hozzáadás csak helyben ment, lekérést nem indít. A sor végi **frissítésikon** kizárólag azt a csomagot kéri le. Az **Összes frissítése** az összes oldalon szereplő saját, még nem kézbesített, API-val támogatott csomagot frissíti (DHL, UPS, FedEx és magyar MyGLS). A **Stop** megszakítja a hátralévő lekéréseket; a már mentett válaszok megmaradnak. A **kukaikon** mindkét táblázatban törli az adott csomagot a mentett listából.
 
-Az API-kulcs maszkolt mezőben látható, és Windows DPAPI-titkosítással, az aktuális Windows-felhasználóhoz kötve mentődik a `%LOCALAPPDATA%\CAT-Price-Calculator\dhl-connection.bin` fájlba. Másik gépen vagy Windows-felhasználóval újra meg kell adni. A program nem menti sima szövegként és nem írja naplóba; a HTTP-kérésben kizárólag a `DHL-API-Key` fejlécben használja. A **Mentett API-kulcs törlése** kikapcsolja a kapcsolatot. A kulcsot az alkalmazásba írd, ne nyilvános GitHub-bejegyzésbe vagy chatbe.
+Az API-kulcs maszkolt mezőben látható, és Windows DPAPI-titkosítással, az aktuális Windows-felhasználóhoz kötve mentődik a `%LOCALAPPDATA%\CAT-Price-Calculator\dhl-connection.bin` fájlba. Másik gépen vagy Windows-felhasználóval újra meg kell adni. A program nem menti sima szövegként és nem írja naplóba; a HTTP-kérésben kizárólag a `DHL-API-Key` fejlécben használja. A **Hozzáférés törlése** kikapcsolja a kapcsolatot. A kulcsot az alkalmazásba írd, ne nyilvános GitHub-bejegyzésbe vagy chatbe.
 
-Beillesztés után a mező felett a beírt karakterek száma látszik. A jobb oldali **szemikon** a kulcs tényleges szövegét megjeleníti/elrejti, anélkül hogy az értéket módosítaná. Mentéskor és a lap elhagyásakor ismét maszkolt lesz. A mentéshez továbbra is a DHL beállítások mentése gomb szükséges.
+Beillesztés után a mező felett a beírt karakterek száma látszik. A jobb oldali **szemikon** a kulcs tényleges szövegét megjeleníti/elrejti, anélkül hogy az értéket módosítaná. Mentéskor és a lap elhagyásakor ismét maszkolt lesz. A mentéshez továbbra is a Hozzáférés mentése gomb szükséges.
 
 ## API-napló
 
@@ -44,8 +44,8 @@ A **Napló frissítése** csak a helyi fájlt olvassa újra, nem indít API-kér
 
 - A DHL hivatalos kezdő hozzáférése **250 lekérés/nap és legfeljebb egy lekérés öt másodpercenként**; ezt a DHL fejlesztési célú keretként írja le. Az éles céges használat feltételeit a Request Upgrade jóváhagyása rendezi. A regisztráció nem jelent automatikus éles hozzáférést.
 - A program minden DHL kérés között legalább öt másodpercet tart, a tesztlekéréssel együtt. A 24 órás számláló mentett, újraindítással nem nullázódik; ez konzervatív, gördülő 24 órás helyi korlát. A DHL szerverének napi számlálója eltérhet, és más gépek / programok lekérései is beleszámíthatnak. Magasabb helyi keretet csak DHL által jóváhagyott limit alapján állíts be.
-- **Nincs automatikus csomaglekérés**: hozzáadáskor, induláskor, lapváltáskor és időzítve sem. Kérés csak a kézi összes/soronkénti frissítés vagy a Beállítások tesztgombja miatt indul. A mintacsomagok nem kérdezhetők le. FedEx/UPS/GLS továbbra is csak helyi bejegyzést tárol; frissítésük inaktív, API-integrációjuk későbbi fejlesztés.
-- Jogosultsági vagy szolgáltatáshiba és kerettúllépés leállítja a sorozatot; a sor hibajelzést kap, részletei az egérrel rámutatva olvashatók. A már ismert adatok megmaradnak. A nem található / többértelmű csomag nem akadályozza a többi csomag lekérését. A DHL 429 válaszánál az app figyelembe veszi a Retry-After várakozást.
+- **Nincs automatikus csomaglekérés**: hozzáadáskor, induláskor, lapváltáskor és időzítve sem. Kérés csak a kézi összes/soronkénti frissítés vagy a Beállítások tesztgombja miatt indul. A mintacsomagok nem kérdezhetők le. DHL, UPS, FedEx és magyar MyGLS támogatott; csak a mentett hozzáféréssel rendelkező saját sorok frissíthetők.
+- Jogosultsági vagy szolgáltatáshiba és kerettúllépés leállítja az adott futár sorozatát; a sor hibajelzést kap, részletei az egérrel rámutatva olvashatók. A már ismert adatok megmaradnak. A nem található / többértelmű csomag nem akadályozza a többi csomag lekérését. A DHL 429 válaszánál az app figyelembe veszi a Retry-After várakozást.
 - A `demo-key` mintaadatot ad, ezért ezt a program nem fogadja el saját kapcsolatként.
 
 ## Adatok és megőrzés
@@ -64,6 +64,6 @@ Az igazoltan kézbesített csomag az alsó táblázatba kerül, és a kézbesít
 
 Ellenőrizve 2026-10-08-án. A tesztek a hivatalos válaszsémát, státuszokat, időket, kereteket, tárolást és szimulált hibákat ellenőrzik. Saját, jóváhagyott API-kulcs hiányában valós céges DHL-csomaggal még nem történt élő teszt. A Windows WPF-megjelenés és DPAPI-futtatás ebben a Linux környezetben nem ellenőrizhető; a Windows build/publish fordítható.
 
-## UPS és közös napló (beta.5)
+## Négy futár és egységes beállítások (beta.7)
 
-A UPS-nek külön Beállítások / UPS API füle van; Client ID és Client Secret szükséges, a DHL kulcsa oda nem használható. Lásd [UPS-CONNECTION.md](UPS-CONNECTION.md). A Beállítások / API-napló mindkét futár kézi lekéréseit megmutatja, DHL/UPS jelöléssel. A meglévő `dhl-api-log.json` fájl megmarad, immár közös naplóként. A DHL-hozzáférés és keret változatlan.
+A DHL / UPS / FedEx / GLS fülek egy közös, azonos elrendezésű szerkesztőt használnak. Hozzáférés mentése/törlése, helyi keret, Kapcsolat tesztelése és hozzáférési útmutató ugyanott van; a futárspecifikus mezők megmaradnak. [UPS-CONNECTION.md](UPS-CONNECTION.md), [FEDEX-CONNECTION.md](FEDEX-CONNECTION.md), [GLS-CONNECTION.md](GLS-CONNECTION.md). A Beállítások / API-napló mind a négy futár kézi lekéréseit mutatja. A meglévő `dhl-api-log.json` és titkos DHL/UPS fájlok kompatibilisek.

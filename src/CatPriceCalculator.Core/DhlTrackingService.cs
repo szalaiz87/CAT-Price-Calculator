@@ -1,3 +1,4 @@
+using static CatPriceCalculator.Core.TrackingJson;
 using System.Net;
 using System.Text.Json;
 namespace CatPriceCalculator.Core;
@@ -51,7 +52,7 @@ public sealed class DhlTrackingService(HttpClient client, TrackingRequestBudget 
             }
             if (!response.IsSuccessStatusCode) throw new ParcelTrackingException(TrackingErrorCode.Offline, "A DHL szolgáltatás most nem elérhető. A korábbi követési adatok megmaradnak.");
             stage = "Feldolgozás";
-            using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync(token));
+            using var document = await TrackingJson.ReadAsync(response.Content, token);
             var result = Parse(document.RootElement, number);
             Trace("A DHL követési válasza sikeresen feldolgozva.");
             return result;
@@ -64,8 +65,6 @@ public sealed class DhlTrackingService(HttpClient client, TrackingRequestBudget 
         catch (JsonException) { const string message = "A DHL válasza nem értelmezhető. A korábbi követési adatok megmaradnak."; Trace(message, true); throw new ParcelTrackingException(TrackingErrorCode.InvalidResponse, message); }
         finally { if (acquired) gate.Release(); }
     }
-    private static string? Text(JsonElement element, string name) => element.ValueKind == JsonValueKind.Object && element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() : null;
-    private static JsonElement Object(JsonElement element, string name) => element.ValueKind == JsonValueKind.Object && element.TryGetProperty(name, out var value) ? value : default;
     private static string? Location(JsonElement element)
     {
         var address = Object(Object(element, "location"), "address");

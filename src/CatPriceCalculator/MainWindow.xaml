@@ -81,7 +81,7 @@
                                 </Grid>
                                 <TextBlock Grid.Row="4" Text="48 órás megőrzés" Style="{StaticResource FieldLabel}" />
                                 <TextBlock Grid.Row="5" Text="Kézbesítés után. Bezárt programnál a következő indításkor törlünk." Style="{StaticResource Caption}" TextWrapping="Wrap" />
-                                <TextBlock Grid.Row="7" Text="MINTA = bemutató adat&#10;DHL / UPS = API-követés" Style="{StaticResource Caption}" TextWrapping="Wrap" />
+                                <TextBlock Grid.Row="7" Text="MINTA = bemutató adat&#10;4 futár = kézi API-követés" Style="{StaticResource Caption}" TextWrapping="Wrap" />
                             </Grid>
                         </Border>
                         <Border x:Name="CalculatorSidebar" Style="{StaticResource Card}" Padding="12" Margin="0,16,0,16">
@@ -115,10 +115,8 @@
                         <RowDefinition Height="132" /><RowDefinition Height="12" />
                         <RowDefinition Height="40" /><RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <Border CornerRadius="10" BorderBrush="{DynamicResource PanelBorder}" BorderThickness="1">
-                        <Border.Background><ImageBrush ImageSource="{StaticResource MachineBackground}" Stretch="UniformToFill" AlignmentX="Right" AlignmentY="Center" /></Border.Background>
-                        <Border CornerRadius="10" Padding="20,16">
-                            <Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,0"><GradientStop Color="{DynamicResource ColorHeroStart}" Offset="0" /><GradientStop Color="{DynamicResource ColorHeroMiddle}" Offset="0.48" /><GradientStop Color="{DynamicResource ColorHeroEnd}" Offset="1" /></LinearGradientBrush></Border.Background>
+                    <Border Style="{StaticResource MachineHeroFrame}">
+                        <Border Style="{StaticResource MachineHeroOverlay}">
                             <StackPanel VerticalAlignment="Center">
                                 <Border Width="34" Height="3" CornerRadius="1.5" Background="{DynamicResource FocusBorder}" HorizontalAlignment="Left" Margin="0,0,0,10" />
                                 <TextBlock x:Name="PageTitle" Text="CAT ÁRKALKULÁTOR" Style="{StaticResource HeroTitle}" Foreground="{DynamicResource HeroForeground}" />
@@ -236,7 +234,7 @@
                     <Grid.RowDefinitions><RowDefinition Height="100" /><RowDefinition /></Grid.RowDefinitions>
                     <Grid Margin="4,0"><Grid.RowDefinitions><RowDefinition Height="52" /><RowDefinition Height="10" /><RowDefinition Height="32" /><RowDefinition /></Grid.RowDefinitions>
                         <StackPanel><TextBlock Text="BEÁLLÍTÁSOK" Style="{StaticResource PageHeading}" /><TextBlock Text="Megjelenés, indítás és kapcsolatok" Foreground="{DynamicResource TextMuted}" Margin="0,4,0,0" /></StackPanel>
-                        <UniformGrid Grid.Row="2" Columns="4"><Button x:Name="GeneralSettingsButton" Content="Általános" Tag="General" Click="ChooseSettingsSection" Margin="0,0,6,0" /><Button x:Name="DhlSettingsButton" Tag="DHL" Click="ChooseSettingsSection" Margin="3,0"><StackPanel Orientation="Horizontal"><Border Background="White" CornerRadius="4" Width="44" Height="14" Padding="2" Margin="0,0,8,0"><Image Source="{StaticResource DhlLogo}" /></Border><TextBlock Text="DHL API" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></StackPanel></Button><Button x:Name="UpsSettingsButton" Tag="UPS" Click="ChooseSettingsSection" Margin="3,0"><StackPanel Orientation="Horizontal"><Image Source="{StaticResource UpsLogo}" Width="18" Height="18" Margin="0,0,8,0" /><TextBlock Text="UPS API" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></StackPanel></Button><Button x:Name="DhlLogButton" Tag="Log" Click="ChooseSettingsSection" Margin="6,0,0,0"><StackPanel Orientation="Horizontal"><Path Data="{StaticResource DocumentIcon}" Style="{StaticResource ButtonIcon}" Width="14" Height="14" /><TextBlock Text="API-napló" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></StackPanel></Button></UniformGrid>
+                        <UniformGrid Grid.Row="2" Columns="6"><UniformGrid.Resources><Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Setter Property="Padding" Value="6,2" /><Setter Property="FontSize" Value="12" /><Setter Property="Margin" Value="3,0" /></Style></UniformGrid.Resources><Button x:Name="GeneralSettingsButton" Content="Általános" Tag="General" Click="ChooseSettingsSection" /><Button x:Name="DhlSettingsButton" Tag="DHL" Click="ChooseSettingsSection"><StackPanel Orientation="Horizontal"><Border Background="White" CornerRadius="4" Width="28" Height="18" Padding="2" Margin="0,0,6,0"><Image Source="{StaticResource DhlLogo}" /></Border><TextBlock Text="DHL" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></StackPanel></Button><Button x:Name="UpsSettingsButton" Tag="UPS" Click="ChooseSettingsSection"><StackPanel Orientation="Horizontal"><Border Background="White" CornerRadius="4" Width="28" Height="18" Padding="2" Margin="0,0,6,0"><Image Source="{StaticResource UpsLogo}" /></Border><TextBlock Text="UPS" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></StackPanel></Button><Button x:Name="FedExSettingsButton" Tag="FedEx" Click="ChooseSettingsSection"><StackPanel Orientation="Horizontal"><Border Background="White" CornerRadius="4" Width="28" Height="18" Padding="2" Margin="0,0,6,0"><Image Source="{StaticResource FedExLogo}" /></Border><TextBlock Text="FedEx" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></StackPanel></Button><Button x:Name="GlsSettingsButton" Tag="GLS" Click="ChooseSettingsSection"><StackPanel Orientation="Horizontal"><Border Background="White" CornerRadius="4" Width="28" Height="18" Padding="2" Margin="0,0,6,0"><Image Source="{StaticResource GlsLogo}" /></Border><TextBlock Text="GLS" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></StackPanel></Button><Button x:Name="ApiLogButton" Tag="Log" Click="ChooseSettingsSection"><StackPanel Orientation="Horizontal"><Path Data="{StaticResource DocumentIcon}" Style="{StaticResource ButtonIcon}" Width="12" Height="14" Margin="0,0,4,0" /><TextBlock Text="API-napló" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></StackPanel></Button></UniformGrid>
                     </Grid>
                     <Grid x:Name="GeneralSettingsPanel" Grid.Row="1"><Grid.RowDefinitions><RowDefinition Height="176" /><RowDefinition Height="12" /><RowDefinition Height="230" /><RowDefinition Height="12" /><RowDefinition Height="218" /><RowDefinition Height="12" /><RowDefinition Height="152" /><RowDefinition /></Grid.RowDefinitions>
                     <Border Grid.Row="0" Style="{StaticResource Card}" Padding="12">
@@ -295,16 +293,15 @@
                     <Border Grid.Row="6" Style="{StaticResource Card}" Padding="14">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><Path Style="{StaticResource Icon}" Data="{StaticResource DocumentIcon}" /><TextBlock x:Name="ReleaseNotesTitle" Text="Legújabb verzió • v1.0.0" Style="{StaticResource SectionHeading}" /></StackPanel>
-                            <TextBlock Text="• Kisebb Windows-csomag, minden funkcióval." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Közös titkos adatmezők és fájlkezelés." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Kevesebb naplómemória és háttérmunka." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Kézi követés, két téma, változatlan méret." TextWrapping="Wrap" Margin="0,4,0,0" />
+                            <TextBlock Text="• FedEx és MyGLS kézi követés, közös API-napló." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Egységes futárbeállítások, mentés és tesztelés." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Robo Sanyi: közös munkagépes fejléc." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Közös OAuth és UTF-8 motor, fix méret, két téma." TextWrapping="Wrap" Margin="0,4,0,0" />
                         </StackPanel>
                     </Border>
                     </Grid>
-                    <local:DhlSettingsView x:Name="DhlSettingsPage" Grid.Row="1" Visibility="Collapsed" />
-                    <local:UpsSettingsView x:Name="UpsSettingsPage" Grid.Row="1" Visibility="Collapsed" />
-                    <local:DhlApiLogView x:Name="DhlLogPage" Grid.Row="1" Visibility="Collapsed" />
+                    <local:CarrierSettingsView x:Name="CarrierSettingsPage" Grid.Row="1" Visibility="Collapsed" />
+                    <local:ApiLogView x:Name="ApiLogPage" Grid.Row="1" Visibility="Collapsed" />
                 </Grid>
             </Grid>
         </Viewbox>

@@ -4,7 +4,7 @@ using System.Windows.Controls;
 using CatPriceCalculator.Core;
 namespace CatPriceCalculator;
 
-public partial class DhlApiLogView : UserControl
+public partial class ApiLogView : UserControl
 {
     private sealed record LogRow(ApiLogEntry Entry)
     {
@@ -19,7 +19,7 @@ public partial class DhlApiLogView : UserControl
     private ApiLogStore? store;
     private List<ApiLogEntry> entries = [];
     private int page;
-    public DhlApiLogView()
+    public ApiLogView()
     {
         InitializeComponent();
         IsVisibleChanged += (_, _) => { if (IsVisible) { page = 0; Reload(); } };

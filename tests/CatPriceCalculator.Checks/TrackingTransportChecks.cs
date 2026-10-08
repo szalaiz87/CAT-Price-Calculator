@@ -15,7 +15,9 @@ public static class TrackingTransportChecks
             await dhl.FetchAsync(new("test-only-dhl-key"), "1234567");
             await ups.FetchAsync(new("test-only-client", "test-only-secret"), "1234567");
             await dhl.FetchAsync(new("test-only-dhl-key"), "1234567");
-            check(handler.Calls == 4 && handler.HeadersIsolated, "Shared courier HttpClient keeps DHL keys and UPS Basic/Bearer isolated per request");
+            await new FedExTrackingService(client, Budget("FedEx")).FetchAsync(new("test-only-fedex-id", "test-only-fedex-secret"), "123456789012");
+            await new GlsTrackingService(client, Budget("GLS")).FetchAsync(new("test-only@example.invalid", "test-only-password"), "123456789012");
+            check(handler.Calls == 7 && handler.HeadersIsolated, "Shared courier HttpClient keeps DHL/UPS/FedEx/GLS credentials isolated per request");
             check(!client.DefaultRequestHeaders.Any(), "Shared tracking transport never retains credential/default headers");
         }
         finally { Directory.Delete(root, true); }
@@ -31,6 +33,17 @@ public static class TrackingTransportChecks
             {
                 HeadersIsolated &= request.Headers.Authorization == null && request.Headers.GetValues("DHL-API-Key").Single() == "test-only-dhl-key";
                 body = "{\"shipments\":[{\"id\":\"1234567\",\"status\":{\"statusCode\":\"transit\"}}]}";
+            }
+            else if (request.RequestUri.Host == "apis.fedex.com")
+            {
+                bool oauth = request.RequestUri.AbsolutePath == "/oauth/token";
+                HeadersIsolated &= !request.Headers.Contains("DHL-API-Key") && !request.Headers.Contains("x-merchant-id") && (oauth ? request.Headers.Authorization == null : request.Headers.Authorization?.Scheme == "Bearer");
+                body = oauth ? "{\"access_token\":\"test-only-fedex-token\",\"expires_in\":3600,\"token_type\":\"bearer\"}" : CarrierApiChecks.FedExBody;
+            }
+            else if (request.RequestUri.Host == "api.mygls.hu")
+            {
+                HeadersIsolated &= !request.Headers.Contains("DHL-API-Key") && !request.Headers.Contains("x-merchant-id") && request.Headers.Authorization == null;
+                body = CarrierApiChecks.GlsBody;
             }
             else
             {

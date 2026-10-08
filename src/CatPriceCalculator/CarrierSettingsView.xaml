@@ -1,0 +1,45 @@
+<UserControl x:Class="CatPriceCalculator.CarrierSettingsView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:CatPriceCalculator">
+    <Grid>
+        <Grid.RowDefinitions><RowDefinition Height="392" /><RowDefinition Height="12" /><RowDefinition Height="180" /><RowDefinition Height="12" /><RowDefinition Height="190" /><RowDefinition Height="12" /><RowDefinition /></Grid.RowDefinitions>
+        <Border Style="{StaticResource Card}">
+            <Grid><Grid.RowDefinitions><RowDefinition Height="28" /><RowDefinition Height="24" /><RowDefinition Height="8" /><RowDefinition Height="66" /><RowDefinition Height="12" /><RowDefinition Height="66" /><RowDefinition Height="12" /><RowDefinition Height="62" /><RowDefinition Height="12" /><RowDefinition Height="34" /><RowDefinition /></Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal"><Border Background="White" CornerRadius="5" Width="42" Height="28" Padding="4" Margin="0,0,12,0"><Image x:Name="CarrierLogo" /></Border><TextBlock x:Name="CarrierTitle" Style="{StaticResource SectionHeading}" VerticalAlignment="Center" /></StackPanel>
+                <TextBlock Grid.Row="1" x:Name="CarrierSubtitle" Style="{StaticResource Caption}" />
+                <local:SecretEntry x:Name="PrimaryInput" Grid.Row="3" Caption="Client ID" ValueChanged="CredentialChanged" />
+                <Grid Grid.Row="5"><local:SecretEntry x:Name="SecondaryInput" Caption="Titkos kulcs (Client Secret)" ValueChanged="CredentialChanged" /><TextBlock x:Name="SingleKeyNote" Style="{StaticResource Caption}" TextWrapping="Wrap" VerticalAlignment="Center" Visibility="Collapsed" /></Grid>
+                <Grid Grid.Row="7"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="12" /><ColumnDefinition Width="154" /></Grid.ColumnDefinitions>
+                    <Grid>
+                        <Grid x:Name="AccountPanel"><Grid.RowDefinitions><RowDefinition Height="18" /><RowDefinition Height="6" /><RowDefinition /></Grid.RowDefinitions><TextBlock x:Name="AccountLabel" Style="{StaticResource FieldLabel}" /><TextBox x:Name="AccountInput" Grid.Row="2" MaxLength="10" FontSize="13" TextChanged="OptionChanged" /></Grid>
+                        <Grid x:Name="DhlOptions" Visibility="Collapsed"><Grid.ColumnDefinitions><ColumnDefinition Width="142" /><ColumnDefinition Width="12" /><ColumnDefinition /></Grid.ColumnDefinitions>
+                            <Grid><Grid.RowDefinitions><RowDefinition Height="18" /><RowDefinition Height="6" /><RowDefinition /></Grid.RowDefinitions><TextBlock Text="Címzett irányítószáma" Style="{StaticResource FieldLabel}" /><TextBox x:Name="PostalInput" Grid.Row="2" MaxLength="20" FontSize="13" TextChanged="OptionChanged" /></Grid>
+                            <Grid Grid.Column="2"><Grid.RowDefinitions><RowDefinition Height="18" /><RowDefinition Height="6" /><RowDefinition /></Grid.RowDefinitions><TextBlock Text="DHL szolgáltatás" Style="{StaticResource FieldLabel}" /><ComboBox x:Name="ServiceInput" Grid.Row="2" Style="{StaticResource RoundedCombo}" DisplayMemberPath="Name" SelectedValuePath="Code" SelectionChanged="ServiceChanged" /></Grid>
+                        </Grid>
+                        <TextBlock x:Name="AccountNote" Style="{StaticResource Caption}" TextWrapping="Wrap" VerticalAlignment="Center" Visibility="Collapsed" />
+                    </Grid>
+                    <Grid Grid.Column="2"><Grid.RowDefinitions><RowDefinition Height="18" /><RowDefinition Height="6" /><RowDefinition /></Grid.RowDefinitions><TextBlock Text="Helyi 24 órás keret" Style="{StaticResource FieldLabel}" /><TextBox x:Name="DailyLimitInput" Grid.Row="2" MaxLength="6" FontSize="13" TextChanged="OptionChanged" ToolTip="Helyi védelmi korlát, alapból 250 HTTP-kérés; a hitelesítés is számít. Nem a UPS hivatalos kvótája. Csak az engedélyezett hozzáférésed alapján növeld." /></Grid>
+                </Grid>
+                <Grid Grid.Row="9"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="12" /><ColumnDefinition /></Grid.ColumnDefinitions><Button x:Name="SaveButton" Content="Hozzáférés mentése" Click="SaveSettings" /><Button x:Name="DeleteButton" Grid.Column="2" Content="Hozzáférés törlése" Click="DeleteCredentials" /></Grid>
+                <TextBlock x:Name="ConnectionStatus" Grid.Row="10" Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,6,0,0" />
+            </Grid>
+        </Border>
+        <Border Grid.Row="2" Style="{StaticResource Card}">
+            <Grid><Grid.RowDefinitions><RowDefinition Height="22" /><RowDefinition Height="24" /><RowDefinition Height="8" /><RowDefinition Height="38" /><RowDefinition Height="8" /><RowDefinition /></Grid.RowDefinitions>
+                <TextBlock Text="Kapcsolat tesztelése" Style="{StaticResource SectionHeading}" />
+                <TextBlock Grid.Row="1" Text="Egy saját csomagszámmal, a mentett hozzáféréssel. Kizárólag kézzel." Style="{StaticResource Caption}" />
+                <Grid Grid.Row="3"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="12" /><ColumnDefinition Width="176" /></Grid.ColumnDefinitions><TextBox x:Name="TestNumberInput" MaxLength="64" FontSize="13" TextChanged="TestEntryChanged" AutomationProperties.Name="Saját tesztcsomag száma" /><Button x:Name="TestButton" Grid.Column="2" Content="Kapcsolat tesztelése" Click="TestConnection" IsEnabled="False" /></Grid>
+                <TextBlock x:Name="TestStatus" Grid.Row="5" Text="Mentsd a hozzáférést, majd adj meg egy saját csomagszámot." Style="{StaticResource Caption}" TextWrapping="Wrap" />
+            </Grid>
+        </Border>
+        <Border Grid.Row="4" Style="{StaticResource InsetCard}">
+            <StackPanel>
+                <TextBlock Text="Hozzáférési útmutató" Style="{StaticResource SectionHeading}" Margin="0,0,0,8" />
+                <TextBlock x:Name="GuideOne" Margin="0,0,0,6" FontSize="12" TextWrapping="Wrap" />
+                <TextBlock x:Name="GuideTwo" Margin="0,0,0,6" FontSize="12" TextWrapping="Wrap" />
+                <TextBlock x:Name="GuideThree" Margin="0,0,0,8" FontSize="12" TextWrapping="Wrap" />
+                <TextBlock x:Name="GuideNote" Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,0,0,8" />
+                <Button Content="Hivatalos dokumentáció" Click="OpenDocumentation" Height="32" />
+            </StackPanel>
+        </Border>
+        <TextBlock Grid.Row="6" Text="Windows-felhasználóhoz kötött, titkosított mentés. Csak kézi lekérés." Style="{StaticResource Caption}" Margin="4,0" VerticalAlignment="Top" />
+    </Grid>
+</UserControl>

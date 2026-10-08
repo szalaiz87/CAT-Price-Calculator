@@ -1,4 +1,4 @@
-<UserControl x:Class="CatPriceCalculator.DhlApiLogView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<UserControl x:Class="CatPriceCalculator.ApiLogView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>
         <DataTemplate x:Key="LogRow">
             <Border Height="72" CornerRadius="8" Background="{DynamicResource InputSurface}" BorderBrush="{DynamicResource PanelBorder}" BorderThickness="1" Padding="8,6">
@@ -13,7 +13,7 @@
         </DataTemplate>
     </UserControl.Resources>
     <Grid><Grid.RowDefinitions><RowDefinition Height="112" /><RowDefinition Height="12" /><RowDefinition Height="38" /><RowDefinition Height="12" /><RowDefinition Height="520" /><RowDefinition Height="12" /><RowDefinition /></Grid.RowDefinitions>
-        <Border Style="{StaticResource InsetCard}"><StackPanel><TextBlock Text="DHL / UPS API-NAPLÓ" Style="{StaticResource PageHeading}" /><TextBlock Text="A lekérés lépései, HTTP-válaszok és hibák. A kulcsokat, tokeneket és a válasz tartalmát nem naplózzuk." TextWrapping="Wrap" Foreground="{DynamicResource TextSecondary}" Margin="0,8,0,0" /></StackPanel></Border>
+        <Border Style="{StaticResource InsetCard}"><StackPanel><TextBlock Text="FUTÁR API-NAPLÓ" Style="{StaticResource PageHeading}" /><TextBlock Text="A lekérés lépései, HTTP-válaszok és hibák. A kulcsokat, tokeneket és a válasz tartalmát nem naplózzuk." TextWrapping="Wrap" Foreground="{DynamicResource TextSecondary}" Margin="0,8,0,0" /></StackPanel></Border>
         <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="144" /></Grid.ColumnDefinitions><TextBlock x:Name="LogStatus" Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="4,0,12,0" /><Button Grid.Column="1" Content="Napló frissítése" Click="RefreshLog" ToolTip="Csak a helyi naplót olvassa újra, nem indít API-lekérést." /></Grid>
         <Border Grid.Row="4" Style="{StaticResource Card}"><Grid><Grid.RowDefinitions><RowDefinition Height="28" /><RowDefinition Height="432" /><RowDefinition Height="30" /></Grid.RowDefinitions>
             <TextBlock Text="Legfrissebb bejegyzések elöl" Style="{StaticResource SectionHeading}" />

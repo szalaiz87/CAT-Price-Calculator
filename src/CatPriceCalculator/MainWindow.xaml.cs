@@ -28,8 +28,7 @@ public partial class MainWindow : Window
     private readonly HttpClient updateHttp = new() { Timeout = TimeSpan.FromSeconds(60) };
     private readonly UpdateService updateService;
     private readonly HttpClient trackingHttp = new(new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(20), MaxResponseContentBufferSize = 2 * 1024 * 1024 };
-    private readonly DhlTrackingService dhlService;
-    private readonly UpsTrackingService upsService;
+    private readonly Dictionary<Courier, CarrierBinding> carrierBindings = [];
     private string settingsSection = "General";
     private UpdateRelease? availableUpdate;
     private bool updateBusy;
@@ -106,11 +105,14 @@ public partial class MainWindow : Window
         SetSelected(GeneralSettingsButton, settingsSection == "General");
         SetSelected(DhlSettingsButton, settingsSection == "DHL");
         SetSelected(UpsSettingsButton, settingsSection == "UPS");
-        SetSelected(DhlLogButton, settingsSection == "Log");
+        SetSelected(FedExSettingsButton, settingsSection == "FedEx");
+        SetSelected(GlsSettingsButton, settingsSection == "GLS");
+        SetSelected(ApiLogButton, settingsSection == "Log");
         GeneralSettingsPanel.Visibility = settingsSection == "General" ? Visibility.Visible : Visibility.Collapsed;
-        DhlSettingsPage.Visibility = settingsSection == "DHL" ? Visibility.Visible : Visibility.Collapsed;
-        UpsSettingsPage.Visibility = settingsSection == "UPS" ? Visibility.Visible : Visibility.Collapsed;
-        DhlLogPage.Visibility = settingsSection == "Log" ? Visibility.Visible : Visibility.Collapsed;
+        var selectedCarrier = carrierBindings.Values.FirstOrDefault(c => c.Name == settingsSection);
+        if (selectedCarrier != null) CarrierSettingsPage.Show(selectedCarrier);
+        CarrierSettingsPage.Visibility = selectedCarrier != null ? Visibility.Visible : Visibility.Collapsed;
+        ApiLogPage.Visibility = settingsSection == "Log" ? Visibility.Visible : Visibility.Collapsed;
     }
     private void ChooseSettingsSection(object sender, RoutedEventArgs e)
     {
@@ -202,18 +204,34 @@ public partial class MainWindow : Window
     {
         rateService = new ExchangeRateService(http, LogRateFailure);
         updateService = new UpdateService(updateHttp);
-        var dhlLog = new ApiLogStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-api-log.json"));
-        dhlService = new DhlTrackingService(trackingHttp, new TrackingRequestBudget(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-request-budget.json")), log: entry => { dhlLog.Append(entry); });
-        upsService = new UpsTrackingService(trackingHttp, new TrackingRequestBudget(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "ups-request-budget.json"), carrier: "UPS"), log: entry => { dhlLog.Append(entry); });
+        var apiLog = new ApiLogStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-api-log.json"));
+        var dhlService = new DhlTrackingService(trackingHttp, new TrackingRequestBudget(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-request-budget.json")), log: entry => { apiLog.Append(entry); });
+        var upsService = new UpsTrackingService(trackingHttp, new TrackingRequestBudget(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "ups-request-budget.json"), carrier: "UPS"), log: entry => { apiLog.Append(entry); });
         InitializeComponent();
-        DhlLogPage.Configure(dhlLog);
-        DhlSettingsPage.Configure(new DhlSettingsStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-connection.bin"), new WindowsSecretProtector()), dhlService, lifetime.Token);
-        UpsSettingsPage.Configure(new UpsSettingsStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "ups-connection.bin"), new WindowsSecretProtector("UPS")), upsService, lifetime.Token);
-        RoboSanyiPage.ConfigureUps(upsService, () => UpsSettingsPage.CurrentSettings);
-        RoboSanyiPage.ConfigureDhl(dhlService, () => DhlSettingsPage.CurrentSettings, lifetime.Token);
-        DhlSettingsPage.ConnectionChanged += (_, _) => RoboSanyiPage.ConnectionChanged();
-        UpsSettingsPage.ConnectionChanged += (_, _) => RoboSanyiPage.ConnectionChanged();
-        RoboSanyiPage.SettingsRequested += (_, carrier) => { settingsSection = carrier == Courier.Ups ? "UPS" : "DHL"; OpenSettings(this, new RoutedEventArgs()); };
+        ApiLogPage.Configure(apiLog);
+        string data = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator");
+        var dhlStore = new DhlSettingsStore(Path.Combine(data, "dhl-connection.bin"), new WindowsSecretProtector());
+        var upsStore = new UpsSettingsStore(Path.Combine(data, "ups-connection.bin"), new WindowsSecretProtector("UPS"));
+        var fedexStore = new FedExSettingsStore(Path.Combine(data, "fedex-connection.bin"), new WindowsSecretProtector("FedEx"));
+        var glsStore = new GlsSettingsStore(Path.Combine(data, "gls-connection.bin"), new WindowsSecretProtector("GLS"));
+        var fedexService = new FedExTrackingService(trackingHttp, new TrackingRequestBudget(Path.Combine(data, "fedex-request-budget.json"), carrier: "FedEx"), log: e => apiLog.Append(e));
+        var glsService = new GlsTrackingService(trackingHttp, new TrackingRequestBudget(Path.Combine(data, "gls-request-budget.json"), carrier: "GLS"), log: e => apiLog.Append(e));
+        carrierBindings[Courier.Dhl] = CarrierBinding.Create(Courier.Dhl, "DHL", dhlStore.Load(),
+            s => new(s.ApiKey, Postal: s.RecipientPostalCode, Service: s.Service, DailyLimit: s.DailyLimit), i => new DhlConnectionSettings(i.Primary, i.Postal, i.Service, i.DailyLimit),
+            s => s.IsValid, s => s.HasKey, dhlStore.Save, dhlService.FetchAsync);
+        carrierBindings[Courier.Ups] = CarrierBinding.Create(Courier.Ups, "UPS", upsStore.Load(),
+            s => new(s.ClientId, s.ClientSecret, s.AccountNumber, DailyLimit: s.DailyLimit), i => new UpsConnectionSettings(i.Primary, i.Secondary, i.Account, i.DailyLimit),
+            s => s.IsValid, s => s.HasCredentials, upsStore.Save, upsService.FetchAsync, upsService.ForgetToken);
+        carrierBindings[Courier.FedEx] = CarrierBinding.Create(Courier.FedEx, "FedEx", fedexStore.Load(),
+            s => new(s.ClientId, s.ClientSecret, DailyLimit: s.DailyLimit), i => new FedExConnectionSettings(i.Primary, i.Secondary, i.DailyLimit),
+            s => s.IsValid, s => s.HasCredentials, fedexStore.Save, fedexService.FetchAsync, fedexService.ForgetToken);
+        carrierBindings[Courier.Gls] = CarrierBinding.Create(Courier.Gls, "GLS", glsStore.Load(),
+            s => new(s.Username, s.Password, s.ClientNumber, DailyLimit: s.DailyLimit), i => new GlsConnectionSettings(i.Primary, i.Secondary, i.Account, i.DailyLimit),
+            s => s.IsValid, s => s.HasCredentials, glsStore.Save, glsService.FetchAsync);
+        CarrierSettingsPage.Configure(lifetime.Token);
+        RoboSanyiPage.Configure(carrierBindings, lifetime.Token);
+        CarrierSettingsPage.ConnectionChanged += (_, _) => RoboSanyiPage.ConnectionChanged();
+        RoboSanyiPage.SettingsRequested += (_, carrier) => { settingsSection = carrierBindings[carrier].Name; OpenSettings(this, new RoutedEventArgs()); };
         RoboSanyiPage.SummaryChanged += (_, _) => { RoboTransitCount.Text = RoboSanyiPage.TransitCount.ToString(); RoboDeliveredCount.Text = RoboSanyiPage.DeliveredCount.ToString(); };
         AddHandler(System.Windows.Controls.Primitives.Thumb.DragDeltaEvent, new System.Windows.Controls.Primitives.DragDeltaEventHandler(DragTopmostSwitch));
         AddHandler(System.Windows.Controls.Primitives.Thumb.DragCompletedEvent, new System.Windows.Controls.Primitives.DragCompletedEventHandler(FinishTopmostSwitch));

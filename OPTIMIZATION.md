@@ -1,3 +1,39 @@
+# Optimalizáció – v1.1.0-beta.7
+
+A FedEx és magyar MyGLS integráció beépítése után az ismétlődő felületet, hitelesítést és válaszfeldolgozást összevontuk. A számítások, árfolyamok, frissítési csatorna, titkos mentések, két téma, kézi csomagműveletek és 48 órás helyi tisztítás megmarad.
+
+| Mért adat | beta.6 / korábbi módszer | beta.7 / közös módszer |
+| --- | ---: | ---: |
+| Önálló Windows x64 EXE | 64,30 MB | 64,32 MB; kb. +18,5 kB (+0,03%) |
+| Windows letöltési ZIP | 58,19 MB | 58,20 MB; kb. +16,1 kB (+0,03%) |
+| Allokált .NET-memória, 20 × kb. 1 MiB JSON-válasz, meleg pufferrel | 62 946 024 bájt | 10 024 bájt (−99,98%) |
+| Ugyanezen helyi JSON-feldolgozás medián ideje | 30,710 ms | 3,609 ms |
+
+MB = 1 000 000 bájt, kB = 1000 bájt. Az új két integráció mellett a csomagméret gyakorlatilag változatlan; kisebb EXE-t ebben a kiadásban nem állítunk. A build metaadata a pontos méretet pár bájttal változtathatja. Nincs új külső csomag, fotó, logóletöltés, runtime trimming vagy AOT.
+
+A JSON-mérés az előző DHL/UPS `ReadAsStringAsync + JsonDocument.Parse(string)` megoldását hasonlítja az új `ReadAsStreamAsync + JsonDocument.ParseAsync` úthoz, ugyanazon előre elkészített 1 048 661 bájtos UTF-8 adaton. 10 bemelegítő pár, öt mérési pár váltott sorrenddel, páronként 20 válasz, mérés előtt GC, `GC.GetTotalAllocatedBytes(true)` különbség. Mindkét út azonos mezőt ellenőriz a létrehozott dokumentumban. A bemelegítés után az UTF-8 út visszaadott pool-puffereket használ; a szöveges úton a teljes UTF-16 másolat és új UTF-8 dokumentum létrejön. A poolban megtartott memória nem tűnik el; a szám **műveletenkénti új allokáció**, nem RSS vagy teljes app RAM. Nincs hálózati átvitel, WPF, céges API-kulcs vagy logfájl a mérésben. A helyi parser időeredménye nem jelent gyorsabb internetet vagy százalékos Windows-app sebességígéretet.
+
+Nyers adatok: [OPTIMIZATION-BETA7-MEASUREMENTS.json](OPTIMIZATION-BETA7-MEASUREMENTS.json). Ismétlés:
+
+```text
+dotnet run --project tests/CatPriceCalculator.Checks -c Release -- --benchmark-tracking-json
+```
+
+Megvalósítás:
+
+- **Egy futárbeállítás-szerkesztő** a korábbi két külön nézet helyén, most mind a négy szolgáltatóhoz. A mentés, törlés, kézi teszt, maszkolás és visszajelzés közös. Futáronként külön megmaradó szerkesztési draft és tesztállapot; a háttérben befejeződő kézi teszt nem jelenhet meg másik futár alatt. A DHL szolgáltatáslista egyszer készül el, nem minden fülváltáskor.
+- **UPS/FedEx közös OAuthTrackingClient**, egységes tokencache/lejárat/egyszeri 401-utáni újítás. UPS HTTP Basic és FedEx form-kulcsok továbbra is saját, kérésenkénti adapterben. Nincs automatikus tokenfrissítés vagy háttérhívás.
+- **ManualTrackingSession** az UPS/FedEx/GLS közös kézi sorosításához, naplóhoz, HTTP-429 várakozáshoz és biztonságos hibakezeléshez. Futáronkénti kvóta és memóriatoken, egy közös 20 s / 2 MB / redirect nélküli HttpClient; egy futár hibája nem állítja le a többit. GLS csomagszintű jogosultságmegtagadás sem állítja le a többi GLS-sort.
+- **TrackingJson** közös UTF-8 stream olvasás és mezőkezelés a négy futárhoz, teljes köztes válaszszöveg nélkül. A HttpClient választest-pufferelése megmarad az időkorlát és 2 MB-os határ érvényesítéséhez. Nyers választ/titkot nem naplózunk.
+- **Egy meglévő fotó és két közös fejlécstílus**: Robo Sanyi és a két kalkulátor ugyanazt a képerőforrást használja. Nincs új raster fájl vagy fülváltáskori képgenerálás.
+- A beta.6 atomi UTF-8 tárolása, legfeljebb 200-as naplócache, lapozása és rejtett csomagoldali táblázatmunka-csökkentése megmarad.
+
+Ellenőrzés: **503 automatizált eset** és hibamentes Windows x64 self-contained publish. Új FedEx/GLS hivatalos kérések, hitelesítés, token/cooldown, SHA-512 numerikus bájttömb, védett mentés, hibák, státuszok, hely-idő párosítás, WCF/ISO idő, ETA hiányának kezelése, megőrzés, naplótitkok és négyfutáros közös HTTP-fejlécek ellenőrizve. XAML fordítás és fix méretek/megőrzött keret ellenőrzése. A tényleges Windows WPF/DPAPI-futtatás és céges kulcsos élő próba Linuxon nem történt; teljes Windows-folyamat RAM/CPU/indulási idő nem mérhető itt.
+
+---
+
+## Korábbi beta.6 eredmények
+
 # Optimalizáció – v1.1.0-beta.6
 
 Összehasonlítás: az utolsó kiadott v1.1.0-beta.5 és a beta.6 Release build. Minden felhasználói funkció, kalkuláció, téma, mentett beállítás, kézi csomagkövetés, titkosítás, 48 órás megőrzés és frissítési csatorna megmarad.

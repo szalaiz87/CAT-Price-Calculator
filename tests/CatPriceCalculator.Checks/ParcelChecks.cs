@@ -31,7 +31,9 @@ public static class ParcelChecks
         var firstDhl = pending with { Id = Guid.NewGuid(), Carrier = Courier.Dhl };
         var secondDhl = firstDhl with { Id = Guid.NewGuid(), State = ParcelState.Exception };
         var arrivedDhl = delivered with { Carrier = Courier.Dhl };
-        var unsupported = pending with { Id = Guid.NewGuid(), Carrier = Courier.FedEx };
+        var unsupported = pending with { Id = Guid.NewGuid(), Carrier = (Courier)99 };
+        foreach (var carrier in Enum.GetValues<Courier>())
+            check(ParcelBook.CanRefresh(pending with { Carrier = carrier }), "All four real active carriers support manual tracking: " + carrier);
         Parcel[] mixed = [firstDhl, secondDhl, pending, unsupported, arrivedDhl, .. samples];
         check(ParcelBook.RefreshTargets(mixed).SequenceEqual(new[] { firstDhl.Id, secondDhl.Id, pending.Id }),
             "Refresh all targets only real active supported parcels, including failed tracking states");

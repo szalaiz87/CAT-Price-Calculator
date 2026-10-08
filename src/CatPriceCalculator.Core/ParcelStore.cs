@@ -25,7 +25,7 @@ public static class ParcelBook
             .Skip(page * PageSize).Take(PageSize).ToArray();
         return new(rows, count, page, pages);
     }
-    public static bool CanRefresh(Parcel parcel) => parcel.Carrier is (Courier.Dhl or Courier.Ups) && !parcel.IsSample && parcel.State != ParcelState.Delivered;
+    public static bool CanRefresh(Parcel parcel) => Enum.IsDefined(parcel.Carrier) && !parcel.IsSample && parcel.State != ParcelState.Delivered;
     public static Guid[] RefreshTargets(IEnumerable<Parcel> parcels, Guid? only = null) => parcels
         .Where(p => CanRefresh(p) && (!only.HasValue || p.Id == only.Value)).Select(p => p.Id).ToArray();
     public static bool IsExpired(Parcel parcel, DateTimeOffset now) => parcel.State == ParcelState.Delivered &&

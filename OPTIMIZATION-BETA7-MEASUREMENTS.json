@@ -1,0 +1,87 @@
+{
+  "version": "1.1.0-beta.7",
+  "environment": "Linux .NET 10 Release; no network or Windows UI",
+  "method": "20 response bodies of 1048661 bytes per run; identical prebuilt UTF-8 bytes; 10 warmup pairs, GC before each run, alternating order; total managed allocation, UTF16 ReadAsStringAsync+Parse vs UTF8 ReadAsStreamAsync+ParseAsync; excludes whole app/network memory",
+  "measurements": [
+    {
+      "scenario": "beta6 UTF16 string",
+      "run": 0,
+      "responses": 20,
+      "responseBytes": 1048661,
+      "allocatedBytes": 62946024,
+      "milliseconds": 24.6492
+    },
+    {
+      "scenario": "UTF8 stream",
+      "run": 0,
+      "responses": 20,
+      "responseBytes": 1048661,
+      "allocatedBytes": 10024,
+      "milliseconds": 4.3115
+    },
+    {
+      "scenario": "UTF8 stream",
+      "run": 1,
+      "responses": 20,
+      "responseBytes": 1048661,
+      "allocatedBytes": 10024,
+      "milliseconds": 3.609
+    },
+    {
+      "scenario": "beta6 UTF16 string",
+      "run": 1,
+      "responses": 20,
+      "responseBytes": 1048661,
+      "allocatedBytes": 62946024,
+      "milliseconds": 31.648
+    },
+    {
+      "scenario": "beta6 UTF16 string",
+      "run": 2,
+      "responses": 20,
+      "responseBytes": 1048661,
+      "allocatedBytes": 62946024,
+      "milliseconds": 32.9119
+    },
+    {
+      "scenario": "UTF8 stream",
+      "run": 2,
+      "responses": 20,
+      "responseBytes": 1048661,
+      "allocatedBytes": 10024,
+      "milliseconds": 3.6227
+    },
+    {
+      "scenario": "UTF8 stream",
+      "run": 3,
+      "responses": 20,
+      "responseBytes": 1048661,
+      "allocatedBytes": 10024,
+      "milliseconds": 3.5521
+    },
+    {
+      "scenario": "beta6 UTF16 string",
+      "run": 3,
+      "responses": 20,
+      "responseBytes": 1048661,
+      "allocatedBytes": 62945552,
+      "milliseconds": 30.7096
+    },
+    {
+      "scenario": "beta6 UTF16 string",
+      "run": 4,
+      "responses": 20,
+      "responseBytes": 1048661,
+      "allocatedBytes": 62945600,
+      "milliseconds": 24.1002
+    },
+    {
+      "scenario": "UTF8 stream",
+      "run": 4,
+      "responses": 20,
+      "responseBytes": 1048661,
+      "allocatedBytes": 10024,
+      "milliseconds": 3.6074
+    }
+  ]
+}

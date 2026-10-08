@@ -83,22 +83,20 @@
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions><RowDefinition Height="100" /><RowDefinition Height="12" /><RowDefinition Height="144" /><RowDefinition Height="12" /><RowDefinition Height="292" /><RowDefinition Height="12" /><RowDefinition Height="292" /><RowDefinition /></Grid.RowDefinitions>
-        <Border Style="{StaticResource InsetCard}" Padding="20,16">
-            <Grid>
-                <Path Data="{StaticResource RobotIcon}" Style="{StaticResource Icon}" Width="72" Height="72" Opacity="0.15" HorizontalAlignment="Right" Margin="0" />
-                <StackPanel VerticalAlignment="Center">
-                    <Border Width="34" Height="3" CornerRadius="1.5" Background="{DynamicResource FocusBorder}" HorizontalAlignment="Left" Margin="0,0,0,10" />
-                    <TextBlock Text="ROBO SANYI" Style="{StaticResource PageHeading}" />
-                    <TextBlock Text="Beérkező csomagok egy helyen" Foreground="{DynamicResource TextSecondary}" Margin="0,5,0,0" />
-                </StackPanel>
-                <Border Background="{DynamicResource InputSurface}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="6" Padding="8,4" HorizontalAlignment="Right" VerticalAlignment="Top">
-                    <TextBlock Text="DHL / UPS • BÉTA" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource AccentText}" />
-                </Border>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                    <Button x:Name="RemoveSamplesButton" Content="Minták nélkül" Click="RemoveSamples" Width="104" Height="24" Padding="6,2" Margin="0,0,6,0" ToolTip="Csak a mintákat törli, a saját csomagokat megtartja." />
-                    <Button x:Name="RestoreSamplesButton" Content="Minták" Click="RestoreSamples" Width="72" Height="24" Padding="6,2" ToolTip="Visszaállítja a bemutató csomagokat." />
-                </StackPanel>
-            </Grid>
+        <Border Style="{StaticResource MachineHeroFrame}">
+            <Border Style="{StaticResource MachineHeroOverlay}">
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="186" /></Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center">
+                        <Border Width="34" Height="3" CornerRadius="1.5" Background="{DynamicResource FocusBorder}" HorizontalAlignment="Left" Margin="0,0,0,10" />
+                        <TextBlock Text="ROBO SANYI" Style="{StaticResource HeroTitle}" Foreground="{DynamicResource HeroForeground}" />
+                        <TextBlock Text="Linser Hungary • beérkező csomagok" Foreground="{DynamicResource HeroDetailForeground}" Margin="0,5,0,0" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="4 FUTÁR • KÉZI KÖVETÉS • BÉTA" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource HeroForeground}" HorizontalAlignment="Right" Margin="0,0,0,14" />
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"><Button x:Name="RemoveSamplesButton" Content="Minták nélkül" Click="RemoveSamples" Width="104" Height="24" Padding="6,2" Margin="0,0,6,0" ToolTip="Csak a mintákat törli, a saját csomagokat megtartja." /><Button x:Name="RestoreSamplesButton" Content="Minták" Click="RestoreSamples" Width="72" Height="24" Padding="6,2" ToolTip="Visszaállítja a bemutató csomagokat." /></StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
         </Border>
         <Border Grid.Row="2" Style="{StaticResource Card}">
             <Grid>
@@ -119,7 +117,7 @@
                     </Grid>
                 </Grid>
                 <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="176" /></Grid.ColumnDefinitions>
-                    <TextBlock x:Name="ParcelStatusText" Text="DHL / UPS: hozzáférés a Beállítások megfelelő API-fülén" Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,0,12,0" />
+                    <TextBlock x:Name="ParcelStatusText" Text="Hozzáférés a Beállítások megfelelő futárfülén" Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,0,12,0" />
                     <Button x:Name="AddButton" Grid.Column="1" Click="AddParcel" IsEnabled="False" AutomationProperties.Name="Csomag hozzáadása">
                         <StackPanel Orientation="Horizontal"><Path Data="{StaticResource PackageIcon}" Style="{StaticResource ButtonIcon}" Width="15" Height="15" /><TextBlock Text="Csomag hozzáadása" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" VerticalAlignment="Center" /></StackPanel>
                     </Button>
@@ -157,9 +155,9 @@
         </Border>
         <Grid Grid.Row="7" Margin="4,12,4,0"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="132" /><ColumnDefinition Width="8" /><ColumnDefinition Width="64" /><ColumnDefinition Width="8" /><ColumnDefinition Width="88" /></Grid.ColumnDefinitions>
             <TextBlock Text="Delivered by Deutsche Post DHL Group&#10;* Időzóna hiányzik; † megőrzés észleléstől." Style="{StaticResource Caption}" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,0,12,0" />
-            <Button x:Name="RefreshDhlButton" Grid.Column="1" Content="Összes frissítése" Click="RefreshDhl" Height="30" VerticalAlignment="Top" IsEnabled="False" ToolTip="Az összes oldalon szereplő, úton lévő, API-val támogatott saját csomag frissítése. DHL és UPS; a minták és a kézbesített csomagok kimaradnak." ToolTipService.ShowOnDisabled="True" />
-            <Button x:Name="CancelDhlButton" Grid.Column="3" Content="Stop" Click="CancelDhl" Height="30" VerticalAlignment="Top" IsEnabled="False" />
-            <Button Grid.Column="5" Content="API" ToolTip="A kiválasztott futár API-beállításai. DHL és UPS támogatott." Click="OpenDhlSettings" Height="30" VerticalAlignment="Top" />
+            <Button x:Name="RefreshParcelsButton" Grid.Column="1" Content="Összes frissítése" Click="RefreshParcels" Height="30" VerticalAlignment="Top" IsEnabled="False" ToolTip="Az összes oldalon szereplő, úton lévő, API-val támogatott saját csomag frissítése. DHL, UPS, FedEx és GLS; a minták és a kézbesített csomagok kimaradnak." ToolTipService.ShowOnDisabled="True" />
+            <Button x:Name="CancelRefreshButton" Grid.Column="3" Content="Stop" Click="CancelRefresh" Height="30" VerticalAlignment="Top" IsEnabled="False" />
+            <Button Grid.Column="5" Content="API" ToolTip="A kiválasztott futár API-beállításai. DHL, UPS, FedEx és GLS támogatott." Click="OpenCarrierSettings" Height="30" VerticalAlignment="Top" />
         </Grid>
     </Grid>
 </UserControl>

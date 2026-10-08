@@ -27,7 +27,7 @@ public sealed class ApiLogStore(string path)
             var stamp = Stamp();
             if (cached != null && stamp == cachedStamp) return cached;
             var entries = stamp.Exists ? LocalJsonFile.Read<List<ApiLogEntry>>(path) : [];
-            if (entries == null || entries.Any(e => e == null || e.Stage == null || e.Message == null || e.Carrier is not ("DHL" or "UPS")))
+            if (entries == null || entries.Any(e => e == null || e.Stage == null || e.Message == null || e.Carrier is not ("DHL" or "UPS" or "FedEx" or "GLS")))
             { cached = null; return null; }
             if (entries.Count > MaxEntries) entries.RemoveRange(0, entries.Count - MaxEntries);
             cached = entries; cachedStamp = stamp;

@@ -142,6 +142,7 @@ ParcelChecks.Run(Check);
 await DhlChecks.Run(Check);
 await DhlLogChecks.Run(Check);
 await UpsChecks.Run(Check);
+await CarrierApiChecks.Run(Check);
 StorageOptimizationChecks.Run(Check);
 await TrackingTransportChecks.Run(Check);
 Console.WriteLine($"{passed} checks passed.");
@@ -172,6 +173,7 @@ Console.WriteLine("Verified update: v"+release.DisplayVersion);
 } finally { if (Directory.Exists(liveUpdateDirectory)) Directory.Delete(liveUpdateDirectory,true); }
 }
 if (args.Contains("--benchmark")) CoreBenchmarks.Run();
+if (args.Contains("--benchmark-tracking-json")) await TrackingJsonBenchmarks.Run();
 
 sealed class FakeHandler(string? body, HttpStatusCode status = HttpStatusCode.OK, string expectedEndpoint = ExchangeRateService.Endpoint) : HttpMessageHandler {
 protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token) {

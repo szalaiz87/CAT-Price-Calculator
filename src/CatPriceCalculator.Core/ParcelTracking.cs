@@ -2,11 +2,11 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 namespace CatPriceCalculator.Core;
 
-public enum TrackingErrorCode { Configuration, Authentication, NotFound, Ambiguous, Quota, Offline, InvalidResponse, InvalidNumber }
+public enum TrackingErrorCode { Configuration, Authentication, NotFound, Ambiguous, Quota, Offline, InvalidResponse, InvalidNumber, PermissionDenied }
 public sealed class ParcelTrackingException(TrackingErrorCode code, string message) : Exception(message)
 {
     public TrackingErrorCode Code { get; } = code;
-    public bool StopsBatch => Code is not (TrackingErrorCode.NotFound or TrackingErrorCode.Ambiguous or TrackingErrorCode.InvalidNumber);
+    public bool StopsBatch => Code is not (TrackingErrorCode.NotFound or TrackingErrorCode.Ambiguous or TrackingErrorCode.InvalidNumber or TrackingErrorCode.PermissionDenied);
 }
 public sealed record ParcelTrackingResult(ParcelState State, string? Location, string? EventTimestamp,
     string? DeliveryTimestamp, string StatusDetail, string? Service);
@@ -37,7 +37,7 @@ public static class ParcelTracking
 {
     public static Parcel Apply(Parcel parcel, ParcelTrackingResult result, DateTimeOffset checkedAt, Courier carrier)
     {
-        if (parcel.Carrier != carrier || carrier is not (Courier.Dhl or Courier.Ups) || parcel.IsSample) throw new ArgumentException("Only real parcels from the matching supported courier can be updated.");
+        if (parcel.Carrier != carrier || !Enum.IsDefined(carrier) || parcel.IsSample) throw new ArgumentException("Only real parcels from the matching supported courier can be updated.");
         if (parcel.State == ParcelState.Delivered && result.State != ParcelState.Delivered) return parcel with { LastCheckedAt = checkedAt, TrackingError = null };
         var delivered = result.State == ParcelState.Delivered ? parcel.DeliveredAt ?? TrackingTimestamp.Instant(result.DeliveryTimestamp) ?? checkedAt : parcel.DeliveredAt;
         bool newLocation = result.Location != null || parcel.Location == null;

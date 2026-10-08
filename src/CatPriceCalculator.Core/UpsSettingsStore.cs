@@ -3,8 +3,7 @@ namespace CatPriceCalculator.Core;
 public sealed record UpsConnectionSettings(string ClientId = "", string ClientSecret = "", string AccountNumber = "", int DailyLimit = 250)
 {
     public bool HasCredentials => !string.IsNullOrWhiteSpace(ClientId) && !string.IsNullOrWhiteSpace(ClientSecret);
-    private static bool ValidCredential(string? value) => value != null && value.Length <= 512 && value.All(c => c > 32 && c < 127);
-    public bool IsValid => ValidCredential(ClientId) && !ClientId.Contains(':') && ValidCredential(ClientSecret) &&
+    public bool IsValid => CredentialRules.ApiValue(ClientId) && !ClientId.Contains(':') && CredentialRules.ApiValue(ClientSecret) &&
         AccountNumber != null && (AccountNumber.Length == 0 || AccountNumber.Length == 6 && AccountNumber.All(char.IsAsciiLetterOrDigit)) && DailyLimit is >= 1 and <= 100000;
     public override string ToString() => $"UPS connection: credentials configured={HasCredentials}, local daily limit={DailyLimit}";
 }

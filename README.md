@@ -1,3 +1,18 @@
+# Linser Hungary v1.1.0-beta.7 – FedEx, GLS és egységes futárfelület
+
+- **FedEx és magyar MyGLS** kézi csomagkövetés a Robo Sanyi lapon, a meglévő DHL/UPS mellett. Nincs automatikus lekérés vagy OAuth-hívás; megmarad a soronkénti/összes frissítés, törlés, két táblázat és 48 órás megőrzés.
+- **Egységes beállítások:** Általános / DHL / UPS / FedEx / GLS / API-napló. Mind a négy futár azonos szerkesztőt és gombpozíciókat használ, valós hitelesítési címkékkel, vektorlogóval, szemgombbal és DPAPI-védett mentéssel. Meglévő DHL/UPS-adatok kompatibilisek.
+- **Robo Sanyi munkagépes fejléc**, a kalkulátorokkal közös fotóval, színátmenettel és betűkkel. Változatlan ablakméret, két téma, négy soros lapozás, görgetősáv nélkül.
+- **Optimalizáció:** egy közös futárbeállítás-nézet, UPS/FedEx OAuth-motor és négyfutáros UTF-8 JSON-feldolgozó. A két új integráció mellett EXE/ZIP méret csak kb. **0,03%-kal** nőtt. A meleg pufferes, izolált JSON-mérésben 20 × 1 MiB válasz allokációja **62,95 MB → 0,010 MB**; ez nem a teljes app RAM-ja.
+
+**[Windows béta letöltő, PowerShell nélkül](https://github.com/szalaiz87/CAT-Price-Calculator/releases/download/v1.1.0-beta.7/CAT-Letoltes-Windows-v1.1.0-beta.7.cmd)**. Telepítés előtt zárd be a programot. Béta frissítés engedélyezésével a Frissítések gomb is ezt kínálja. **A v1.0.0 marad a hivatalos stabil.**
+
+Hozzáférések: [DHL](DHL-CONNECTION.md), [UPS](UPS-CONNECTION.md), [FedEx](FEDEX-CONNECTION.md), [GLS](GLS-CONNECTION.md). FedExhez éles API Key / Secret Key, magyar MyGLS-hez API-jogosultságos felhasználó/jelszó kell. A MyGLS API **nem ad ETA-t**, más feladók beérkező csomagjaihoz pedig külön GLS-jogosultság kellhet. Hiányzó adatot nem találunk ki.
+
+**503 automatizált ellenőrzés**, hibamentes Windows x64 publish. Hivatalos API-sémákon alapuló hálózat nélküli HTTP-próbák; élő céges kulcsos próba és Windows WPF/DPAPI futtatás Linuxon nem történt. [Mérési módszer és korlátok](OPTIMIZATION.md).
+
+---
+
 # Linser Hungary v1.1.0-beta.6 – optimalizáció
 
 - Kisebb önálló Windows EXE: **67,73 → 64,30 MB (−5,1%)**. Windows ZIP: **61,60 → 58,19 MB (−5,5%)**; a magyar felülethez szükséges erőforrások és a teljes .NET/WPF futtatókörnyezet megmarad.
