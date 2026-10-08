@@ -2,8 +2,8 @@ using System.Text.Json;
 namespace CatPriceCalculator.Core;
 
 // Persist actual request starts so restarting the program cannot reset the local allowance.
-public sealed class DhlRequestBudget(string path, Func<DateTimeOffset>? clock = null,
-    Func<TimeSpan, CancellationToken, Task>? delay = null)
+public sealed class TrackingRequestBudget(string path, Func<DateTimeOffset>? clock = null,
+    Func<TimeSpan, CancellationToken, Task>? delay = null, string carrier = "DHL")
 {
     private readonly Func<DateTimeOffset> now = clock ?? (() => DateTimeOffset.UtcNow);
     private readonly Func<TimeSpan, CancellationToken, Task> wait = delay ?? ((d, t) => Task.Delay(d, t));
@@ -12,11 +12,11 @@ public sealed class DhlRequestBudget(string path, Func<DateTimeOffset>? clock = 
         List<DateTimeOffset> requests;
         try { requests = File.Exists(path) ? JsonSerializer.Deserialize<List<DateTimeOffset>>(File.ReadAllText(path)) ?? throw new JsonException() : []; }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException)
-        { throw new DhlTrackingException(DhlError.Configuration, "A DHL lekérdezési keret nem olvasható. A lekérés nem indult el."); }
+        { throw new ParcelTrackingException(TrackingErrorCode.Configuration, $"A {carrier} lekérdezési keret nem olvasható. A lekérés nem indult el."); }
         if (limit is < 1 or > 100000 || requests.Any(t => t > now().AddSeconds(5)))
-            throw new DhlTrackingException(DhlError.Configuration, "Ellenőrizd a rendszerórát és a DHL napi keretét. A lekérés nem indult el.");
+            throw new ParcelTrackingException(TrackingErrorCode.Configuration, $"Ellenőrizd a rendszerórát és a {carrier} napi keretét. A lekérés nem indult el.");
         requests.RemoveAll(t => now() - t >= TimeSpan.FromHours(24));
-        if (requests.Count >= limit) throw new DhlTrackingException(DhlError.Quota, "Elérted a beállított 24 órás DHL lekérdezési keretet. Próbáld később, vagy add meg a DHL által jóváhagyott magasabb keretet.");
+        if (requests.Count >= limit) throw new ParcelTrackingException(TrackingErrorCode.Quota, $"Elérted a beállított 24 órás {carrier} lekérdezési keretet. Próbáld később, vagy add meg a {carrier} által jóváhagyott magasabb keretet.");
         var last = requests.Count == 0 ? DateTimeOffset.MinValue : requests.Max();
         var spacing = last + TimeSpan.FromSeconds(5) - now();
         if (spacing > TimeSpan.Zero) await wait(spacing, token);
@@ -29,6 +29,6 @@ public sealed class DhlRequestBudget(string path, Func<DateTimeOffset>? clock = 
             File.Move(path + ".tmp", path, true);
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
-        { throw new DhlTrackingException(DhlError.Configuration, "A DHL lekérdezési keret nem menthető. A lekérés nem indult el."); }
+        { throw new ParcelTrackingException(TrackingErrorCode.Configuration, $"A {carrier} lekérdezési keret nem menthető. A lekérés nem indult el."); }
     }
 }

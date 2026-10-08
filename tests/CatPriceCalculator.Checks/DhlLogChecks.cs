@@ -12,28 +12,28 @@ public static class DhlLogChecks
         Directory.CreateDirectory(directory);
         var now = new DateTimeOffset(2026, 10, 8, 12, 0, 0, TimeSpan.Zero);
         int sequence = 0;
-        DhlRequestBudget Budget() => new(Path.Combine(directory, "budget-" + sequence++ + ".json"), () => now,
+        TrackingRequestBudget Budget() => new(Path.Combine(directory, "budget-" + sequence++ + ".json"), () => now,
             (spacing, token) => { token.ThrowIfCancellationRequested(); now += spacing; return Task.CompletedTask; });
         try
         {
-            string path = Path.Combine(directory, "log.json"); var store = new DhlLogStore(path);
-            var entry = new DhlLogEntry(now, "HTTP", "A DHL nem engedélyezte a hozzáférést.", 403, "…7890", 123, true);
+            string path = Path.Combine(directory, "log.json"); var store = new ApiLogStore(path);
+            var entry = new ApiLogEntry(now, "HTTP", "A DHL nem engedélyezte a hozzáférést.", 403, "…7890", 123, true);
             check(!store.Load().Failed && store.Load().Entries.Count == 0, "Missing API log starts empty without a network request");
-            check(store.Append(entry) && new DhlLogStore(path).Load().Entries.Single() == entry, "API diagnostic fields and timestamps survive restart");
-            for (int i = 0; i < DhlLogStore.MaxEntries + 4; i++) store.Append(entry with { Message = i.ToString() });
+            check(store.Append(entry) && new ApiLogStore(path).Load().Entries.Single() == entry, "API diagnostic fields and timestamps survive restart");
+            for (int i = 0; i < ApiLogStore.MaxEntries + 4; i++) store.Append(entry with { Message = i.ToString() });
             var bounded = store.Load().Entries;
-            check(bounded.Count == DhlLogStore.MaxEntries && bounded[0].Message == "4" && bounded[^1].Message == "203", "API log keeps exactly the most recent 200 entries");
+            check(bounded.Count == ApiLogStore.MaxEntries && bounded[0].Message == "4" && bounded[^1].Message == "203", "API log keeps exactly the most recent 200 entries");
             check(store.Clear() && store.Load().Entries.Count == 0 && !store.LastWriteFailed, "Manual API log clear persists an empty log");
             File.WriteAllText(path, "corrupt-json");
             check(store.Load().Failed && !store.Append(entry) && store.LastWriteFailed && File.ReadAllText(path) == "corrupt-json", "Corrupt API log is reported and preserved until explicit clear");
             check(store.Clear() && !store.Load().Failed && !store.LastWriteFailed, "Explicit API log clear repairs only its own corrupt file");
             string blocked = Path.Combine(directory, "blocked"); File.WriteAllText(blocked, "not a folder");
-            var unwritable = new DhlLogStore(Path.Combine(blocked, "log.json"));
+            var unwritable = new ApiLogStore(Path.Combine(blocked, "log.json"));
             check(!unwritable.Append(entry) && unwritable.LastWriteFailed, "API log write failure reported without throwing");
 
             var settings = new DhlConnectionSettings(Key);
             const string response = """{"shipments":[{"id":"PRIVATE-TRACKING-1234567890","status":{"statusCode":"transit","status":"private-log-test-key-do-not-expose"}}]}""";
-            var logs = new List<DhlLogEntry>();
+            var logs = new List<ApiLogEntry>();
             using (var http = new HttpClient(new Handler((_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(response) }))))
             {
                 var result = await new DhlTrackingService(http, Budget(), () => now, logs.Add).FetchAsync(settings, Number);
@@ -46,25 +46,25 @@ public static class DhlLogChecks
             {
                 logs.Clear();
                 using var http = new HttpClient(new Handler((_, _) => Task.FromResult(new HttpResponseMessage(status) { Content = new StringContent(Key) })));
-                try { await new DhlTrackingService(http, Budget(), () => now, logs.Add).FetchAsync(settings, Number); } catch (DhlTrackingException) { }
+                try { await new DhlTrackingService(http, Budget(), () => now, logs.Add).FetchAsync(settings, Number); } catch (ParcelTrackingException) { }
                 check(logs.Any(e => e.HttpStatus == (int)status && e.IsError) && logs.Last().Stage == "HTTP" && logs.Last().IsError && !JsonSerializer.Serialize(logs).Contains(Key), "API log identifies sanitized HTTP failure " + (int)status);
             }
             logs.Clear();
             using (var http = new HttpClient(new Handler((_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("invalid-json " + Key) }))))
             {
-                try { await new DhlTrackingService(http, Budget(), () => now, logs.Add).FetchAsync(settings, Number); } catch (DhlTrackingException) { }
+                try { await new DhlTrackingService(http, Budget(), () => now, logs.Add).FetchAsync(settings, Number); } catch (ParcelTrackingException) { }
                 check(logs.Last().Stage == "Feldolgozás" && logs.Last().IsError && !JsonSerializer.Serialize(logs).Contains(Key), "API log locates JSON failure without dumping raw response");
             }
             logs.Clear();
             using (var http = new HttpClient(new Handler((_, _) => throw new HttpRequestException(Key))))
             {
-                try { await new DhlTrackingService(http, Budget(), () => now, logs.Add).FetchAsync(settings, Number); } catch (DhlTrackingException) { }
+                try { await new DhlTrackingService(http, Budget(), () => now, logs.Add).FetchAsync(settings, Number); } catch (ParcelTrackingException) { }
                 check(logs.Last().Stage == "HTTP" && logs.Last().IsError && !JsonSerializer.Serialize(logs).Contains(Key), "API log sanitizes network exception detail");
             }
             logs.Clear();
             using (var http = new HttpClient(new Handler((_, _) => throw new Exception("Unexpected network"))))
             {
-                try { await new DhlTrackingService(http, Budget(), () => now, logs.Add).FetchAsync(new(), Number); } catch (DhlTrackingException) { }
+                try { await new DhlTrackingService(http, Budget(), () => now, logs.Add).FetchAsync(new(), Number); } catch (ParcelTrackingException) { }
                 check(logs.Last().Stage == "Beállítás" && logs.Last().IsError, "API log identifies missing/invalid key before network");
             }
             logs.Clear();
@@ -73,7 +73,7 @@ public static class DhlLogChecks
             {
                 var service = new DhlTrackingService(http, Budget(), () => now, logs.Add);
                 await service.FetchAsync(settings with { DailyLimit = 1 }, Number);
-                try { await service.FetchAsync(settings with { DailyLimit = 1 }, Number); } catch (DhlTrackingException) { }
+                try { await service.FetchAsync(settings with { DailyLimit = 1 }, Number); } catch (ParcelTrackingException) { }
                 check(logs.Last().Stage == "Keret" && logs.Last().IsError && handler.Calls == 1, "API log distinguishes local quota from HTTP error");
             }
             logs.Clear();

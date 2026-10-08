@@ -92,7 +92,7 @@
                     <TextBlock Text="Beérkező csomagok egy helyen" Foreground="{DynamicResource TextSecondary}" Margin="0,5,0,0" />
                 </StackPanel>
                 <Border Background="{DynamicResource InputSurface}" BorderBrush="{DynamicResource InputBorder}" BorderThickness="1" CornerRadius="6" Padding="8,4" HorizontalAlignment="Right" VerticalAlignment="Top">
-                    <TextBlock Text="DHL API • BÉTA" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource AccentText}" />
+                    <TextBlock Text="DHL / UPS • BÉTA" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource AccentText}" />
                 </Border>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
                     <Button x:Name="RemoveSamplesButton" Content="Minták nélkül" Click="RemoveSamples" Width="104" Height="24" Padding="6,2" Margin="0,0,6,0" ToolTip="Csak a mintákat törli, a saját csomagokat megtartja." />
@@ -119,7 +119,7 @@
                     </Grid>
                 </Grid>
                 <Grid Grid.Row="2"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="176" /></Grid.ColumnDefinitions>
-                    <TextBlock x:Name="ParcelStatusText" Text="DHL: API-kulcs a Beállítások / DHL API lapon" Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,0,12,0" />
+                    <TextBlock x:Name="ParcelStatusText" Text="DHL / UPS: hozzáférés a Beállítások megfelelő API-fülén" Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,0,12,0" />
                     <Button x:Name="AddButton" Grid.Column="1" Click="AddParcel" IsEnabled="False" AutomationProperties.Name="Csomag hozzáadása">
                         <StackPanel Orientation="Horizontal"><Path Data="{StaticResource PackageIcon}" Style="{StaticResource ButtonIcon}" Width="15" Height="15" /><TextBlock Text="Csomag hozzáadása" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" VerticalAlignment="Center" /></StackPanel>
                     </Button>
@@ -157,9 +157,9 @@
         </Border>
         <Grid Grid.Row="7" Margin="4,12,4,0"><Grid.ColumnDefinitions><ColumnDefinition /><ColumnDefinition Width="132" /><ColumnDefinition Width="8" /><ColumnDefinition Width="64" /><ColumnDefinition Width="8" /><ColumnDefinition Width="88" /></Grid.ColumnDefinitions>
             <TextBlock Text="Delivered by Deutsche Post DHL Group&#10;* Időzóna hiányzik; † megőrzés észleléstől." Style="{StaticResource Caption}" TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,0,12,0" />
-            <Button x:Name="RefreshDhlButton" Grid.Column="1" Content="Összes frissítése" Click="RefreshDhl" Height="30" VerticalAlignment="Top" IsEnabled="False" ToolTip="Az összes oldalon szereplő, úton lévő, API-val támogatott saját csomag frissítése. Jelenleg DHL; a minták és a kézbesített csomagok kimaradnak." ToolTipService.ShowOnDisabled="True" />
+            <Button x:Name="RefreshDhlButton" Grid.Column="1" Content="Összes frissítése" Click="RefreshDhl" Height="30" VerticalAlignment="Top" IsEnabled="False" ToolTip="Az összes oldalon szereplő, úton lévő, API-val támogatott saját csomag frissítése. DHL és UPS; a minták és a kézbesített csomagok kimaradnak." ToolTipService.ShowOnDisabled="True" />
             <Button x:Name="CancelDhlButton" Grid.Column="3" Content="Stop" Click="CancelDhl" Height="30" VerticalAlignment="Top" IsEnabled="False" />
-            <Button Grid.Column="5" Content="DHL API" Click="OpenDhlSettings" Height="30" VerticalAlignment="Top" />
+            <Button Grid.Column="5" Content="API" ToolTip="A kiválasztott futár API-beállításai. DHL és UPS támogatott." Click="OpenDhlSettings" Height="30" VerticalAlignment="Top" />
         </Grid>
     </Grid>
 </UserControl>

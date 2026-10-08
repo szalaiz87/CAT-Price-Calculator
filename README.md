@@ -1,3 +1,18 @@
+# Linser Hungary v1.1.0-beta.5 – UPS csomagkövetés
+
+- **Beállítások → UPS API**: külön fül a DHL-éhez hasonló elrendezéssel, UPS vektorlogóval. Client ID / Client Secret mezők karakterszámmal és szemgombbal, Windows-felhasználóhoz kötött titkosított mentés/törlés, opcionális ügyfélszám, helyi lekérési keret és kézi teszt.
+- **Robo Sanyi**: a soronkénti és Összes frissítése művelet már DHL / UPS csomagokat kezel. Nincs automatikus lekérés; OAuth is csak a kézi művelet részeként indul, token csak memóriában. Egyik futár hibája nem akadályozza a másik frissítését; FedEx/GLS még API nélküli.
+- **Közös API-napló**: DHL / UPS jelölés, hitelesítés/követés/feldolgozás, idő, HTTP-kód és biztonságos hibák. Kulcsok, tokenek, fejlécek, URL-ek és nyers válaszok kimaradnak. A régi DHL-napló és mentések olvashatók.
+- Közös titkosított tárolás, időkezelés és csomagfrissítési motor. Változatlan ablakméret, két téma, lapozott táblázatok és 48 órás megőrzés, görgetősáv nélkül. Ismeretlen követési adatot nem találunk ki.
+
+[Windows béta letöltő, PowerShell nélkül](https://github.com/szalaiz87/CAT-Price-Calculator/releases/download/v1.1.0-beta.5/CAT-Letoltes-Windows-v1.1.0-beta.5.cmd). Telepítés előtt zárd be az appot. Béta frissítés engedélyezésével a Frissítések gomb is ezt kínálja. **v1.0.0 marad a stabil.**
+
+**Szükséges UPS adatok és beszerzésük:** [UPS-CONNECTION.md](UPS-CONNECTION.md). DHL: [DHL-CONNECTION.md](DHL-CONNECTION.md). A 250-es UPS keret az app helyi védelme, nem a UPS hivatalos kvótája.
+
+Ellenőrzés: **372 automatizált ellenőrzés**, a hivatalos UPS-séma alapján, szimulált OAuth-/Tracking-válaszokkal, tokenlejárat/újítás, hibák, kvóta, titkos mentés és közös napló ellenőrzésével. Hibamentes Windows x64 publish. Saját céges UPS-hozzáférés nélkül élő követési teszt nem történt; a tényleges WPF/DPAPI-futtatás Linuxon nem ellenőrizhető.
+
+---
+
 # Linser Hungary v1.1.0-beta.4 – API-kulcs megjelenítése és napló
 
 - Javított API-kulcsmező: témához kötött szöveg, font és kurzor, középre igazított tartalom. Vektoros szemgomb a tényleges kulcs megjelenítéséhez/elrejtéséhez és beillesztett karakterszám. Mentéskor/lapelhagyáskor újra rejtett, az érték és a DPAPI-védelem megmarad.

@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-using System.Text.Json;
 namespace CatPriceCalculator.Core;
 
 public sealed record DhlConnectionSettings(string ApiKey = "", string RecipientPostalCode = "", string Service = "", int DailyLimit = 250)
@@ -16,37 +14,9 @@ public interface ISecretProtector
     byte[] Protect(byte[] value);
     byte[] Unprotect(byte[] value);
 }
-public sealed record DhlSettingsLoad(DhlConnectionSettings Settings, bool Failed = false);
 public sealed class DhlSettingsStore(string path, ISecretProtector protector)
 {
-    public DhlSettingsLoad Load()
-    {
-        try
-        {
-            if (!File.Exists(path)) return new(new());
-            byte[] plain = protector.Unprotect(File.ReadAllBytes(path));
-            try
-            {
-                var settings = JsonSerializer.Deserialize<DhlConnectionSettings>(plain);
-                return settings != null && settings.IsValid ? new(settings) : new(new(), true);
-            }
-            finally { CryptographicOperations.ZeroMemory(plain); }
-        }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException or CryptographicException or ArgumentException) { return new(new(), true); }
-    }
-    public bool Save(DhlConnectionSettings settings)
-    {
-        if (!settings.IsValid) return false;
-        byte[] plain = JsonSerializer.SerializeToUtf8Bytes(settings);
-        try
-        {
-            byte[] encrypted = protector.Protect(plain);
-            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-            File.WriteAllBytes(path + ".tmp", encrypted);
-            File.Move(path + ".tmp", path, true);
-            return true;
-        }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException or CryptographicException) { return false; }
-        finally { CryptographicOperations.ZeroMemory(plain); }
-    }
+    private readonly ProtectedSettingsStore<DhlConnectionSettings> store = new(path, protector, () => new(), s => s.IsValid);
+    public ProtectedSettingsLoad<DhlConnectionSettings> Load() => store.Load();
+    public bool Save(DhlConnectionSettings settings) => store.Save(settings);
 }

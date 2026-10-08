@@ -29,8 +29,9 @@ public partial class MainWindow : Window
     private readonly UpdateService updateService;
     private readonly HttpClient dhlHttp = new(new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(20), MaxResponseContentBufferSize = 2 * 1024 * 1024 };
     private readonly DhlTrackingService dhlService;
-    private bool dhlSettingsSection;
-    private bool dhlLogSection;
+    private readonly HttpClient upsHttp = new(new HttpClientHandler { AllowAutoRedirect = false }) { Timeout = TimeSpan.FromSeconds(20), MaxResponseContentBufferSize = 2 * 1024 * 1024 };
+    private readonly UpsTrackingService upsService;
+    private string settingsSection = "General";
     private UpdateRelease? availableUpdate;
     private bool updateBusy;
     private static readonly ReleaseVersion AppVersion = BuildInfo.Current;
@@ -103,18 +104,20 @@ public partial class MainWindow : Window
         SetSelected(RoboMenu, roboOpen);
         CalculatorSidebar.Visibility = roboOpen ? Visibility.Collapsed : Visibility.Visible;
         RoboSidebar.Visibility = roboOpen ? Visibility.Visible : Visibility.Collapsed;
-        SetSelected(GeneralSettingsButton, !dhlSettingsSection && !dhlLogSection);
-        SetSelected(DhlSettingsButton, dhlSettingsSection);
-        SetSelected(DhlLogButton, dhlLogSection);
-        GeneralSettingsPanel.Visibility = dhlSettingsSection || dhlLogSection ? Visibility.Collapsed : Visibility.Visible;
-        DhlSettingsPage.Visibility = dhlSettingsSection ? Visibility.Visible : Visibility.Collapsed;
-        DhlLogPage.Visibility = dhlLogSection ? Visibility.Visible : Visibility.Collapsed;
+        SetSelected(GeneralSettingsButton, settingsSection == "General");
+        SetSelected(DhlSettingsButton, settingsSection == "DHL");
+        SetSelected(UpsSettingsButton, settingsSection == "UPS");
+        SetSelected(DhlLogButton, settingsSection == "Log");
+        GeneralSettingsPanel.Visibility = settingsSection == "General" ? Visibility.Visible : Visibility.Collapsed;
+        DhlSettingsPage.Visibility = settingsSection == "DHL" ? Visibility.Visible : Visibility.Collapsed;
+        UpsSettingsPage.Visibility = settingsSection == "UPS" ? Visibility.Visible : Visibility.Collapsed;
+        DhlLogPage.Visibility = settingsSection == "Log" ? Visibility.Visible : Visibility.Collapsed;
     }
     private void ChooseSettingsSection(object sender, RoutedEventArgs e)
     {
-        string section = (string)((Button)sender).Tag;
-        dhlSettingsSection = section == "DHL"; dhlLogSection = section == "Log"; ApplyMenuTheme();
+        settingsSection = (string)((Button)sender).Tag; ApplyMenuTheme();
     }
+
     private void OpenRoboSanyi(object sender, RoutedEventArgs e)
     {
         settingsOpen = false; roboOpen = true;
@@ -200,14 +203,18 @@ public partial class MainWindow : Window
     {
         rateService = new ExchangeRateService(http, LogRateFailure);
         updateService = new UpdateService(updateHttp);
-        var dhlLog = new DhlLogStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-api-log.json"));
-        dhlService = new DhlTrackingService(dhlHttp, new DhlRequestBudget(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-request-budget.json")), log: entry => { dhlLog.Append(entry); });
+        var dhlLog = new ApiLogStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-api-log.json"));
+        dhlService = new DhlTrackingService(dhlHttp, new TrackingRequestBudget(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-request-budget.json")), log: entry => { dhlLog.Append(entry); });
+        upsService = new UpsTrackingService(upsHttp, new TrackingRequestBudget(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "ups-request-budget.json"), carrier: "UPS"), log: entry => { dhlLog.Append(entry); });
         InitializeComponent();
         DhlLogPage.Configure(dhlLog);
         DhlSettingsPage.Configure(new DhlSettingsStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-connection.bin"), new WindowsSecretProtector()), dhlService, lifetime.Token);
+        UpsSettingsPage.Configure(new UpsSettingsStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "ups-connection.bin"), new WindowsSecretProtector("UPS")), upsService, lifetime.Token);
+        RoboSanyiPage.ConfigureUps(upsService, () => UpsSettingsPage.CurrentSettings);
         RoboSanyiPage.ConfigureDhl(dhlService, () => DhlSettingsPage.CurrentSettings, lifetime.Token);
         DhlSettingsPage.ConnectionChanged += (_, _) => RoboSanyiPage.ConnectionChanged();
-        RoboSanyiPage.SettingsRequested += (_, _) => { dhlSettingsSection = true; dhlLogSection = false; OpenSettings(this, new RoutedEventArgs()); };
+        UpsSettingsPage.ConnectionChanged += (_, _) => RoboSanyiPage.ConnectionChanged();
+        RoboSanyiPage.SettingsRequested += (_, carrier) => { settingsSection = carrier == Courier.Ups ? "UPS" : "DHL"; OpenSettings(this, new RoutedEventArgs()); };
         RoboSanyiPage.SummaryChanged += (_, _) => { RoboTransitCount.Text = RoboSanyiPage.TransitCount.ToString(); RoboDeliveredCount.Text = RoboSanyiPage.DeliveredCount.ToString(); };
         AddHandler(System.Windows.Controls.Primitives.Thumb.DragDeltaEvent, new System.Windows.Controls.Primitives.DragDeltaEventHandler(DragTopmostSwitch));
         AddHandler(System.Windows.Controls.Primitives.Thumb.DragCompletedEvent, new System.Windows.Controls.Primitives.DragCompletedEventHandler(FinishTopmostSwitch));
@@ -245,7 +252,7 @@ public partial class MainWindow : Window
             PriceInput.Focus();
             await Task.WhenAll(StartupRatesAsync(startupPreferences.RefreshRates), CheckUpdatesAsync(false));
         };
-        Closed += (_, _) => { lifetime.Cancel(); RoboSanyiPage.Dispose(); dhlHttp.Dispose(); http.Dispose(); updateHttp.Dispose(); lifetime.Dispose(); };
+        Closed += (_, _) => { lifetime.Cancel(); RoboSanyiPage.Dispose(); dhlHttp.Dispose(); upsHttp.Dispose(); upsService.ForgetToken(); http.Dispose(); updateHttp.Dispose(); lifetime.Dispose(); };
     }
     private string QuoteInfo(decimal rate, string source, DateOnly? date, string currency = "HUF", DateTimeOffset? retrievedAt = null)
     {

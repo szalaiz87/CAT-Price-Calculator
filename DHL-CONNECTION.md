@@ -63,3 +63,7 @@ Az igazoltan kézbesített csomag az alsó táblázatba kerül, és a kézbesít
 - Használt végpont: `GET https://api-eu.dhl.com/track/shipments?trackingNumber=…`; hitelesítés `DHL-API-Key` fejléccel.
 
 Ellenőrizve 2026-10-08-án. A tesztek a hivatalos válaszsémát, státuszokat, időket, kereteket, tárolást és szimulált hibákat ellenőrzik. Saját, jóváhagyott API-kulcs hiányában valós céges DHL-csomaggal még nem történt élő teszt. A Windows WPF-megjelenés és DPAPI-futtatás ebben a Linux környezetben nem ellenőrizhető; a Windows build/publish fordítható.
+
+## UPS és közös napló (beta.5)
+
+A UPS-nek külön Beállítások / UPS API füle van; Client ID és Client Secret szükséges, a DHL kulcsa oda nem használható. Lásd [UPS-CONNECTION.md](UPS-CONNECTION.md). A Beállítások / API-napló mindkét futár kézi lekéréseit megmutatja, DHL/UPS jelöléssel. A meglévő `dhl-api-log.json` fájl megmarad, immár közös naplóként. A DHL-hozzáférés és keret változatlan.

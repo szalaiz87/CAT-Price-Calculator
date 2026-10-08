@@ -116,7 +116,7 @@ public partial class DhlSettingsView : UserControl
             TestStatus.Text = $"Kapcsolat rendben • {result.State switch { ParcelState.Delivered => "megérkezett", ParcelState.InTransit => "úton", ParcelState.PreTransit => "feladás előkészítve", ParcelState.Exception => "eltérés / fennakadás", _ => "státusz elérhető" }}\nUtolsó hely: {result.Location ?? "még nincs adat"}";
             TestStatus.ToolTip = result.StatusDetail;
         }
-        catch (DhlTrackingException ex) { if (!token.IsCancellationRequested) TestStatus.Text = ex.Message; }
+        catch (ParcelTrackingException ex) { if (!token.IsCancellationRequested) TestStatus.Text = ex.Message; }
         catch (OperationCanceledException) { if (!token.IsCancellationRequested) TestStatus.Text = "A tesztlekérés megszakadt."; }
         finally { busy = false; if (!token.IsCancellationRequested) UpdateButtons(); }
     }

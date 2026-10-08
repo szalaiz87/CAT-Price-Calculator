@@ -6,30 +6,30 @@ namespace CatPriceCalculator;
 
 public partial class DhlApiLogView : UserControl
 {
-    private sealed record LogRow(DhlLogEntry Entry)
+    private sealed record LogRow(ApiLogEntry Entry)
     {
         public bool IsError => Entry.IsError;
         public string Message => Entry.Message;
-        public string Metadata => RateTimestamp.Format(Entry.Timestamp) + " • " + Entry.Stage +
+        public string Metadata => RateTimestamp.Format(Entry.Timestamp) + " • " + Entry.Carrier + " • " + Entry.Stage +
             (Entry.HttpStatus.HasValue ? " • HTTP " + Entry.HttpStatus : "") +
             (Entry.TrackingReference != null ? " • " + Entry.TrackingReference : "");
         public string Details => Metadata + "\n" + Message + (Entry.ElapsedMilliseconds.HasValue ? "\nEltelt idő: " + Entry.ElapsedMilliseconds + " ms" : "");
     }
     private const int PageSize = 6;
-    private DhlLogStore? store;
-    private List<DhlLogEntry> entries = [];
+    private ApiLogStore? store;
+    private List<ApiLogEntry> entries = [];
     private int page;
     public DhlApiLogView()
     {
         InitializeComponent();
         IsVisibleChanged += (_, _) => { if (IsVisible) { page = 0; Reload(); } };
     }
-    public void Configure(DhlLogStore logStore) { store = logStore; LogLocation.Text = $"Legfeljebb {DhlLogStore.MaxEntries} helyi bejegyzés.\nFájl: {store.FilePath}"; Reload(); }
+    public void Configure(ApiLogStore logStore) { store = logStore; LogLocation.Text = $"Legfeljebb {ApiLogStore.MaxEntries} helyi bejegyzés.\nFájl: {store.FilePath}"; Reload(); }
     private void Reload()
     {
         if (store == null) return;
         var loaded = store.Load(); entries = loaded.Entries.AsEnumerable().Reverse().ToList();
-        LogStatus.Text = loaded.Failed ? "A napló nem olvasható. A követési adatok és a kulcs megmaradnak." : store.LastWriteFailed ? "A legutóbbi naplóírás nem sikerült; bejegyzések hiányozhatnak. A követés működését nem akadályozza." : "Helyi napló • újraindítás után is megmarad. Frissítése nem indít API-kérést.";
+        LogStatus.Text = loaded.Failed ? "A napló nem olvasható. A követési adatok és a hozzáférések megmaradnak." : store.LastWriteFailed ? "A legutóbbi naplóírás nem sikerült; bejegyzések hiányozhatnak. A követés működését nem akadályozza." : "Helyi napló • újraindítás után is megmarad. Frissítése nem indít API-kérést.";
         EmptyLog.Text = loaded.Failed ? "A naplófájl hibás vagy nem elérhető." : "Még nincs API-lekérés. Indíts kézi tesztet vagy csomagfrissítést.";
         Render();
     }
@@ -48,7 +48,7 @@ public partial class DhlApiLogView : UserControl
     private void ClearLog(object sender, RoutedEventArgs e)
     {
         if (store?.Clear() != true) { LogStatus.Text = "A napló törlése nem menthető. A korábbi fájl megmaradt."; return; }
-        page = 0; Reload(); LogStatus.Text = "Csak az API-napló törölve; a kulcs, csomagok és keret megmaradtak.";
+        page = 0; Reload(); LogStatus.Text = "Csak az API-napló törölve; a hozzáférések, csomagok és keret megmaradtak.";
     }
     private void OpenFolder(object sender, RoutedEventArgs e)
     {

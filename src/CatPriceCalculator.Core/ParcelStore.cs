@@ -13,7 +13,7 @@ public static class ParcelBook
 {
     public static readonly TimeSpan DeliveredRetention = TimeSpan.FromHours(48);
     public const int PageSize = 4;
-    public static bool CanRefresh(Parcel parcel) => parcel.Carrier == Courier.Dhl && !parcel.IsSample && parcel.State != ParcelState.Delivered;
+    public static bool CanRefresh(Parcel parcel) => parcel.Carrier is (Courier.Dhl or Courier.Ups) && !parcel.IsSample && parcel.State != ParcelState.Delivered;
     public static Guid[] RefreshTargets(IEnumerable<Parcel> parcels, Guid? only = null) => parcels
         .Where(p => CanRefresh(p) && (!only.HasValue || p.Id == only.Value)).Select(p => p.Id).ToArray();
     public static bool IsExpired(Parcel parcel, DateTimeOffset now) => parcel.State == ParcelState.Delivered &&

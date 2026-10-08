@@ -10,12 +10,12 @@ public static class DhlChecks
     private const string Transit = """
         {"shipments":[{"id":"ABC","service":"express","status":{"statusCode":"transit","status":"In transit","statusDetailed":"Processed","description":"Sorting complete","timestamp":"2026-10-08T12:00:00+02:00","location":{"address":{"addressLocality":"Leipzig","countryCode":"DE"}}},"estimatedTimeOfDelivery":"2026-10-09","events":[]}]}
         """;
-    private static DhlTrackingResult Parse(string json, string number = "ABC")
+    private static ParcelTrackingResult Parse(string json, string number = "ABC")
     { using var doc = JsonDocument.Parse(json); return DhlTrackingService.Parse(doc.RootElement, number); }
-    private static async Task Error(Func<Task> action, DhlError expected, Action<bool, string> check, string name)
+    private static async Task Error(Func<Task> action, TrackingErrorCode expected, Action<bool, string> check, string name)
     {
         try { await action(); throw new Exception("DHL error not reported: " + name); }
-        catch (DhlTrackingException e) { check(e.Code == expected && !e.Message.Contains(Key), name); }
+        catch (ParcelTrackingException e) { check(e.Code == expected && !e.Message.Contains(Key), name); }
     }
     public static async Task Run(Action<bool, string> check)
     {
@@ -23,7 +23,7 @@ public static class DhlChecks
         Directory.CreateDirectory(directory);
         var now = new DateTimeOffset(2026, 10, 8, 12, 0, 0, TimeSpan.Zero);
         int sequence = 0;
-        DhlRequestBudget Budget() => new(Path.Combine(directory, "budget-" + sequence++ + ".json"), () => now,
+        TrackingRequestBudget Budget() => new(Path.Combine(directory, "budget-" + sequence++ + ".json"), () => now,
             (spacing, token) => { token.ThrowIfCancellationRequested(); now += spacing; return Task.CompletedTask; });
         var settings = new DhlConnectionSettings(Key);
         try
@@ -50,12 +50,12 @@ public static class DhlChecks
                 check(!new DhlSettingsStore(Path.Combine(blocker, "key.bin"), protector).Save(settings), "DHL unwritable protected settings reported");
             }
 
-            check(DhlTimestamp.Date("2026-10-08T23:30:00Z") == "2026.10.09." && DhlTimestamp.Time("2026-10-08T23:30:00Z") == "01:30", "DHL offset timestamp converted to Hungarian day and time");
-            check(DhlTimestamp.Time("2026-01-08T12:00:00Z") == "13:00", "DHL timestamp winter offset");
-            check(DhlTimestamp.Instant("2026-10-08T12:30:00") == null && DhlTimestamp.Time("2026-10-08T12:30:00") == "12:30*", "DHL local timestamp retains original unknown zone");
-            check(DhlTimestamp.Instant("2026-10-08T12:30:00+2:00").HasValue && DhlTimestamp.Time("2026-10-08T12:30:00.123") == "12:30*", "DHL schema short offset and fractional local timestamp supported");
-            check(DhlTimestamp.Instant("2026-10-09") == null && DhlTimestamp.Date("2026-10-09") == "2026.10.09." && DhlTimestamp.Time("2026-10-09") == "", "DHL date-only ETA never invents midnight");
-            check(DhlTimestamp.Date("invalid") == "Még nincs adat" && DhlTimestamp.Time(null) == "", "DHL invalid/missing time has no invented value");
+            check(TrackingTimestamp.Date("2026-10-08T23:30:00Z") == "2026.10.09." && TrackingTimestamp.Time("2026-10-08T23:30:00Z") == "01:30", "DHL offset timestamp converted to Hungarian day and time");
+            check(TrackingTimestamp.Time("2026-01-08T12:00:00Z") == "13:00", "DHL timestamp winter offset");
+            check(TrackingTimestamp.Instant("2026-10-08T12:30:00") == null && TrackingTimestamp.Time("2026-10-08T12:30:00") == "12:30*", "DHL local timestamp retains original unknown zone");
+            check(TrackingTimestamp.Instant("2026-10-08T12:30:00+2:00").HasValue && TrackingTimestamp.Time("2026-10-08T12:30:00.123") == "12:30*", "DHL schema short offset and fractional local timestamp supported");
+            check(TrackingTimestamp.Instant("2026-10-09") == null && TrackingTimestamp.Date("2026-10-09") == "2026.10.09." && TrackingTimestamp.Time("2026-10-09") == "", "DHL date-only ETA never invents midnight");
+            check(TrackingTimestamp.Date("invalid") == "Még nincs adat" && TrackingTimestamp.Time(null) == "", "DHL invalid/missing time has no invented value");
             var result = Parse(Transit);
             check(result.State == ParcelState.InTransit && result.Location == "Leipzig, DE" && result.EventTimestamp == "2026-10-08T12:00:00+02:00", "DHL official status and location schema");
             check(result.DeliveryTimestamp == "2026-10-09" && result.StatusDetail.Contains("Processed"), "DHL official ETA and detailed status retained");
@@ -69,12 +69,12 @@ public static class DhlChecks
             check(located.DeliveryTimestamp == "2026-10-10", "DHL estimated window fallback");
             var absent = Parse("""{"shipments":[{"status":{"statusCode":"transit"},"destination":{"address":{"addressLocality":"Budapest"}}}]}""");
             check(absent.Location == null && absent.EventTimestamp == null && absent.DeliveryTimestamp == null, "DHL destination not substituted for scan and missing values stay missing");
-            await Error(() => Task.FromResult(Parse("{}")), DhlError.InvalidResponse, check, "DHL missing shipment list rejected");
-            await Error(() => Task.FromResult(Parse("{\"shipments\":[]}")), DhlError.NotFound, check, "DHL empty list is not found");
-            await Error(() => Task.FromResult(Parse("{\"shipments\":[{}]}")), DhlError.InvalidResponse, check, "DHL missing current status rejected");
+            await Error(() => Task.FromResult(Parse("{}")), TrackingErrorCode.InvalidResponse, check, "DHL missing shipment list rejected");
+            await Error(() => Task.FromResult(Parse("{\"shipments\":[]}")), TrackingErrorCode.NotFound, check, "DHL empty list is not found");
+            await Error(() => Task.FromResult(Parse("{\"shipments\":[{}]}")), TrackingErrorCode.InvalidResponse, check, "DHL missing current status rejected");
             const string multiple = """{"shipments":[{"id":"A","status":{"statusCode":"transit"}},{"id":"B","status":{"statusCode":"delivered"}}]}""";
             check(Parse(multiple, "B").State == ParcelState.Delivered, "DHL multiple results choose unique matching ID");
-            await Error(() => Task.FromResult(Parse(multiple)), DhlError.Ambiguous, check, "DHL ambiguous results require service selection");
+            await Error(() => Task.FromResult(Parse(multiple)), TrackingErrorCode.Ambiguous, check, "DHL ambiguous results require service selection");
             check(Parse(Transit, "piece-alias").State == ParcelState.InTransit, "DHL single parcel allows piece/reference-number lookup");
 
             var parcel = ParcelBook.Add("ABC", Courier.Dhl, "alkatrész", now);
@@ -109,12 +109,12 @@ public static class DhlChecks
             using (var http = new HttpClient(handler))
             {
                 var service = new DhlTrackingService(http, Budget(), () => now);
-                await Error(() => service.FetchAsync(new(), "ABC"), DhlError.Configuration, check, "DHL missing key sends no request");
-                await Error(() => service.FetchAsync(settings with { ApiKey = "demo-key" }, "ABC"), DhlError.Configuration, check, "DHL mock demo key refused");
+                await Error(() => service.FetchAsync(new(), "ABC"), TrackingErrorCode.Configuration, check, "DHL missing key sends no request");
+                await Error(() => service.FetchAsync(settings with { ApiKey = "demo-key" }, "ABC"), TrackingErrorCode.Configuration, check, "DHL mock demo key refused");
                 check(handler.Calls == 0, "DHL invalid configuration consumes no HTTP call");
                 check((await service.FetchAsync(settings with { RecipientPostalCode = "1234", Service = "express" }, "A/B &")).State == ParcelState.InTransit && !http.DefaultRequestHeaders.Contains("DHL-API-Key"), "DHL per-request secret and successful response");
             }
-            foreach (var pair in new[] { (HttpStatusCode.Unauthorized, DhlError.Authentication), (HttpStatusCode.Forbidden, DhlError.Authentication), (HttpStatusCode.NotFound, DhlError.NotFound), (HttpStatusCode.ServiceUnavailable, DhlError.Offline), (HttpStatusCode.Redirect, DhlError.Offline) })
+            foreach (var pair in new[] { (HttpStatusCode.Unauthorized, TrackingErrorCode.Authentication), (HttpStatusCode.Forbidden, TrackingErrorCode.Authentication), (HttpStatusCode.NotFound, TrackingErrorCode.NotFound), (HttpStatusCode.ServiceUnavailable, TrackingErrorCode.Offline), (HttpStatusCode.Redirect, TrackingErrorCode.Offline) })
             {
                 using var http = new HttpClient(new Handler((_, _) => Task.FromResult(new HttpResponseMessage(pair.Item1) { Content = new StringContent(Key) })));
                 var service = new DhlTrackingService(http, Budget(), () => now);
@@ -128,16 +128,16 @@ public static class DhlChecks
             using (var http = new HttpClient(handler))
             {
                 var service = new DhlTrackingService(http, Budget(), () => now);
-                await Error(() => service.FetchAsync(settings, "ABC"), DhlError.Quota, check, "DHL 429 reports quota");
-                await Error(() => service.FetchAsync(settings, "ABC"), DhlError.Quota, check, "DHL Retry-After prevents immediate retry");
+                await Error(() => service.FetchAsync(settings, "ABC"), TrackingErrorCode.Quota, check, "DHL 429 reports quota");
+                await Error(() => service.FetchAsync(settings, "ABC"), TrackingErrorCode.Quota, check, "DHL Retry-After prevents immediate retry");
                 check(handler.Calls == 1, "DHL cooldown makes no repeated HTTP request");
             }
             using (var http = new HttpClient(new Handler((_, _) => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("bad-json " + Key) }))))
-                await Error(() => new DhlTrackingService(http, Budget()).FetchAsync(settings, "ABC"), DhlError.InvalidResponse, check, "DHL malformed JSON sanitized");
+                await Error(() => new DhlTrackingService(http, Budget()).FetchAsync(settings, "ABC"), TrackingErrorCode.InvalidResponse, check, "DHL malformed JSON sanitized");
             using (var http = new HttpClient(new Handler((_, _) => throw new HttpRequestException(Key))))
-                await Error(() => new DhlTrackingService(http, Budget()).FetchAsync(settings, "ABC"), DhlError.Offline, check, "DHL network error sanitized");
+                await Error(() => new DhlTrackingService(http, Budget()).FetchAsync(settings, "ABC"), TrackingErrorCode.Offline, check, "DHL network error sanitized");
             using (var http = new HttpClient(new Handler(async (_, token) => { await Task.Delay(10000, token); return new(HttpStatusCode.OK); })) { Timeout = TimeSpan.FromMilliseconds(30) })
-                await Error(() => new DhlTrackingService(http, Budget()).FetchAsync(settings, "ABC"), DhlError.Offline, check, "DHL HTTP timeout handled");
+                await Error(() => new DhlTrackingService(http, Budget()).FetchAsync(settings, "ABC"), TrackingErrorCode.Offline, check, "DHL HTTP timeout handled");
             using (var cancel = new CancellationTokenSource())
             using (var http = new HttpClient(new Handler((_, _) => throw new Exception("Cancelled request reached HTTP"))))
             {
@@ -155,20 +155,20 @@ public static class DhlChecks
 
             string budgetPath = Path.Combine(directory, "persistent-budget.json");
             var start = now;
-            DhlRequestBudget Persistent() => new(budgetPath, () => now, (spacing, token) => { token.ThrowIfCancellationRequested(); now += spacing; return Task.CompletedTask; });
+            TrackingRequestBudget Persistent() => new(budgetPath, () => now, (spacing, token) => { token.ThrowIfCancellationRequested(); now += spacing; return Task.CompletedTask; });
             await Persistent().ReserveAsync(2, default); await Persistent().ReserveAsync(2, default);
             check(now - start == TimeSpan.FromSeconds(5), "DHL five-second spacing survives budget instances/restarts");
-            await Error(() => Persistent().ReserveAsync(2, default), DhlError.Quota, check, "DHL persisted daily allowance cannot reset on restart");
+            await Error(() => Persistent().ReserveAsync(2, default), TrackingErrorCode.Quota, check, "DHL persisted daily allowance cannot reset on restart");
             now = start.AddHours(24); await Persistent().ReserveAsync(2, default);
             check(JsonSerializer.Deserialize<List<DateTimeOffset>>(File.ReadAllText(budgetPath))!.Count == 2, "DHL quota expires at exact elapsed 24-hour boundary");
             File.WriteAllText(budgetPath, "bad-json");
-            await Error(() => Persistent().ReserveAsync(2, default), DhlError.Configuration, check, "DHL corrupt request journal fails closed");
+            await Error(() => Persistent().ReserveAsync(2, default), TrackingErrorCode.Configuration, check, "DHL corrupt request journal fails closed");
             File.WriteAllText(budgetPath, JsonSerializer.Serialize(new[] { now.AddMinutes(1) }));
-            await Error(() => Persistent().ReserveAsync(2, default), DhlError.Configuration, check, "DHL future journal detects clock rollback");
-            await Error(() => new DhlRequestBudget(Path.Combine(directory, "blocker", "budget.json"), () => now).ReserveAsync(2, default), DhlError.Configuration, check, "DHL unwritable request budget prevents request");
+            await Error(() => Persistent().ReserveAsync(2, default), TrackingErrorCode.Configuration, check, "DHL future journal detects clock rollback");
+            await Error(() => new TrackingRequestBudget(Path.Combine(directory, "blocker", "budget.json"), () => now).ReserveAsync(2, default), TrackingErrorCode.Configuration, check, "DHL unwritable request budget prevents request");
             File.WriteAllText(budgetPath, JsonSerializer.Serialize(new[] { now }));
             byte[] unchanged = File.ReadAllBytes(budgetPath);
-            var cancelBudget = new DhlRequestBudget(budgetPath, () => now, (_, _) => throw new OperationCanceledException());
+            var cancelBudget = new TrackingRequestBudget(budgetPath, () => now, (_, _) => throw new OperationCanceledException());
             bool interrupted = false; try { await cancelBudget.ReserveAsync(2, default); } catch (OperationCanceledException) { interrupted = true; }
             check(interrupted && unchanged.SequenceEqual(File.ReadAllBytes(budgetPath)), "DHL cancelled spacing wait consumes no reservation");
             int inFlight = 0, maxInFlight = 0;
@@ -188,7 +188,7 @@ public static class DhlChecks
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         { Calls++; return send(request, cancellationToken); }
     }
-    private sealed class TestProtector : ISecretProtector, IDisposable
+    internal sealed class TestProtector : ISecretProtector, IDisposable
     {
         private readonly byte[] key = RandomNumberGenerator.GetBytes(32);
         public bool Fail { get; set; }

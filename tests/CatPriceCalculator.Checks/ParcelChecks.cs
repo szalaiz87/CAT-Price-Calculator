@@ -31,12 +31,13 @@ public static class ParcelChecks
         var firstDhl = pending with { Id = Guid.NewGuid(), Carrier = Courier.Dhl };
         var secondDhl = firstDhl with { Id = Guid.NewGuid(), State = ParcelState.Exception };
         var arrivedDhl = delivered with { Carrier = Courier.Dhl };
-        Parcel[] mixed = [firstDhl, secondDhl, pending, arrivedDhl, .. samples];
-        check(ParcelBook.RefreshTargets(mixed).SequenceEqual(new[] { firstDhl.Id, secondDhl.Id }),
+        var unsupported = pending with { Id = Guid.NewGuid(), Carrier = Courier.FedEx };
+        Parcel[] mixed = [firstDhl, secondDhl, pending, unsupported, arrivedDhl, .. samples];
+        check(ParcelBook.RefreshTargets(mixed).SequenceEqual(new[] { firstDhl.Id, secondDhl.Id, pending.Id }),
             "Refresh all targets only real active supported parcels, including failed tracking states");
         check(ParcelBook.RefreshTargets(mixed, secondDhl.Id).SequenceEqual(new[] { secondDhl.Id }),
             "Row refresh targets exactly one ID even when tracking numbers match");
-        check(ParcelBook.RefreshTargets(mixed, pending.Id).Length == 0, "Unsupported carrier is never sent to DHL by row refresh");
+        check(ParcelBook.RefreshTargets(mixed, unsupported.Id).Length == 0, "Unsupported carrier is never sent to any API by row refresh");
         check(ParcelBook.RefreshTargets(mixed, samples[0].Id).Length == 0, "Sample row refresh cannot query real API");
         check(ParcelBook.RefreshTargets(mixed, arrivedDhl.Id).Length == 0, "Delivered row is excluded from manual refresh");
         check(ParcelBook.RefreshTargets(mixed.Where(p => p.Id != firstDhl.Id), firstDhl.Id).Length == 0,

@@ -2,7 +2,7 @@
 
 - **v1.0.0**: a jelenlegi funkcionalitás első hivatalos stabil főverziója, a mentett frissítési csatornával és stabilra visszatéréssel.
 - `stable`: a legutóbb jóváhagyott stabil kiadás teljes forrása.
-- `beta`: az új fejlesztések forrása; aktuális kiadás `1.1.0-beta.4`, olvasható/ellenőrizhető API-kulcsmező és helyi API-napló, kizárólag kézi DHL követéssel. Első kiadás `1.1.0-beta.1`, Robo Sanyi API nélküli előnézet.
+- `beta`: az új fejlesztések forrása; aktuális kiadás `1.1.0-beta.5`, külön UPS API-beállításfül, kizárólag kézi DHL/UPS követés és közös API-napló. Első kiadás `1.1.0-beta.1`, Robo Sanyi API nélküli előnézet.
 - A történeti `main` ág és 0.x kiadások megmaradnak.
 
 Új fejlesztés alapból béta. Stabil kiadás csak kifejezett felhasználói kérésre. Béta `v1.1.0-beta.1`, `beta.2`, stb.; stabilra emeléskor `v1.1.0`. Mindkét projekt verzióját a Directory.Build.props határozza meg; a felület és a frissítő a tényleges assembly-metaadatból kapja a verziót.

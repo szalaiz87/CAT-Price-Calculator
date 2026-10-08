@@ -5,7 +5,7 @@
 - A v0.7.0-hoz képest körülbelül 25%-kal tömörebb megjelenés, kisebb térközök és panelek.
 - Sötét, modern neonkékre/cianra épülő arculat; aktív gomb és beviteli fókusz hangsúlyos.
 - Árfolyamnap és a tényleges sikeres lekérés dátuma/ideje külön szerepeljen. A lekérési idő mentés után is maradjon meg; régi mentéshez ne találjunk ki időpontot.
-- CAT és EUR kalkulátor egységes komponensekkel. A csomagkövető felület v1.1.0-beta.1-től külön lapon, v1.1.0-beta.2-től DHL API-kapcsolattal érhető el; a többi futár még API nélküli.
+- CAT és EUR kalkulátor egységes komponensekkel. A csomagkövető felület v1.1.0-beta.1-től külön lapon, v1.1.0-beta.2-től DHL API-kapcsolattal érhető el; v1.1.0-beta.5-től UPS-integráció is elérhető; FedEx/GLS még API nélküli.
 
 - v0.7.2: fülváltáskor a külső referenciakeret, panelmagasságok és betűméretek állandók. Méretezés csak az ablak méretétől függhet. Külső margó 3 (korábban 6).
 - Mindkét kalkulátor ugyanazt a ×1,30–×2,00 szorzólistát használja.
@@ -45,3 +45,5 @@
 
 - v1.1.0-beta.4: az API-kulcs mezőjének szöveg-, font- és kurzorbeállításai explicit módon követik a témát. Csökkentett függőleges belső tér és középre igazított tartalom, állandó mezőmagasság. Jobb szélen 30×30-as, lekerekített vektoros szemgomb, szöveg számára fenntartott hely. Karakterszám a címkesorban; a gomb nem módosítja a kulcsot és a piszkos/mentett állapotot. A megjelenítés elrejtődik mentéskor és lapelhagyáskor. Hosszú kulcs vízszintesen belül követi a kurzort látható görgetősáv nélkül; normál kalkulátormezők görgetési beállítása változatlan.
 - Beállítások harmadik alfüle API-napló, vektoros dokumentumikonnal. Hat fix magasságú sor és külön lapozás, kulcsot nem tartalmazó részletes eszköztipp; helyi újraolvasás, mappa megnyitása és naplótörlés. Hiba kiemelt, éles kontrasztos szöveggel. Az ablak, kalkulátorok és Robo Sanyi méretei változatlanok; nincs görgetősáv vagy automatikus hálózati lekérés.
+
+- v1.1.0-beta.5: a Beállítások fejlécén négy fix alfül (Általános, DHL API, UPS API, API-napló). UPS vektorlogó, a DHL-éhez hasonló kártyák; két közös SecretEntry szemgombbal és karakterszámmal, explicit dinamikus színek/font/kurzor és rejtett alapállapot. Mentéskor és lapelhagyáskor a megjelenített másolat ürül. Opcionális ügyfélszám és egyértelműen helyi keret, mentés/törlés, kézi teszt és hozzáférési útmutató a fix 816-as területen. Robo Sanyi soronkénti/összes frissítés DHL/UPS-hoz; API gyorsgomb a kiválasztott futár fülére visz. Közös napló futárjelöléssel. Nincs új ablakméret, görgetősáv, automatikus csomaglekérés vagy kitalált adat.
