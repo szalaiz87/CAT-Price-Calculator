@@ -1,3 +1,9 @@
+# Béta fejlesztési ág
+
+A következő fejlesztések alapja `1.1.0-beta.1`; ez még nem publikált kiadás. A legfrissebb hivatalos stabil verzió **v1.0.0**, forrása a `stable` ágon van. Innentől új stabil kiadást csak a felhasználó kifejezett kérésére készítünk.
+
+---
+
 # Linser Hungary v1.0.0 – első stabil főverzió
 
 - A Frissítések gomb alapból csak stabil kiadást ajánl fel.
