@@ -8,6 +8,16 @@ using CatPriceCalculator.Core;
 namespace CatPriceCalculator;
 public partial class MainWindow : Window
 {
+    private UserSession session;
+    private bool Can(string permission)=>session.Can(permission);
+    private void ApplyAccess(){
+        SessionName.Text=session.Name;
+        foreach(var (button,permission) in new[]{(CatMenu,"menu.cat"),(EurMenu,"menu.eur"),(ServiceMenu,"menu.service"),(RoboMenu,"menu.robo"),(UpdateButton,"menu.updates"),(GeneralSettingsButton,UserAccess.General),(DhlSettingsButton,"settings.dhl"),(UpsSettingsButton,"settings.ups"),(FedExSettingsButton,"settings.fedex"),(GlsSettingsButton,"settings.gls"),(ApiLogButton,"settings.log"),(ServiceSettingsButton,"settings.service"),(UsersSettingsButton,UserAccess.Users)})button.Visibility=Can(permission)?Visibility.Visible:Visibility.Collapsed;
+        BetaUpdatesSwitch.IsEnabled=!updateBusy && Can("menu.updates");
+        RestoreStableButton.IsEnabled=!updateBusy && AppVersion.IsBeta && Can("menu.updates");
+        if(!Can(UserAccess.ForSettings(settingsSection)))settingsSection="General";
+    }
+    private void LogoutClicked(object sender,RoutedEventArgs e){UsersPage.HideSecrets();((App)Application.Current).Logout();}
     // Visual selection is handled by shared XAML templates in both appearance modes.
     private static readonly object Selected = true, Unselected = false;
     private static void SetSelected(Button button, bool selected)
@@ -87,6 +97,7 @@ public partial class MainWindow : Window
     private readonly AppearanceStore appearanceStore = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "appearance.json"));
     private void CloseServicePage() { serviceOpen = false; ServicePage.Visibility = Visibility.Collapsed; }
     private void OpenServiceCalendar(object sender, RoutedEventArgs e) {
+        if(!Can("menu.service"))return;
         settingsOpen = false; roboOpen = false; serviceOpen = true;
         CalculatorPage.Visibility = Visibility.Hidden; SettingsPage.Visibility = Visibility.Collapsed; RoboSanyiPage.Visibility = Visibility.Collapsed;
         ServicePage.Visibility = Visibility.Visible; ApplyMenuTheme();
@@ -98,16 +109,20 @@ public partial class MainWindow : Window
     }
     private void ShowCalculator()
     {
+        if(!Can(eurMode?"menu.eur":"menu.cat")){settingsSection="General";OpenSettings(this,new RoutedEventArgs());return;}
         CloseServicePage(); settingsOpen = false; roboOpen = false; RoboSanyiPage.Visibility = Visibility.Collapsed; SettingsPage.Visibility = Visibility.Collapsed;
         CalculatorPage.Visibility = Visibility.Visible; ApplyMenuTheme();
     }
     private void ApplyMenuTheme()
     {
+        ApplyAccess();
         ApplyModeLabels();
+        SetSelected(UsersSettingsButton,settingsSection=="Users");
+        UsersPage.Visibility=settingsSection=="Users" && session.IsAdministrator?Visibility.Visible:Visibility.Collapsed;
         SetSelected(ServiceMenu, serviceOpen);
         SetSelected(SettingsMenu, settingsOpen);
         SetSelected(RoboMenu, roboOpen);
-        CalculatorSidebar.Visibility = (roboOpen || serviceOpen) ? Visibility.Collapsed : Visibility.Visible;
+        CalculatorSidebar.Visibility = (roboOpen || serviceOpen || (!Can("menu.cat") && !Can("menu.eur"))) ? Visibility.Collapsed : Visibility.Visible;
         RoboSidebar.Visibility = roboOpen ? Visibility.Visible : Visibility.Collapsed;
         SetSelected(ServiceSettingsButton, settingsSection == "Service");
         ServiceImportPage.Visibility = settingsSection == "Service" ? Visibility.Visible : Visibility.Collapsed;
@@ -125,11 +140,12 @@ public partial class MainWindow : Window
     }
     private void ChooseSettingsSection(object sender, RoutedEventArgs e)
     {
-        settingsSection = (string)((Button)sender).Tag; ApplyMenuTheme();
+        var section=(string)((Button)sender).Tag;if(!Can(UserAccess.ForSettings(section)))return;settingsSection=section;ApplyMenuTheme();
     }
 
     private void OpenRoboSanyi(object sender, RoutedEventArgs e)
     {
+        if(!Can("menu.robo"))return;
         CloseServicePage(); settingsOpen = false; roboOpen = true;
         CalculatorPage.Visibility = Visibility.Hidden; SettingsPage.Visibility = Visibility.Collapsed;
         RoboSanyiPage.Visibility = Visibility.Visible;
@@ -187,8 +203,9 @@ public partial class MainWindow : Window
     private async void SwitchCalculator(object sender, RoutedEventArgs e)
     {
         if (pendingFetches > 0) return;
-        ShowCalculator();
         var target = (string)((Button)sender).Tag == "EUR";
+        if(!Can(target?"menu.eur":"menu.cat"))return;
+        var previousMode=eurMode;eurMode=target;ShowCalculator();eurMode=previousMode;
         if (target == eurMode || pendingFetches > 0) return;
         pages[eurMode] = new(PriceInput.Text, RateInput.Text, RateInfo.Text, multiplier ?? PriceCalculator.DefaultSellingMultiplier, currentHufQuote, RateWarning.Text, RateWarning.Visibility);
         initialized = false; eurMode = target; rateRevision++;
@@ -209,14 +226,17 @@ public partial class MainWindow : Window
         try { await (eurMode ? FetchCurrency(false) : Task.WhenAll(FetchCurrency(false), FetchCurrency(true))); }
         finally { if (!lifetime.IsCancellationRequested) RefreshAllButton.IsEnabled = true; }
     }
-    public MainWindow()
+    public MainWindow(UserAccountStore accounts,UserSession session)
     {
+        this.session=session;
         rateService = new ExchangeRateService(http, LogRateFailure);
         updateService = new UpdateService(updateHttp);
         var apiLog = new ApiLogStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-api-log.json"));
         var dhlService = new DhlTrackingService(trackingHttp, new TrackingRequestBudget(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-request-budget.json")), log: entry => { apiLog.Append(entry); });
         var upsService = new UpsTrackingService(trackingHttp, new TrackingRequestBudget(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "ups-request-budget.json"), carrier: "UPS"), log: entry => { apiLog.Append(entry); });
         InitializeComponent();
+        UsersPage.Configure(accounts,session);
+        UsersPage.AccountChanged+=updated=>{this.session=updated;ApplyMenuTheme();};
         ServiceImportPage.Configure(ServicePage.ImportCatalogAsync,ServicePage.OpenImportFolder);
         ServicePage.EntryRequested+=()=>{OpenServiceCalendar(this,new RoutedEventArgs());if(WindowState==WindowState.Minimized)WindowState=WindowState.Normal;Activate();};
         ApiLogPage.Configure(apiLog);
@@ -242,7 +262,7 @@ public partial class MainWindow : Window
         CarrierSettingsPage.Configure(lifetime.Token);
         RoboSanyiPage.Configure(carrierBindings, lifetime.Token);
         CarrierSettingsPage.ConnectionChanged += (_, _) => RoboSanyiPage.ConnectionChanged();
-        RoboSanyiPage.SettingsRequested += (_, carrier) => { settingsSection = carrierBindings[carrier].Name; OpenSettings(this, new RoutedEventArgs()); };
+        RoboSanyiPage.SettingsRequested += (_, carrier) => { var section=carrierBindings[carrier].Name;if(!Can(UserAccess.ForSettings(section)))return;settingsSection=section;OpenSettings(this,new RoutedEventArgs()); };
         RoboSanyiPage.SummaryChanged += (_, _) => { RoboTransitCount.Text = RoboSanyiPage.TransitCount.ToString(); RoboDeliveredCount.Text = RoboSanyiPage.DeliveredCount.ToString(); };
         AddHandler(System.Windows.Controls.Primitives.Thumb.DragDeltaEvent, new System.Windows.Controls.Primitives.DragDeltaEventHandler(DragTopmostSwitch));
         AddHandler(System.Windows.Controls.Primitives.Thumb.DragCompletedEvent, new System.Windows.Controls.Primitives.DragCompletedEventHandler(FinishTopmostSwitch));
@@ -273,14 +293,21 @@ public partial class MainWindow : Window
         SelectMultiplier(PriceCalculator.DefaultSellingMultiplier);
         ApplyModeLabels();
         UpdateSidebar();
+        if(!Can("menu.cat")){
+            if(Can("menu.eur"))SwitchCalculator(EurMenu,new RoutedEventArgs());
+            else if(Can("menu.service"))OpenServiceCalendar(this,new RoutedEventArgs());
+            else if(Can("menu.robo"))OpenRoboSanyi(this,new RoutedEventArgs());
+            else OpenSettings(this,new RoutedEventArgs());
+        }
         SourceInitialized += (_, _) => WindowTheme.Apply(this, lightTheme);
         Loaded += async (_, _) =>
         {
-            RoboSanyiPage.InitializeData();
+            if(Can("menu.robo"))RoboSanyiPage.InitializeData();
             PriceInput.Focus();
-            await Task.WhenAll(StartupRatesAsync(startupPreferences.RefreshRates), CheckUpdatesAsync(false));
+            await Task.WhenAll(Can("menu.cat") || Can("menu.eur")?StartupRatesAsync(startupPreferences.RefreshRates):Task.CompletedTask, CheckUpdatesAsync(false));
         };
-        Closed += (_, _) => { ServicePage.ClosePopups(); lifetime.Cancel(); RoboSanyiPage.Dispose(); trackingHttp.Dispose(); upsService.ForgetToken(); http.Dispose(); updateHttp.Dispose(); lifetime.Dispose(); };
+        Deactivated+=(_,_)=>UsersPage.HideSecrets();
+        Closed += (_, _) => { UsersPage.HideSecrets();ServicePage.ClosePopups(); lifetime.Cancel(); RoboSanyiPage.Dispose(); trackingHttp.Dispose(); upsService.ForgetToken(); http.Dispose(); updateHttp.Dispose(); lifetime.Dispose(); };
     }
     private string QuoteInfo(decimal rate, string source, DateOnly? date, string currency = "HUF", DateTimeOffset? retrievedAt = null)
     {
@@ -470,8 +497,8 @@ public partial class MainWindow : Window
     private void SetUpdateBusy(bool busy)
     {
         updateBusy = busy;
-        UpdateButton.IsEnabled = BetaUpdatesSwitch.IsEnabled = !busy;
-        RestoreStableButton.IsEnabled = !busy && AppVersion.IsBeta;
+        UpdateButton.IsEnabled = BetaUpdatesSwitch.IsEnabled = !busy && Can("menu.updates");
+        RestoreStableButton.IsEnabled = !busy && AppVersion.IsBeta && Can("menu.updates");
     }
     private void UpdateBetaStatus(string? message = null)
     {
@@ -480,7 +507,7 @@ public partial class MainWindow : Window
     }
     private async void BetaUpdatesChanged(object sender, RoutedEventArgs e)
     {
-        if (!startupPreferencesReady || suppressBetaChanges) return;
+        if (!startupPreferencesReady || suppressBetaChanges || !Can("menu.updates")) return;
         bool requested = BetaUpdatesSwitch.IsChecked == true;
         var preferences = new StartupPreferences(StartupTopmostSwitch.IsChecked == true, StartupRateSwitch.IsChecked == true, requested);
         if (!startupPreferencesStore.Save(preferences))
@@ -498,7 +525,7 @@ public partial class MainWindow : Window
     }
     private async Task CheckUpdatesAsync(bool explicitCheck)
     {
-        if (updateBusy) return;
+        if (updateBusy || !Can("menu.updates")) return;
         SetUpdateBusy(true);
         try
         {
@@ -515,13 +542,13 @@ public partial class MainWindow : Window
     }
     private async void UpdatesClicked(object sender, RoutedEventArgs e)
     {
-        if (updateBusy) return;
+        if (updateBusy || !Can("menu.updates")) return;
         if (availableUpdate == null) { await CheckUpdatesAsync(true); return; }
         await InstallReleaseAsync(availableUpdate, false);
     }
     private async void RestoreStableClicked(object sender, RoutedEventArgs e)
     {
-        if (updateBusy || !AppVersion.IsBeta) return;
+        if (updateBusy || !AppVersion.IsBeta || !Can("menu.updates")) return;
         SetUpdateBusy(true);
         try
         {
@@ -538,6 +565,7 @@ public partial class MainWindow : Window
     }
     private async Task InstallReleaseAsync(UpdateRelease release, bool restoreStable)
     {
+        if(!Can("menu.updates"))return;
         string question = restoreStable
             ? $"Visszatér a legfrissebb stabil kiadásra (v{release.DisplayVersion})? A béta frissítések kikapcsolnak. A program újraindul; a mentett beállítások és árfolyamok megmaradnak."
             : $"Letölti és telepíti a v{release.DisplayVersion} {(release.IsBeta ? "béta" : "stabil")} frissítést? A program újraindul; a mentett beállítások és árfolyamok megmaradnak.";
@@ -579,6 +607,7 @@ public partial class MainWindow : Window
     }
     private void OnKeyDown(object sender, KeyEventArgs e)
     {
+        if(!Can(eurMode?"menu.eur":"menu.cat") && !settingsOpen)return;
         if (serviceOpen) return;
         if (roboOpen) return;
         if (settingsOpen) { if (e.Key == Key.Escape) { ShowCalculator(); e.Handled = true; } return; }

@@ -1,5 +1,7 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <BitmapImage x:Key="MachineBackground" UriSource="pack://application:,,,/Assets/CAT-Excavator.png" DecodePixelWidth="1280" CacheOption="OnLoad" po:Freeze="True" />
+    <Geometry x:Key="UsersIcon" po:Freeze="True">M12,2 A4,4 0 1 1 12,10 A4,4 0 1 1 12,2 M4,23 V20 C4,12 20,12 20,20 V23 M20,3 A3,3 0 0 1 20,9 M22,14 Q25,16 25,21</Geometry>
+    <Geometry x:Key="LogoutIcon" po:Freeze="True">M10,2 H3 V22 H10 M8,12 H23 M17,6 L23,12 17,18</Geometry>
     <Geometry x:Key="SettingsIcon" po:Freeze="True">M19.576,8.862 L22.798,9.901 L22.798,14.099 L19.576,15.138 L19.576,15.138 L21.119,18.151 L18.151,21.119 L15.138,19.576 L15.138,19.576 L14.099,22.798 L9.901,22.798 L8.862,19.576 L8.862,19.576 L5.849,21.119 L2.881,18.151 L4.424,15.138 L4.424,15.138 L1.202,14.099 L1.202,9.901 L4.424,8.862 L4.424,8.862 L2.881,5.849 L5.849,2.881 L8.862,4.424 L8.862,4.424 L9.901,1.202 L14.099,1.202 L15.138,4.424 L15.138,4.424 L18.151,2.881 L21.119,5.849 L19.576,8.862 Z M16,12 A4,4 0 1 1 8,12 A4,4 0 1 1 16,12 Z</Geometry>
     <Geometry x:Key="CalculatorIcon" po:Freeze="True">M4,1 L20,1 20,23 4,23Z M7,4 L17,4 17,9 7,9Z M7,12 L9,12 M12,12 L14,12 M16,12 L18,12 M7,16 L9,16 M12,16 L14,16 M16,16 L18,16 M7,20 L9,20 M12,20 L14,20 M16,20 L18,20</Geometry>
     <Geometry x:Key="EuroIcon" po:Freeze="True">M21,5 C11,-2 4,5 4,12 C4,20 12,26 21,19 M1,9 L16,9 M1,14 L14,14</Geometry>

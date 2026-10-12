@@ -1,3 +1,11 @@
+# Linser Hungary v1.2.0-beta.7 – felhasználói bejelentkezés
+
+Helyi, titkosított fióktárolás; üres bejelentkező munkagép-háttérrel; adminisztrátori felhasználókezelés; menünként és beállításfülenként kiosztható hozzáférés; rejtett jelszavak vektoros szemikonnal. Az Általános beállítások minden felhasználónak elérhetők.
+
+Első adminbelépés: **Szalai Zoltán** / **12345**. Kezelés és jelszócsere: Beállítások / Fiókok. Részletek és helyi tárolási hatókör: [USER-ACCOUNTS.md](USER-ACCOUNTS.md).
+
+Windows béta: CAT-Letoltes-Windows-v1.2.0-beta.7.cmd, vagy engedélyezett béta frissítési csatorna. Stabil továbbra is v1.0.1.
+
 # Linser Hungary v1.2.0-beta.6 – ügyviteli Excel-import
 
 - A partner- és géptörzs eredeti `.xls` exportjai közvetlenül beolvashatók.

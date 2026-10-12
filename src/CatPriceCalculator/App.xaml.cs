@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Windows;
+using CatPriceCalculator.Core;
 namespace CatPriceCalculator;
 public partial class App : Application
 {
@@ -38,7 +39,22 @@ public partial class App : Application
             Shutdown();
             return;
         }
-        MainWindow = new MainWindow();
-        MainWindow.Show();
+        ShutdownMode=ShutdownMode.OnExplicitShutdown;
+        accounts=new UserAccountStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"CAT-Price-Calculator","users.bin"),new WindowsSecretProtector("Users"));
+        accountsReady=await Task.Run(()=>accounts.Initialize("Szalai Zoltán"));
+        ShowLogin();
     }
+    private UserAccountStore? accounts;
+    private bool accountsReady;
+    private void ShowLogin(){
+        ThemePalette.Apply(new AppearanceStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"CAT-Price-Calculator","appearance.json")).Load()==Appearance.Light);
+        var login=new LoginWindow(accounts!,accountsReady);MainWindow=login;
+        if(login.ShowDialog()!=true || login.Session==null){Shutdown();return;}
+        MainWindow=new MainWindow(accounts!,login.Session);
+        ShutdownMode=ShutdownMode.OnMainWindowClose;MainWindow.Show();
+    }
+    public void Logout(){
+        ShutdownMode=ShutdownMode.OnExplicitShutdown;MainWindow.Close();ShowLogin();
+    }
+
 }

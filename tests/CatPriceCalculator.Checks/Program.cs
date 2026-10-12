@@ -152,6 +152,7 @@ StorageOptimizationChecks.Run(Check);
 await TrackingTransportChecks.Run(Check);
 ServiceCalendarChecks.Run(Check);
 ServiceErpChecks.Run(Check);
+UserAccountChecks.Run(Check);
 ServiceCustomerSearchChecks.Run(Check);
 Console.WriteLine($"{passed} checks passed.");
 if (args.Contains("--live")) {
