@@ -150,6 +150,7 @@ await UpsChecks.Run(Check);
 await CarrierApiChecks.Run(Check);
 StorageOptimizationChecks.Run(Check);
 await TrackingTransportChecks.Run(Check);
+ServiceCalendarChecks.Run(Check);
 Console.WriteLine($"{passed} checks passed.");
 if (args.Contains("--live")) {
 using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(8) };

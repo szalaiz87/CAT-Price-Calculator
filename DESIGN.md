@@ -55,3 +55,5 @@
 - v1.1.0-beta.8: mindkét kalkulátor közös ×1,20–×1,90 szorzólista, 0,05-ös lépésekben. A 15 gomb, a 3×5-ös rács és az alapértelmezett 1,40 változatlan.
 
 - v1.1.0-beta.9: teljes világos paletta minden lapon; a szín- és teljes brush-erőforrások együtt váltanak. Fehér/acélkék panelek, sötét szöveg, kék aktív állapotok, változatlan geometria.
+
+- v1.2.0-beta.1: Szerviznaptár adatbekérő az állandó referenciakereten belül, közös hero és kártyastílusokkal, közvetlen Excel-fájlválasztással. Külön méretezhető naptárablak: 12 hónapfül, hétfővel kezdődő hathetes rács, öt állandó színű munkatárssor, több feladat jelölése. A részletek lapozhatók, nincs görgetősáv; mindkét alkalmazástéma támogatott.

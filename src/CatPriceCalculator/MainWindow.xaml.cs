@@ -83,24 +83,31 @@ public partial class MainWindow : Window
         if (!e.Canceled) toggle.SetCurrentValue(System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty, Math.Abs(switchDrag) < 4 ? toggle.IsChecked != true : switchDrag > 0);
         switchDrag = 0; e.Handled = true;
     }
-    private bool settingsOpen, roboOpen, lightTheme;
+    private bool settingsOpen, roboOpen, lightTheme, serviceOpen;
     private readonly AppearanceStore appearanceStore = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "appearance.json"));
+    private void CloseServicePage() { serviceOpen = false; ServicePage.Visibility = Visibility.Collapsed; }
+    private void OpenServiceCalendar(object sender, RoutedEventArgs e) {
+        settingsOpen = false; roboOpen = false; serviceOpen = true;
+        CalculatorPage.Visibility = Visibility.Hidden; SettingsPage.Visibility = Visibility.Collapsed; RoboSanyiPage.Visibility = Visibility.Collapsed;
+        ServicePage.Visibility = Visibility.Visible; ApplyMenuTheme();
+    }
     private void OpenSettings(object sender, RoutedEventArgs e)
     {
-        settingsOpen = true; roboOpen = false; RoboSanyiPage.Visibility = Visibility.Collapsed; CalculatorPage.Visibility = Visibility.Hidden;
+        CloseServicePage(); settingsOpen = true; roboOpen = false; RoboSanyiPage.Visibility = Visibility.Collapsed; CalculatorPage.Visibility = Visibility.Hidden;
         SettingsPage.Visibility = Visibility.Visible; ApplyMenuTheme();
     }
     private void ShowCalculator()
     {
-        settingsOpen = false; roboOpen = false; RoboSanyiPage.Visibility = Visibility.Collapsed; SettingsPage.Visibility = Visibility.Collapsed;
+        CloseServicePage(); settingsOpen = false; roboOpen = false; RoboSanyiPage.Visibility = Visibility.Collapsed; SettingsPage.Visibility = Visibility.Collapsed;
         CalculatorPage.Visibility = Visibility.Visible; ApplyMenuTheme();
     }
     private void ApplyMenuTheme()
     {
         ApplyModeLabels();
+        SetSelected(ServiceMenu, serviceOpen);
         SetSelected(SettingsMenu, settingsOpen);
         SetSelected(RoboMenu, roboOpen);
-        CalculatorSidebar.Visibility = roboOpen ? Visibility.Collapsed : Visibility.Visible;
+        CalculatorSidebar.Visibility = (roboOpen || serviceOpen) ? Visibility.Collapsed : Visibility.Visible;
         RoboSidebar.Visibility = roboOpen ? Visibility.Visible : Visibility.Collapsed;
         SetSelected(GeneralSettingsButton, settingsSection == "General");
         SetSelected(DhlSettingsButton, settingsSection == "DHL");
@@ -121,14 +128,14 @@ public partial class MainWindow : Window
 
     private void OpenRoboSanyi(object sender, RoutedEventArgs e)
     {
-        settingsOpen = false; roboOpen = true;
+        CloseServicePage(); settingsOpen = false; roboOpen = true;
         CalculatorPage.Visibility = Visibility.Hidden; SettingsPage.Visibility = Visibility.Collapsed;
         RoboSanyiPage.Visibility = Visibility.Visible;
         ApplyMenuTheme(); RoboSanyiPage.Open();
     }
     private void ApplyAppearance()
     {
-        ThemePalette.Apply(lightTheme); ApplyMenuTheme();
+        ThemePalette.Apply(lightTheme); ServicePage.ApplyTheme(lightTheme); ApplyMenuTheme();
         if (multiplier.HasValue) SelectMultiplier(multiplier.Value);
         SetSelected(DarkThemeButton, !lightTheme);
         SetSelected(LightThemeButton, lightTheme);
@@ -165,8 +172,8 @@ public partial class MainWindow : Window
         EurHelp.Visibility = eurMode ? Visibility.Visible : Visibility.Collapsed;
         EuroLabel.Text = eurMode ? "Beszerzési ár euróban" : "CAT ár euróban";
         DealerLabel.Text = eurMode ? "Alapár (felár nélkül)" : "Dealer ár +10%";
-        SetSelected(CatMenu, !settingsOpen && !roboOpen && !eurMode);
-        SetSelected(EurMenu, !settingsOpen && !roboOpen && eurMode);
+        SetSelected(CatMenu, !settingsOpen && !roboOpen && !serviceOpen && !eurMode);
+        SetSelected(EurMenu, !settingsOpen && !roboOpen && !serviceOpen && eurMode);
     }
     private void UpdateSidebar()
     {
@@ -568,6 +575,7 @@ public partial class MainWindow : Window
     }
     private void OnKeyDown(object sender, KeyEventArgs e)
     {
+        if (serviceOpen) return;
         if (roboOpen) return;
         if (settingsOpen) { if (e.Key == Key.Escape) { ShowCalculator(); e.Handled = true; } return; }
         if (e.Key == Key.Escape || (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.N)) { NewCalculation(null, null); e.Handled = true; }

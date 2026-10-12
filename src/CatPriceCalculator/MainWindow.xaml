@@ -43,6 +43,7 @@
                                     <TextBlock Text="EUR árkalkulátor" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                                 </StackPanel>
                             </Button>
+                            <Button x:Name="ServiceMenu" Click="OpenServiceCalendar" Style="{StaticResource NavigationButton}" Margin="0,0,0,6"><StackPanel Orientation="Horizontal"><Path Style="{StaticResource ButtonIcon}" Data="{StaticResource DocumentIcon}"/><TextBlock Text="Szerviznaptár" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/></StackPanel></Button>
                             <Button x:Name="RoboMenu" Click="OpenRoboSanyi" Style="{StaticResource NavigationButton}">
                                 <StackPanel Orientation="Horizontal">
                                     <Path Style="{StaticResource ButtonIcon}" Data="{StaticResource RobotIcon}" />
@@ -66,7 +67,7 @@
                             </Button>
                             <TextBlock Text="Linser Hungary" Foreground="{DynamicResource AccentText}" Margin="4,0,0,4" />
                             <TextBlock Text="Belső vállalati segédprogram" Style="{StaticResource Caption}" Margin="4,0,0,8" />
-                            <TextBlock x:Name="CurrentVersionText" Text="v1.1.0-beta.9" Style="{StaticResource Caption}" Margin="4,0,0,0" />
+                            <TextBlock x:Name="CurrentVersionText" Text="v1.2.0-beta.1" Style="{StaticResource Caption}" Margin="4,0,0,0" />
                             <TextBlock x:Name="UpdateInfo" TextWrapping="Wrap" Style="{StaticResource Caption}" Margin="4,5,0,0" />
                         </StackPanel>
                         <Grid>
@@ -106,6 +107,7 @@
                 </Border>
 
                 <!-- Every section has a stable row, including the EUR replacement of the DKK/EUR fields. -->
+                <local:ServiceCalendarView x:Name="ServicePage" Grid.Column="1" Margin="14,12" Visibility="Collapsed"/>
                 <Grid x:Name="CalculatorPage" Grid.Column="1" Margin="14,12">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="100" /><RowDefinition Height="12" />
@@ -292,11 +294,11 @@
                     </Border>
                     <Border Grid.Row="6" Style="{StaticResource Card}" Padding="14">
                         <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><Path Style="{StaticResource Icon}" Data="{StaticResource DocumentIcon}" /><TextBlock x:Name="ReleaseNotesTitle" Text="Legújabb verzió • v1.1.0-beta.9" Style="{StaticResource SectionHeading}" /></StackPanel>
-                            <TextBlock Text="• Teljes világos téma minden alkalmazáslapon." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Világos panelek, mezők és kék kiemelések." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Egységes kalkulátor, Robo Sanyi és Beállítások." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Változatlan elrendezés, méretek és funkciók." TextWrapping="Wrap" Margin="0,4,0,0" />
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><Path Style="{StaticResource Icon}" Data="{StaticResource DocumentIcon}" /><TextBlock x:Name="ReleaseNotesTitle" Text="Legújabb verzió • v1.2.0-beta.1" Style="{StaticResource SectionHeading}" /></StackPanel>
+                            <TextBlock Text="• Új Szerviznaptár és helyi feladatmentés." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Excel ügyfél- és géptörzs importálása." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Ügyfélhez szűrt gépek és öt munkatárs." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Felugró havi naptár, több feladat egy napra." TextWrapping="Wrap" Margin="0,4,0,0" />
                         </StackPanel>
                     </Border>
                     </Grid>

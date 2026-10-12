@@ -1,3 +1,20 @@
+# Linser Hungary v1.2.0-beta.1 – Szerviznaptár alapverzió
+
+- Új Szerviznaptár adatbekérő lap, közvetlen ügyfél- és gép-Excel (.xlsx) importtal.
+- Ügyfélhez rendelt gépválasztás; négy szerelő és Szalai Zoltán szervizvezető külön naptársorral.
+- Dátum, kapcsolattartó neve/telefonja, gép lokációja és hibaleírás; több feladat ugyanarra a napra, helyi mentéssel.
+- Felugró havi naptár, hónapfülek, hónapléptetés, színes munkatárssávok, teljes feladatrészletek lapozása.
+
+Windows: CAT-Letoltes-Windows-v1.2.0-beta.1.cmd vagy Frissítések engedélyezett béta csatornával. A stabil kiadás továbbra is v1.0.1.
+
+Az Excel-export első munkalapját olvassa, közös ügyfélazonosítóval. Importútmutató és két üres Excel-minta az Importmappa megnyitása gombbal is elérhető. A tényleges ügyviteli export oszlopaihoz egy mintafájl alapján tovább igazítható.
+
+Helyi tárolás; az első változat feladatrögzítést és megtekintést tartalmaz. 539 automatizált ellenőrzés sikeres, Windows x64 self-contained kiadás elkészült. A Windows WPF-felületet Linux alatt nem futtattuk.
+
+Részletes használat és importoszlopok: [SERVICE-CALENDAR.md](SERVICE-CALENDAR.md).
+
+---
+
 # Linser Hungary v1.1.0-beta.9 – teljes világos téma
 
 - A világos mód az egész alkalmazásra kiterjed: kalkulátorok, menü, Robo Sanyi, futárbeállítások és API-napló.
