@@ -57,3 +57,5 @@
 - v1.1.0-beta.9: teljes világos paletta minden lapon; a szín- és teljes brush-erőforrások együtt váltanak. Fehér/acélkék panelek, sötét szöveg, kék aktív állapotok, változatlan geometria.
 
 - v1.2.0-beta.1: Szerviznaptár adatbekérő az állandó referenciakereten belül, közös hero és kártyastílusokkal, közvetlen Excel-fájlválasztással. Külön méretezhető naptárablak: 12 hónapfül, hétfővel kezdődő hathetes rács, öt állandó színű munkatárssor, több feladat jelölése. A részletek lapozhatók, nincs görgetősáv; mindkét alkalmazástéma támogatott.
+
+- v1.2.0-beta.2: ügyfél/gép kártya belső sorai és paddingje beleférnek a rögzített magasságba. Explicit DisplayName a választókban, üres kezdeti szerelő. Naptár semleges tematikus felületekkel, váltakozó munkatárssorokkal, névfeliratokkal és kék széljelöléssel; ablak és részletek közös 10-es kártyákkal.

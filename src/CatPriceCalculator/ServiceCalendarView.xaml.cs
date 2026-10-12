@@ -24,7 +24,7 @@ public partial class ServiceCalendarView : UserControl
         ImportStatus.ToolTip=$"Ügyfél: {customerFile}\nGép: {machineFile}";
     }
     public ServiceCalendarView() {
-        InitializeComponent(); StaffInput.ItemsSource = ServiceCalendar.Staff; StaffInput.SelectedIndex = 0;
+        InitializeComponent(); StaffInput.ItemsSource = ServiceCalendar.Staff; StaffInput.SelectedIndex = -1;
         DateInput.Text = DateTime.Today.ToString("yyyy.MM.dd", CultureInfo.InvariantCulture);
         try { catalog=store.LoadCatalog(); jobs=store.LoadJobs(); storageReady=true; }
         catch(Exception e) when(e is IOException or UnauthorizedAccessException or FormatException) { Status.Text=e is FormatException ? e.Message : "A szervizadatok nem olvashatók. Mentés letiltva az eredeti adatok védelmében."; }
@@ -41,7 +41,7 @@ public partial class ServiceCalendarView : UserControl
     private void OpenImportFolder(object sender,RoutedEventArgs e) {
         try {
             Directory.CreateDirectory(importDirectory);
-            foreach(var name in new[]{"ugyfelek-minta.xlsx","gepek-minta.xlsx"}) {
+            foreach(var name in new[]{"ugyfelek-minta.xlsx","gepek-minta.xlsx","ugyfelek-proba.xlsx","gepek-proba.xlsx"}) {
                 var destination=Path.Combine(importDirectory,name);
                 if(!File.Exists(destination)) {
                     using var input=Application.GetResourceStream(new Uri("/CAT-Price-Calculator;component/Assets/ServiceCalendar/"+name,UriKind.Relative)).Stream;

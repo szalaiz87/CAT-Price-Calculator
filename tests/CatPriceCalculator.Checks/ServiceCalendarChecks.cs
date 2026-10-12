@@ -6,6 +6,10 @@ internal static class ServiceCalendarChecks
     public static void Run(Action<bool,string> check) {
         var directory=Path.Combine(Path.GetTempPath(),"service-checks-"+Guid.NewGuid());Directory.CreateDirectory(directory);
         try {
+            var demo=ServiceCatalogCsv.Load(Path.Combine(AppContext.BaseDirectory,"Fixtures","ugyfelek-proba.xlsx"),Path.Combine(AppContext.BaseDirectory,"Fixtures","gepek-proba.xlsx"));
+            check(demo.Customers.Length==4 && demo.Machines.Length==8,"Shipped demo Excel databases import successfully");
+            check(demo.Customers.All(c=>ServiceCalendar.MachinesFor(demo,c.Id).Count()==2),"Demo database assigns exactly two machines to every customer");
+            check(ServiceCalendar.Staff.All(s=>s.DisplayName==s.Name),"Staff display labels contain only the human-readable name");
             var customers=Path.Combine(directory,"customers.csv");var machines=Path.Combine(directory,"machines.csv");
             File.WriteAllText(customers,"ugyfelazonosito;nev\n001;\"Első; ügyfél\"\n002;Második\n",new UTF8Encoding(true));
             File.WriteAllText(machines,"gepazonosito;ugyfelazonosito;megnevezes;gyariszam\nM1;001;CAT 320;000123\nM2;002;CAT 330;xyz\n");

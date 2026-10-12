@@ -2,10 +2,10 @@ using System.Text;
 using System.Text.Json;
 namespace CatPriceCalculator.Core;
 
-public sealed record ServiceCustomer(string Id, string Name) { public override string ToString() => Name + " · " + Id; }
-public sealed record ServiceMachine(string Id, string CustomerId, string Name, string SerialNumber) { public override string ToString() => Name + (string.IsNullOrWhiteSpace(SerialNumber) ? "" : " · " + SerialNumber); }
+public sealed record ServiceCustomer(string Id, string Name) { [System.Text.Json.Serialization.JsonIgnore] public string DisplayName => ToString(); public override string ToString() => Name + " · " + Id; }
+public sealed record ServiceMachine(string Id, string CustomerId, string Name, string SerialNumber) { [System.Text.Json.Serialization.JsonIgnore] public string DisplayName => ToString(); public override string ToString() => Name + (string.IsNullOrWhiteSpace(SerialNumber) ? "" : " · " + SerialNumber); }
 public sealed record ServiceCatalog(ServiceCustomer[] Customers, ServiceMachine[] Machines);
-public sealed record ServiceStaff(string Id, string Name, string Color);
+public sealed record ServiceStaff(string Id, string Name, string Color) { public string DisplayName => Name; }
 public sealed record ServiceJob(Guid Id, DateOnly Date, string StaffId, string CustomerId, string CustomerName, string MachineId, string MachineName, string SerialNumber, string ContactName, string Phone, string Location, string Description);
 public static class ServiceCalendar
 {

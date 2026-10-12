@@ -24,7 +24,7 @@ Excel (.xlsx), első munkalap, első nem üres sor a fejléc. Excel telepítése
 
 A fejléc kis/nagybetűi, ékezetei és szóközei nem számítanak. „Ügyfélkód”, „Partnerkód”, „Partnerazonosító”, „Ügyfél neve”, „Partnernév”, „Gépkód”, „Gép megnevezése” és „Sorozatszám” is elfogadott megfelelő névként. Üres kötelező mező, duplikált azonosító és ismeretlen ügyfélhez rendelt gép esetén az import elutasított, a régi adatbázis megmarad.
 
-Az Importmappa megnyitása gomb létrehozza a `Dokumentumok\LinserHungary\Szerviznaptar\Import` mappát, benne két üres fejléces mintával és útmutatóval. Fájlválasztás nélkül innen olvassa az `ugyfelek.xlsx` és `gepek.xlsx` fájlokat. Nem írja felül az ott meglévő exportokat.
+Az Importmappa megnyitása gomb létrehozza a `Dokumentumok\LinserHungary\Szerviznaptar\Import` mappát, benne két üres fejléces mintával, kitöltött `ugyfelek-proba.xlsx` / `gepek-proba.xlsx` próbaadatbázissal és útmutatóval. Fájlválasztás nélkül innen olvassa az `ugyfelek.xlsx` és `gepek.xlsx` fájlokat. Nem írja felül az ott meglévő exportokat.
 
 ## Feladat mentése
 
@@ -39,3 +39,5 @@ A feladatok ügyfél- és gépnevet is mentenek: egy későbbi törzsimport nem 
 Ez az alapverzió rögzítést és megtekintést tartalmaz. Meglévő feladat szerkesztése/törlése, időpontok, többnapos feladatok, megosztás és emlékeztetők későbbi fejlesztési lépések.
 
 A WPF-felület tényleges futtatása Linux alatt nem ellenőrizhető; a build, import, hozzárendelés, hónaprács és mentés automatizáltan ellenőrizhető.
+
+A kitöltött próbaadatbázis 4 fiktív ügyfelet és 8 gépet tartalmaz. A fájlválasztókkal válassza ki a két `*-proba.xlsx` fájlt, majd olvassa be őket. Ez az import lecseréli a helyi ügyfél/gép törzset, de a meglévő naptárfeladatokat megőrzi. A végleges adatbázisra a valódi fájlok újraimportálásával lehet visszatérni. A naptár munkatársjelölése feliratos sorokkal, kék széljelöléssel és semleges váltakozó felületekkel történik.

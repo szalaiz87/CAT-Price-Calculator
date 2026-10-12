@@ -1,3 +1,16 @@
+# Linser Hungary v1.2.0-beta.2 – szerviznaptár felületjavítás és próbaadatok
+
+- Javított ügyfél/gép kártyamagasság: a gépsor nem kerül takarásba.
+- A választók olvasható neveket mutatnak; a szerelőválasztó kezdetben üres.
+- A havi naptár és részletablak az app kártyás, lekerekített stílusát követi; élénk színek helyett tematikus felületek, váltakozó sorok, munkatársnevek és kék jelölések.
+- Kitöltött ugyfelek-proba.xlsx és gepek-proba.xlsx: 4 fiktív ügyfél, ügyfelenként 2 gép. Közvetlenül importálhatók a Szerviznaptár lapon, és az Importmappa megnyitása gombbal is elérhetők.
+
+Windows: CAT-Letoltes-Windows-v1.2.0-beta.2.cmd vagy Frissítések engedélyezett béta csatornával. Stabil továbbra is v1.0.1.
+
+542 automatizált ellenőrzés sikeres; a kártyák belső méreteit és a témák erőforrásait is ellenőriztük. Windows x64 self-contained build. A tényleges WPF-felületet Linux alatt nem futtattuk.
+
+---
+
 # Linser Hungary v1.2.0-beta.1 – Szerviznaptár alapverzió
 
 - Új Szerviznaptár adatbekérő lap, közvetlen ügyfél- és gép-Excel (.xlsx) importtal.

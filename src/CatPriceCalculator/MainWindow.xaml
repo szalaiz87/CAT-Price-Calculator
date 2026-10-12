@@ -67,7 +67,7 @@
                             </Button>
                             <TextBlock Text="Linser Hungary" Foreground="{DynamicResource AccentText}" Margin="4,0,0,4" />
                             <TextBlock Text="Belső vállalati segédprogram" Style="{StaticResource Caption}" Margin="4,0,0,8" />
-                            <TextBlock x:Name="CurrentVersionText" Text="v1.2.0-beta.1" Style="{StaticResource Caption}" Margin="4,0,0,0" />
+                            <TextBlock x:Name="CurrentVersionText" Text="v1.2.0-beta.2" Style="{StaticResource Caption}" Margin="4,0,0,0" />
                             <TextBlock x:Name="UpdateInfo" TextWrapping="Wrap" Style="{StaticResource Caption}" Margin="4,5,0,0" />
                         </StackPanel>
                         <Grid>
@@ -294,11 +294,11 @@
                     </Border>
                     <Border Grid.Row="6" Style="{StaticResource Card}" Padding="14">
                         <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><Path Style="{StaticResource Icon}" Data="{StaticResource DocumentIcon}" /><TextBlock x:Name="ReleaseNotesTitle" Text="Legújabb verzió • v1.2.0-beta.1" Style="{StaticResource SectionHeading}" /></StackPanel>
-                            <TextBlock Text="• Új Szerviznaptár és helyi feladatmentés." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Excel ügyfél- és géptörzs importálása." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Ügyfélhez szűrt gépek és öt munkatárs." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Felugró havi naptár, több feladat egy napra." TextWrapping="Wrap" Margin="0,4,0,0" />
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><Path Style="{StaticResource Icon}" Data="{StaticResource DocumentIcon}" /><TextBlock x:Name="ReleaseNotesTitle" Text="Legújabb verzió • v1.2.0-beta.2" Style="{StaticResource SectionHeading}" /></StackPanel>
+                            <TextBlock Text="• Javított ügyfél- és gépmező elrendezés." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Szerelőválasztó: név és üres kezdeti állapot." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Kártyás naptárablak, visszafogott jelölések." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Egységes világos és sötét megjelenés." TextWrapping="Wrap" Margin="0,4,0,0" />
                         </StackPanel>
                     </Border>
                     </Grid>
