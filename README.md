@@ -1,3 +1,15 @@
+# Linser Hungary v1.1.0-beta.8 – szorzófrissítés
+
+- Mindkét kalkulátorban 1,95 és 2,00 helyett 1,20 és 1,25 szorzó.
+- Közös 1,20–1,90 szorzólista, változatlan 15 gomb és 3×5-ös elrendezés.
+- Alapértelmezett szorzó továbbra is 1,40; a béta csomagkövetés megmarad.
+
+Windows: CAT-Letoltes-Windows-v1.1.0-beta.8.cmd vagy a Frissítések gomb engedélyezett béta csatornával. A legfrissebb stabil kiadás v1.0.1.
+
+508 automatizált ellenőrzés sikeres; Windows x64 self-contained kiadás elkészült. A Windows WPF-felületet Linux alatt nem futtattuk.
+
+---
+
 # Linser Hungary v1.1.0-beta.7 – FedEx, GLS és egységes futárfelület
 
 - **FedEx és magyar MyGLS** kézi csomagkövetés a Robo Sanyi lapon, a meglévő DHL/UPS mellett. Nincs automatikus lekérés vagy OAuth-hívás; megmarad a soronkénti/összes frissítés, törlés, két táblázat és 48 órás megőrzés.

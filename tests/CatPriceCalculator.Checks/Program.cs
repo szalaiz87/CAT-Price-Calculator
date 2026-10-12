@@ -11,13 +11,18 @@ foreach (var multiplier in PriceCalculator.SellingMultipliers) Check(PriceCalcul
 try { PriceCalculator.Calculate(decimal.MaxValue, 50m, 1.4m); throw new Exception("Overflow was ignored"); } catch (OverflowException) { Check(true, "Overflow detected"); }
 Check(PriceCalculator.ConvertToEuro(1250m, 0.134m) == 167.5m, "EUR uses raw CAT price without dealer markup");
 Check(PriceCalculator.TryPositive("0,134025", out var euroParsed) && euroParsed == 0.134025m, "EUR rate precision and Hungarian input");
-Check(PriceCalculator.EuroSellingMultipliers.Count == 15 && PriceCalculator.EuroSellingMultipliers.First() == 1.30m && PriceCalculator.EuroSellingMultipliers.Last() == 2m, "EUR multipliers 1.30 to 2.00");
+Check(PriceCalculator.EuroSellingMultipliers.SequenceEqual(new[] { 1.20m, 1.25m, 1.30m, 1.35m, 1.40m, 1.45m, 1.50m, 1.55m, 1.60m, 1.65m, 1.70m, 1.75m, 1.80m, 1.85m, 1.90m }), "EUR multipliers 1.20 to 1.90, retaining 15 buttons");
 foreach (var m in PriceCalculator.EuroSellingMultipliers) {
 var eurResult = PriceCalculator.CalculateEuro(100m, 400m, m);
 Check(eurResult.Dealer == 100m && eurResult.Cost == 40000m && eurResult.Selling == decimal.Round(40000m * m, 0, MidpointRounding.AwayFromZero), "EUR without dealer surcharge " + m);
 }
 Check(ReferenceEquals(PriceCalculator.SellingMultipliers, PriceCalculator.EuroSellingMultipliers), "CAT and EUR share the exact multiplier list");
-Check(PriceCalculator.Calculate(100m, 50m, 2m).Selling == 11000m, "CAT accepts multiplier 2.00 with unchanged dealer surcharge");
+Check(PriceCalculator.Calculate(100m, 50m, 1.20m).Selling == 6600m, "CAT accepts multiplier 1.20 with unchanged dealer surcharge");
+Check(PriceCalculator.Calculate(100m, 50m, 1.25m).Selling == 6875m, "CAT accepts multiplier 1.25 with unchanged dealer surcharge");
+foreach (var removed in new[] { 1.95m, 2.00m }) {
+try { PriceCalculator.Calculate(100m, 50m, removed); throw new Exception("Removed CAT multiplier accepted"); } catch (ArgumentOutOfRangeException) { Check(true, "CAT rejects removed multiplier " + removed); }
+try { PriceCalculator.CalculateEuro(100m, 400m, removed); throw new Exception("Removed EUR multiplier accepted"); } catch (ArgumentOutOfRangeException) { Check(true, "EUR rejects removed multiplier " + removed); }
+}
 var eurProfit = PriceCalculator.Profit(40000m, 56000m);
 Check(eurProfit.Amount == 16000m && decimal.Round(eurProfit.MarginPercent!.Value, 2) == 28.57m, "EUR profit and margin");
 Check(PriceCalculator.CalculateEuro(1m, 1m, 1.50m).Selling == 2m, "EUR whole-forint midpoint rounding");
