@@ -63,3 +63,5 @@
 - v1.2.0-beta.3: külön Beállítások / Szerviz importlap, két látható fájlútvonallal. Szervizlap csak importidő és hét nap után villogó amber figyelmeztetés; teljes mentés utáni ürítés. Ügyfélkereső 12-es lapozott listával, prefix/bárhol mód és ékezetfüggetlen index; gép legördülő marad. Szervizvezető legelső és arany jelölésű sor; főablaktól független normál szervizablakok, owner/topmost és modalitás nélkül.
 
 - v1.2.0-beta.4: közös AppButtonTemplate a normál és menügomboknak, változatlan vezérlőméretekkel. Napi részletek két soros gombzónában; Munka hozzáadása a nap/szerelő párost adja át. Szervizvezető külön szöveges felirat nélkül; kötelező rögzítőválasztó a fix adatbekérő kereten belül.
+
+- v1.2.0-beta.5: minden Button látható InputBorder keretet és ButtonSurface alapfelületet kap, beleértve a NavigationButton és ClearPriceButton stílusokat. Az alapállapot sem olvad a háttérbe; méretek, közös menüsablon, aktív és fókuszállapot változatlan.

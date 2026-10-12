@@ -1,3 +1,15 @@
+# Linser Hungary v1.2.0-beta.5 – látható gombkeretek
+
+- Az app minden gombján látható keret és elkülönülő felület alapállapotban is.
+- Közös funkcióválasztó stílus a bal menüben, a menük alján, az adatbekérőkön, a naptárban és a részletablak lapozó/műveleti gombjain.
+- Lekerekítések és egységes hover, aktív és fókuszjelölés megmarad, mindkét témában.
+
+Windows: CAT-Letoltes-Windows-v1.2.0-beta.5.cmd vagy Frissítések engedélyezett béta csatornával. Stabil továbbra is v1.0.1.
+
+563 automatizált ellenőrzés és Windows x64 self-contained build. A tényleges WPF-felületet Linux alatt nem futtattuk.
+
+---
+
 # Linser Hungary v1.2.0-beta.4 – munka hozzáadása és egységes gombstílus
 
 - A naptárban Szalai Zoltán mellett nincs külön vezető felirat; az első hely és arany jelölés megmarad.
