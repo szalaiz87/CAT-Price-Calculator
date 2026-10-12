@@ -13,6 +13,7 @@ public sealed class ServiceCalendarWindow : Window
     private readonly Grid calendar=new();
     private readonly TextBlock title=new(){FontSize=25,FontWeight=FontWeights.SemiBold,VerticalAlignment=VerticalAlignment.Center};
     private readonly UniformGridHost monthTabs=new();
+    private readonly List<Button> monthButtons=[];
     private static readonly CultureInfo Hungarian=CultureInfo.GetCultureInfo("hu-HU");
     public ServiceCalendarWindow(ServiceJob[] tasks,DateOnly date,Action<DateOnly,string>? add=null) {
         addWork=add;jobs=tasks;year=date.Year;month=date.Month;
@@ -22,7 +23,10 @@ public sealed class ServiceCalendarWindow : Window
         root.RowDefinitions.Add(new(){Height=new GridLength(92)});root.RowDefinitions.Add(new(){Height=new GridLength(60)});root.RowDefinitions.Add(new(){Height=new GridLength(12)});root.RowDefinitions.Add(new(){Height=new GridLength(1,GridUnitType.Star)});root.RowDefinitions.Add(new(){Height=new GridLength(32)});
         var header=new DockPanel();title.SetResourceReference(TextBlock.ForegroundProperty,"TextPrimary");
         var navigation=new StackPanel{Orientation=Orientation.Horizontal};DockPanel.SetDock(navigation,Dock.Right);
-        navigation.Children.Add(Action("‹ Előző hónap",()=>MoveMonth(-1)));navigation.Children.Add(Action("Ma",()=>{year=DateTime.Today.Year;month=DateTime.Today.Month;Render();}));navigation.Children.Add(Action("Következő hónap ›",()=>MoveMonth(1)));
+        var previous=Action("‹ Előző hónap",()=>MoveMonth(-1));previous.Width=160;
+        var today=Action("Ma",()=>{year=DateTime.Today.Year;month=DateTime.Today.Month;Render();});today.Width=64;
+        var next=Action("Következő hónap ›",()=>MoveMonth(1));next.Width=160;
+        navigation.Children.Add(previous);navigation.Children.Add(today);navigation.Children.Add(next);
         header.Children.Add(navigation);header.Children.Add(title);root.Children.Add(Card(header));
         var months=Card(monthTabs); months.Padding=new Thickness(4);Grid.SetRow(months,1);root.Children.Add(months);
         var calendarCard=Card(calendar);calendarCard.Padding=new Thickness(8);Grid.SetRow(calendarCard,3);root.Children.Add(calendarCard);
@@ -30,6 +34,7 @@ public sealed class ServiceCalendarWindow : Window
         Content=new Viewbox{Stretch=Stretch.Uniform,StretchDirection=StretchDirection.DownOnly,Child=root};
         SourceInitialized+=(_,_)=>WindowTheme.Apply(this,new AppearanceStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"CAT-Price-Calculator","appearance.json")).Load()==Appearance.Light);
         Closed+=(_,_)=>{foreach(var detail in detailWindows.ToArray())detail.Close();};
+        for(int m=1;m<=12;m++){var selected=m;var button=Action(Hungarian.DateTimeFormat.GetAbbreviatedMonthName(m),()=>{month=selected;Render();});monthButtons.Add(button);monthTabs.Children.Add(button);}
         Render();
     }
     private static Button Action(string label,Action action) {var b=new Button{Content=label,Margin=new Thickness(3),Padding=new Thickness(12,6,12,6)};b.Click+=(_,_)=>action();return b;}
@@ -38,8 +43,7 @@ public sealed class ServiceCalendarWindow : Window
     public void Refresh(ServiceJob[] tasks){jobs=tasks;Render();}
     private void Render(){
         title.Text=$"SZERVIZNAPTÁR · {year}. {Hungarian.DateTimeFormat.GetMonthName(month)}";
-        monthTabs.Children.Clear();
-        for(int m=1;m<=12;m++){var selected=m;var button=Action(Hungarian.DateTimeFormat.GetAbbreviatedMonthName(m),()=>{month=selected;Render();});button.SetValue(System.Windows.Controls.Primitives.Selector.IsSelectedProperty,m==month);monthTabs.Children.Add(button);}
+        for(int m=0;m<12;m++)monthButtons[m].SetValue(System.Windows.Controls.Primitives.Selector.IsSelectedProperty,m+1==month);
         calendar.Children.Clear();calendar.RowDefinitions.Clear();calendar.ColumnDefinitions.Clear();
         calendar.ColumnDefinitions.Add(new(){Width=new GridLength(145)});for(int i=0;i<7;i++)calendar.ColumnDefinitions.Add(new(){Width=new GridLength(1,GridUnitType.Star)});
         calendar.RowDefinitions.Add(new(){Height=new GridLength(28)});
@@ -47,7 +51,7 @@ public sealed class ServiceCalendarWindow : Window
         string[] days={"Hétfő","Kedd","Szerda","Csütörtök","Péntek","Szombat","Vasárnap"};
         for(int d=0;d<7;d++){var label=new TextBlock{Text=days[d],FontWeight=FontWeights.SemiBold,HorizontalAlignment=HorizontalAlignment.Center};label.SetResourceReference(TextBlock.ForegroundProperty,"TextPrimary");Place(label,0,d+1);}
         var start=ServiceCalendar.MonthGridStart(year,month);
-        var lookup=jobs.GroupBy(j=>(j.Date,j.StaffId)).ToDictionary(g=>g.Key,g=>g.ToArray());
+        var lookup=ServiceMonthIndex.Build(jobs,ServiceCalendar.MonthGridStart(year,month));
         for(int week=0;week<6;week++){
             int row=1+week*6;
             for(int s=0;s<5;s++) {

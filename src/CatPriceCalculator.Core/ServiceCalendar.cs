@@ -47,7 +47,7 @@ public static class ServiceCatalogCsv
         if (machines.Any(m => !ids.Contains(m.CustomerId))) throw new FormatException("Van olyan gép, amelynek ügyfélazonosítója nem található az ügyfélfájlban.");
         return new(customers.OrderBy(c => c.Name, StringComparer.CurrentCultureIgnoreCase).ToArray(), machines.OrderBy(m => m.Name, StringComparer.CurrentCultureIgnoreCase).ToArray());
     }
-    private static IEnumerable<Dictionary<string,string>> Read(string path, string[] required) {
+    private static IEnumerable<ImportRow> Read(string path, string[] required) {
         if (Path.GetExtension(path).Equals(".xlsx", StringComparison.OrdinalIgnoreCase)) {
             foreach (var row in ValidateRows(ServiceExcel.Read(path), required)) yield return row;
             yield break;
@@ -57,17 +57,23 @@ public static class ServiceCatalogCsv
         var rows = Parse(text, first.Contains(';') ? ';' : ',');
         foreach (var row in ValidateRows(rows, required)) yield return row;
     }
-    private static IEnumerable<Dictionary<string,string>> ValidateRows(List<string[]> rows, string[] required) {
+    private static IEnumerable<ImportRow> ValidateRows(List<string[]> rows, string[] required) {
         if (rows.Count == 0) throw new FormatException("Üres CSV-fájl.");
         var headers = rows[0].Select(s => NormalizeHeader(s)).ToArray();
         if (headers.Distinct().Count() != headers.Length || required.Any(h => !headers.Contains(h))) throw new FormatException("Hiányzó vagy ismétlődő oszlop. Szükséges: " + string.Join(", ", required));
+        var columns=headers.Select((name,index)=>(name,index)).ToDictionary(x=>x.name,x=>x.index);
         foreach (var row in rows.Skip(1)) {
             if (row.All(string.IsNullOrWhiteSpace)) continue;
             if (row.Length != headers.Length) throw new FormatException("Eltérő oszlopszám a CSV-fájlban.");
-            var values = headers.Select((h,i) => (h, value:row[i].Trim())).ToDictionary(x => x.h, x => x.value);
-            if (required.Any(h => string.IsNullOrWhiteSpace(values[h]))) throw new FormatException("Üres kötelező mező a CSV-fájlban.");
-            yield return values;
+            for(int i=0;i<row.Length;i++)row[i]=row[i].Trim();
+            foreach(var name in required)if(string.IsNullOrWhiteSpace(row[columns[name]]))throw new FormatException("Üres kötelező mező a CSV-fájlban.");
+            yield return new ImportRow(row,columns);
         }
+    }
+    // One shared header map per file instead of a dictionary and LINQ pipeline per row.
+    private readonly record struct ImportRow(string[] Values,Dictionary<string,int> Columns) {
+        public string this[string name]=>Values[Columns[name]];
+        public string GetValueOrDefault(string name,string fallback)=>Columns.TryGetValue(name,out var index)?Values[index]:fallback;
     }
     private static string NormalizeHeader(string header) {
         var stripped=new string(header.Trim().ToLowerInvariant().Normalize(NormalizationForm.FormD).Where(c=>System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c)!=System.Globalization.UnicodeCategory.NonSpacingMark && char.IsLetterOrDigit(c)).ToArray());

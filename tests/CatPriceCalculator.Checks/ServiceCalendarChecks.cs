@@ -45,6 +45,27 @@ internal static class ServiceCalendarChecks
             check(excel.Customers[0].Id=="001" && excel.Machines[0].SerialNumber=="0000123" && excel.Customers[0].Name.Contains('&'),"XLSX inline text identifiers and escaped customer names");
             WriteExcel(cx,new[]{new[]{"ugyfelazonosito","nev"},new[]{"001","Közös szöveg"}},shared:true);
             check(ServiceCatalogCsv.Load(cx,mx).Customers[0].Name=="Közös szöveg","XLSX shared-string exports");
+            var gridStart=ServiceCalendar.MonthGridStart(2026,10);
+            ServiceJob[] monthJobs=[job with{Date=gridStart.AddDays(-1)},job with{Date=gridStart},second with{Date=gridStart},job with{Date=gridStart.AddDays(41)},job with{Date=gridStart.AddDays(42)}];
+            var monthIndex=ServiceMonthIndex.Build(monthJobs,gridStart);
+            check(monthIndex.Values.Sum(v=>v.Length)==3,"Month grouping excludes history and dates beyond the displayed 42 days");
+            check(monthIndex[(gridStart,job.StaffId)].SequenceEqual(monthJobs.Skip(1).Take(2)),"Month grouping preserves task order and duplicates on the same day");
+            WriteExcel(cx,new[]{new[]{"ugyfelazonosito","nev"},new[]{"001","Minta"}});
+            RewriteSheet(cx,s=>s.Replace("<t>Minta</t>","<r><t>Árvíz</t></r><r><t>tűrő ügyfél</t></r>"));
+            check(ServiceCatalogCsv.Load(cx,mx).Customers[0].Name=="Árvíztűrő ügyfél","Streaming XLSX preserves rich-text fragments");
+            WriteExcel(mx,new[]{new[]{"gepazonosito","ugyfelazonosito","megnevezes","gyariszam"},new[]{"M1","001","CAT",""}});
+            check(ServiceCatalogCsv.Load(cx,mx).Machines[0].SerialNumber=="","Streaming XLSX preserves missing optional cells");
+            foreach(var invalidReference in new[]{"A0","A+2","A9999999"}){
+                WriteExcel(cx,new[]{new[]{"ugyfelazonosito","nev"},new[]{"001","Minta"}});
+                RewriteSheet(cx,s=>s.Replace("r=\"A2\"","r=\""+invalidReference+"\""));
+                try{ServiceCatalogCsv.Load(cx,mx);throw new Exception("Invalid cell reference accepted");}catch(FormatException){check(true,"Reject invalid Excel cell coordinate "+invalidReference);}
+            }
+            WriteExcel(cx,new[]{new[]{"ugyfelazonosito","nev"},new[]{"001","Minta"}});
+            RewriteSheet(cx,s=>s.Replace("r=\"B2\" t=\"inlineStr\"","r=\"B2\" t=\"e\""));
+            try{ServiceCatalogCsv.Load(cx,mx);throw new Exception("Excel error accepted");}catch(FormatException){check(true,"Reject Excel error cells instead of importing error text");}
+            WriteExcel(cx,new[]{new[]{"ugyfelazonosito","nev"},new[]{"001","Minta"}});
+            RewriteSheet(cx,s=>s.Replace("<c r=\"B2\" t=\"inlineStr\"><is>","<c r=\"B2\" t=\"inlineStr\"><f>NOW()</f><is>"));
+            try{ServiceCatalogCsv.Load(cx,mx);throw new Exception("Excel formula accepted");}catch(FormatException){check(true,"Streaming XLSX retains formula rejection");}
             var recorderStore=new ServiceCalendarStore(Path.Combine(directory,"recorded"));
             foreach(var recorder in ServiceCalendar.Recorders){
                 var recorded=ServiceCalendar.CreateRecordedJob(catalog,date,"szalai","001","M1","név","tel","hely","hiba",recorder);
@@ -62,6 +83,11 @@ internal static class ServiceCalendarChecks
             File.WriteAllText(Path.Combine(store.DirectoryPath,"jobs.json"),"not json");
             try{store.LoadJobs();throw new Exception("Corrupt jobs ignored");}catch(FormatException){check(File.ReadAllText(Path.Combine(store.DirectoryPath,"jobs.json"))=="not json","Corrupt calendar remains untouched");}
         } finally{Directory.Delete(directory,true);}
+    }
+    private static void RewriteSheet(string path,Func<string,string> change) {
+        using var zip=ZipFile.Open(path,ZipArchiveMode.Update);var entry=zip.GetEntry("xl/worksheets/data.xml")!;string content;
+        using(var reader=new StreamReader(entry.Open()))content=reader.ReadToEnd();entry.Delete();
+        using var writer=new StreamWriter(zip.CreateEntry("xl/worksheets/data.xml").Open());writer.Write(change(content));
     }
     private static void WriteExcel(string path,string[][] rows,bool shared=false) {
         if(File.Exists(path)) File.Delete(path);

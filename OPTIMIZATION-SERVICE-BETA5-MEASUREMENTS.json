@@ -1,0 +1,55 @@
+{
+  "before": {
+    "version": "1.2.0-beta.5",
+    "runtime": "10.0.12",
+    "method": "Release, 3 warmups, median of 7 runs; GC allocations on current thread; Linux, warm local files; fixture creation excluded",
+    "customerCount": 5000,
+    "machineCount": 10000,
+    "jobCount": 100000,
+    "visibleJobCount": 1134,
+    "import": {
+      "medianMilliseconds": 99.9628,
+      "medianAllocatedBytes": 59890664,
+      "runs": 7
+    },
+    "calendar": {
+      "medianMilliseconds": 11.4154,
+      "medianAllocatedBytes": 9393680,
+      "runs": 7
+    }
+  },
+  "after": {
+    "version": "1.2.0-beta.5",
+    "runtime": "10.0.12",
+    "method": "Release, 3 warmups, median of 7 runs; GC allocations on current thread; Linux, warm local files; fixture creation excluded",
+    "customerCount": 5000,
+    "machineCount": 10000,
+    "jobCount": 100000,
+    "visibleJobCount": 1134,
+    "import": {
+      "medianMilliseconds": 74.3469,
+      "medianAllocatedBytes": 9727696,
+      "runs": 7
+    },
+    "calendar": {
+      "medianMilliseconds": 1.3884,
+      "medianAllocatedBytes": 107240,
+      "runs": 7
+    }
+  },
+  "comparison": {
+    "import": {
+      "timeReductionPercent": 25.625432660949865,
+      "allocationReductionPercent": 83.75757530422437
+    },
+    "calendar": {
+      "timeReductionPercent": 87.83748269881038,
+      "allocationReductionPercent": 98.85838137982132
+    }
+  },
+  "windowsExecutableBytes": {
+    "before": 64391047,
+    "after": 64391205,
+    "difference": 158
+  }
+}

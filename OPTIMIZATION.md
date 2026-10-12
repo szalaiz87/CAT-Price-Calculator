@@ -1,3 +1,9 @@
+# v1.2.0-beta.5 – Szerviznaptár
+
+Részletes előtte/utána mérés: [OPTIMIZATION-SERVICE-BETA5.md](OPTIMIZATION-SERVICE-BETA5.md). Nyers adatok: [OPTIMIZATION-SERVICE-BETA5-MEASUREMENTS.json](OPTIMIZATION-SERVICE-BETA5-MEASUREMENTS.json).
+
+---
+
 # Optimalizáció – v1.1.0-beta.7
 
 A FedEx és magyar MyGLS integráció beépítése után az ismétlődő felületet, hitelesítést és válaszfeldolgozást összevontuk. A számítások, árfolyamok, frissítési csatorna, titkos mentések, két téma, kézi csomagműveletek és 48 órás helyi tisztítás megmarad.

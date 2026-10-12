@@ -1,12 +1,15 @@
 # Linser Hungary v1.2.0-beta.5 – látható gombkeretek
 
-- Az app minden gombján látható keret és elkülönülő felület alapállapotban is.
+- Az app minden gombján látható lekerekített keret alapállapotban is. A bal oldali menüben csak az aktív lap háttere színezett.
 - Közös funkcióválasztó stílus a bal menüben, a menük alján, az adatbekérőkön, a naptárban és a részletablak lapozó/műveleti gombjain.
-- Lekerekítések és egységes hover, aktív és fókuszjelölés megmarad, mindkét témában.
+- Szimmetrikus gombelhelyezés, egyforma lapozógombok, egységes hover, aktív és fókuszjelölés, mindkét témában.
+- Vektoros fogaskerék az Általános beállításfülön; közös vektoros naptárikon a Szerviz beállításfülön és a főmenü Szerviznaptár gombján. Az API-napló a Robo Sanyi vektoros robotikonját kapja.
+
+Optimalizáció: 5000 ügyfél / 10000 gép Excel-importjának allokációja −83,8%, mért ideje −25,6%. 100000 feladatból a havi adatcsoportosítás allokációja −98,9%, mért ideje −87,8%. Linuxon mért adatfeldolgozás, nem teljes Windows-app RAM/CPU. Részletes jelentés: OPTIMIZATION-SERVICE-BETA5.md.
 
 Windows: CAT-Letoltes-Windows-v1.2.0-beta.5.cmd vagy Frissítések engedélyezett béta csatornával. Stabil továbbra is v1.0.1.
 
-563 automatizált ellenőrzés és Windows x64 self-contained build. A tényleges WPF-felületet Linux alatt nem futtattuk.
+572 automatizált ellenőrzés és Windows x64 self-contained build. A tényleges WPF-felületet Linux alatt nem futtattuk.
 
 ---
 
@@ -19,7 +22,7 @@ Windows: CAT-Letoltes-Windows-v1.2.0-beta.5.cmd vagy Frissítések engedélyezet
 
 Windows: CAT-Letoltes-Windows-v1.2.0-beta.4.cmd vagy Frissítések engedélyezett béta csatornával. A stabil továbbra is v1.0.1.
 
-563 automatizált ellenőrzés sikeres; a felület rögzített méreteit, átadását és a közös gombsablont is ellenőriztük. Windows x64 self-contained build. A tényleges WPF-felületet Linux alatt nem futtattuk.
+572 automatizált ellenőrzés sikeres; a felület rögzített méreteit, átadását és a közös gombsablont is ellenőriztük. Windows x64 self-contained build. A tényleges WPF-felületet Linux alatt nem futtattuk.
 
 ---
 

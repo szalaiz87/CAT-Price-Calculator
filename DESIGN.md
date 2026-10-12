@@ -64,4 +64,12 @@
 
 - v1.2.0-beta.4: közös AppButtonTemplate a normál és menügomboknak, változatlan vezérlőméretekkel. Napi részletek két soros gombzónában; Munka hozzáadása a nap/szerelő párost adja át. Szervizvezető külön szöveges felirat nélkül; kötelező rögzítőválasztó a fix adatbekérő kereten belül.
 
-- v1.2.0-beta.5: minden Button látható InputBorder keretet és ButtonSurface alapfelületet kap, beleértve a NavigationButton és ClearPriceButton stílusokat. Az alapállapot sem olvad a háttérbe; méretek, közös menüsablon, aktív és fókuszállapot változatlan.
+- v1.2.0-beta.5: minden Button látható InputBorder keretet kap, beleértve a NavigationButton és ClearPriceButton stílusokat. Az inaktív menügombok háttere átlátszó; csak az aktív lap kap színezést. Az alapállapot sem olvad a háttérbe; méretek, közös menüsablon, aktív és fókuszállapot változatlan.
+
+- A naptár előző/következő hónap gombjai azonos szélességűek. A napi nézet hat gombja 2×3 egyenlő cellában; az ügyfélkereső lapozógombjai azonos szélességűek, egyenletes térközzel.
+
+- Általános beállításfül vektoros SettingsIcon; Szerviz beállításfül és főmenü közös CalendarIcon geometriával, a gomb állapotát és témáját követő stroke-színnel.
+
+- API-napló fül: a Robo Sanyi menü RobotIcon vektoros geometriája, azonos 14×14-es beállítási ikonmérettel.
+
+- Szerviznaptár-optimalizáció alatt a cellák és elrendezés megmaradnak; csak a látható 42 nap adatindexe készül el, a hónapgombok egyszer jönnek létre.
