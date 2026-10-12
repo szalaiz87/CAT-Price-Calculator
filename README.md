@@ -1,3 +1,15 @@
+# Linser Hungary v1.1.0-beta.9 – teljes világos téma
+
+- A világos mód az egész alkalmazásra kiterjed: kalkulátorok, menü, Robo Sanyi, futárbeállítások és API-napló.
+- Fehér és világos acélkék panelek, sötét szöveg, kék aktív jelölések; a sötét téma stílusjegyeivel összhangban.
+- Javított közös témaerőforrás-frissítés; a gombok elrendezése, keretek, méretek és számítások változatlanok.
+
+Windows: CAT-Letoltes-Windows-v1.1.0-beta.9.cmd vagy Frissítések engedélyezett béta csatornával. Stabil továbbra is v1.0.1.
+
+508 automatizált ellenőrzés, 30 témaecset lefedettsége és szövegkontraszt-ellenőrzés sikeres; Windows x64 self-contained build. A tényleges Windows WPF-felület Linux alatt nem futtatható.
+
+---
+
 # Linser Hungary v1.1.0-beta.8 – szorzófrissítés
 
 - Mindkét kalkulátorban 1,95 és 2,00 helyett 1,20 és 1,25 szorzó.

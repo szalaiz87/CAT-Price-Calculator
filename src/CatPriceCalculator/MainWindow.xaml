@@ -66,7 +66,7 @@
                             </Button>
                             <TextBlock Text="Linser Hungary" Foreground="{DynamicResource AccentText}" Margin="4,0,0,4" />
                             <TextBlock Text="Belső vállalati segédprogram" Style="{StaticResource Caption}" Margin="4,0,0,8" />
-                            <TextBlock x:Name="CurrentVersionText" Text="v1.1.0-beta.8" Style="{StaticResource Caption}" Margin="4,0,0,0" />
+                            <TextBlock x:Name="CurrentVersionText" Text="v1.1.0-beta.9" Style="{StaticResource Caption}" Margin="4,0,0,0" />
                             <TextBlock x:Name="UpdateInfo" TextWrapping="Wrap" Style="{StaticResource Caption}" Margin="4,5,0,0" />
                         </StackPanel>
                         <Grid>
@@ -292,11 +292,11 @@
                     </Border>
                     <Border Grid.Row="6" Style="{StaticResource Card}" Padding="14">
                         <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><Path Style="{StaticResource Icon}" Data="{StaticResource DocumentIcon}" /><TextBlock x:Name="ReleaseNotesTitle" Text="Legújabb verzió • v1.1.0-beta.8" Style="{StaticResource SectionHeading}" /></StackPanel>
-                            <TextBlock Text="• Új 1,20 és 1,25 szorzó mindkét kalkulátorban." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Az 1,95 és 2,00 szorzó eltávolítva." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Változatlan 15 gomb és 3×5-ös elrendezés." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Az alapértelmezett szorzó továbbra is 1,40." TextWrapping="Wrap" Margin="0,4,0,0" />
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><Path Style="{StaticResource Icon}" Data="{StaticResource DocumentIcon}" /><TextBlock x:Name="ReleaseNotesTitle" Text="Legújabb verzió • v1.1.0-beta.9" Style="{StaticResource SectionHeading}" /></StackPanel>
+                            <TextBlock Text="• Teljes világos téma minden alkalmazáslapon." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Világos panelek, mezők és kék kiemelések." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Egységes kalkulátor, Robo Sanyi és Beállítások." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Változatlan elrendezés, méretek és funkciók." TextWrapping="Wrap" Margin="0,4,0,0" />
                         </StackPanel>
                     </Border>
                     </Grid>
