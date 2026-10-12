@@ -4,17 +4,17 @@ namespace CatPriceCalculator.Core;
 
 public sealed record ServiceCustomer(string Id, string Name) { [System.Text.Json.Serialization.JsonIgnore] public string DisplayName => ToString(); public override string ToString() => Name + " · " + Id; }
 public sealed record ServiceMachine(string Id, string CustomerId, string Name, string SerialNumber) { [System.Text.Json.Serialization.JsonIgnore] public string DisplayName => ToString(); public override string ToString() => Name + (string.IsNullOrWhiteSpace(SerialNumber) ? "" : " · " + SerialNumber); }
-public sealed record ServiceCatalog(ServiceCustomer[] Customers, ServiceMachine[] Machines);
+public sealed record ServiceCatalog(ServiceCustomer[] Customers, ServiceMachine[] Machines, DateTimeOffset? ImportedAt=null, string? CustomerFile=null, string? MachineFile=null);
 public sealed record ServiceStaff(string Id, string Name, string Color) { public string DisplayName => Name; }
 public sealed record ServiceJob(Guid Id, DateOnly Date, string StaffId, string CustomerId, string CustomerName, string MachineId, string MachineName, string SerialNumber, string ContactName, string Phone, string Location, string Description);
 public static class ServiceCalendar
 {
     public static IReadOnlyList<ServiceStaff> Staff { get; } = Array.AsReadOnly(new[] {
+        new ServiceStaff("szalai", "Szalai Zoltán", "#D5A64C"),
         new ServiceStaff("barabas", "Barabás János", "#9CE7E8"),
         new ServiceStaff("gulyas", "Gulyás Dániel", "#FFB9B4"),
         new ServiceStaff("veges", "Véges Roland", "#9BD9D5"),
-        new ServiceStaff("muhovits", "Muhovits József", "#D9B8F4"),
-        new ServiceStaff("szalai", "Szalai Zoltán", "#AFE0B7") });
+        new ServiceStaff("muhovits", "Muhovits József", "#D9B8F4") });
     public static DateOnly MonthGridStart(int year, int month) {
         var first = new DateOnly(year, month, 1);
         return first.AddDays(-(((int)first.DayOfWeek + 6) % 7));
@@ -124,6 +124,8 @@ public sealed class ServiceCalendarStore(string directory)
             return SaveJobs(updated);
         } catch(Exception e) when(e is IOException or UnauthorizedAccessException or FormatException) {updated=[];return false;}
     }
+    public ServiceImportPaths LoadImportPaths() => Read<ServiceImportPaths>("import-paths.json") ?? new();
+    public bool SaveImportPaths(ServiceImportPaths paths) => LocalJsonFile.Write(Path.Combine(directory,"import-paths.json"),paths);
     public bool SaveCatalog(ServiceCatalog catalog) => LocalJsonFile.Write(Path.Combine(directory,"catalog.json"),catalog);
     public bool SaveJobs(ServiceJob[] jobs) => jobs.All(ServiceCalendar.Valid) && jobs.Select(j=>j.Id).Distinct().Count()==jobs.Length && LocalJsonFile.Write(Path.Combine(directory,"jobs.json"),jobs);
 }

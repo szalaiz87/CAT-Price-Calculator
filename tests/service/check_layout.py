@@ -17,8 +17,17 @@ for card in grid.findall(ns+'Border'):
     assert required<=available, f'Card contents need {required}px but have {available}px'
 source=(root/'src/CatPriceCalculator/ServiceCalendarView.xaml').read_text()
 assert 'SelectedItem.DisplayName' in source and 'SelectionBoxItem' not in source
-assert 'StaffInput.SelectedIndex = -1' in (root/'src/CatPriceCalculator/ServiceCalendarView.xaml.cs').read_text()
+assert 'StaffInput.SelectedIndex=-1' in (root/'src/CatPriceCalculator/ServiceCalendarView.xaml.cs').read_text()
 calendar=(root/'src/CatPriceCalculator/ServiceCalendarWindow.cs').read_text()
 assert 'staff.Color' not in calendar
 assert 'SetResourceReference(Button.BackgroundProperty' in calendar
 print('PASS: all form cards fit their rows, empty/name-only staff selection, themed calendar cells')
+
+form=(root/'src/CatPriceCalculator/ServiceCalendarView.xaml').read_text()
+assert 'ImportButton' not in form and 'LastImportStatus' in form and 'SearchCustomers' in form
+code=(root/'src/CatPriceCalculator/ServiceCalendarView.xaml.cs').read_text()
+for field in ['CustomerDisplay','DateInput','ContactInput','PhoneInput','LocationInput','DescriptionInput']:
+    assert field+'.Clear()' in code
+assert 'Owner=' not in code and 'ShowDialog' not in code
+assert 'Owner=' not in calendar and 'dialog.Show()' in calendar
+print('PASS: separate import settings, complete reset and unowned modeless popups')

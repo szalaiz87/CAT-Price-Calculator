@@ -78,4 +78,10 @@
     <SolidColorBrush x:Key="ResultDetailForeground" Color="{DynamicResource ColorResultDetail}" />
     <SolidColorBrush x:Key="HeroForeground" Color="{DynamicResource ColorHeroText}" />
     <SolidColorBrush x:Key="HeroDetailForeground" Color="{DynamicResource ColorHeroDetail}" />
+    <Color x:Key="ColorManagerText">#F3CB79</Color>
+    <SolidColorBrush x:Key="ManagerText" Color="{DynamicResource ColorManagerText}" />
+    <Color x:Key="ColorManagerSurface">#30291E</Color>
+    <SolidColorBrush x:Key="ManagerSurface" Color="{DynamicResource ColorManagerSurface}" />
+    <Color x:Key="ColorManagerBorder">#D5A64C</Color>
+    <SolidColorBrush x:Key="ManagerBorder" Color="{DynamicResource ColorManagerBorder}" />
 </ResourceDictionary>

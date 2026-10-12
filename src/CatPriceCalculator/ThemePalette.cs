@@ -38,6 +38,9 @@ internal static class ThemePalette
         ("HeroEnd", "#300A1423", "#40F7FAFF"),
         ("HeroText", "#FFFFFF", "#15375B"),
         ("HeroDetail", "#C8DFF4", "#375775"),
+        ("ManagerText", "#F3CB79", "#805400"),
+        ("ManagerSurface", "#30291E", "#FFF4D6"),
+        ("ManagerBorder", "#D5A64C", "#9B6A15"),
     ];
     private static Dictionary<string, object> Build(bool light)
     {
@@ -125,6 +128,12 @@ internal static class ThemePalette
         HeroForeground.Freeze(); resources["HeroForeground"] = HeroForeground;
         var HeroDetailForeground = new SolidColorBrush(Resolve("{DynamicResource ColorHeroDetail}"));
         HeroDetailForeground.Freeze(); resources["HeroDetailForeground"] = HeroDetailForeground;
+        var ManagerText=new SolidColorBrush(Resolve("{DynamicResource ColorManagerText}"));
+        ManagerText.Freeze(); resources["ManagerText"] = ManagerText;
+        var ManagerSurface=new SolidColorBrush(Resolve("{DynamicResource ColorManagerSurface}"));
+        ManagerSurface.Freeze(); resources["ManagerSurface"] = ManagerSurface;
+        var ManagerBorder=new SolidColorBrush(Resolve("{DynamicResource ColorManagerBorder}"));
+        ManagerBorder.Freeze(); resources["ManagerBorder"] = ManagerBorder;
         return resources;
     }
     private static readonly Lazy<Dictionary<string, object>> Dark = new(() => Build(false)), Light = new(() => Build(true));

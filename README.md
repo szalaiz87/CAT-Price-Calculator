@@ -1,3 +1,16 @@
+# Linser Hungary v1.2.0-beta.3 – importbeállítások és ügyfélkereső
+
+- Import a Beállítások / Szerviz lapon, két látható és megjegyzett teljes fájlútvonallal. A naptár lapon utolsó sikeres importidő, hét nap után sárgásan villogó frissítési figyelmeztetés.
+- Külön, lapozható ügyfélkereső megnevezés eleje / bárhol kereséssel, ékezet- és kis-/nagybetű-függetlenül, 5000 ügyfélre ellenőrizve. A gép továbbra is ügyfélhez szűrt legördülő lista.
+- Sikeres feladatmentés visszajelzése és teljesen kiürülő beviteli felület. Szalai Zoltán elsőként, aranyszínű szervizvezetői jelöléssel.
+- Normál, nem modális és nem mindig előtérben lévő naptár-, kereső- és részletablakok. A meglévő naptáradatok megmaradnak.
+
+Windows: CAT-Letoltes-Windows-v1.2.0-beta.3.cmd vagy Frissítések engedélyezett béta csatornával. Stabil továbbra is v1.0.1.
+
+556 automatizált ellenőrzés sikeres; a felület rögzített méreteit és a témaerőforrásokat is ellenőriztük. Windows x64 self-contained build. A tényleges WPF-felületet Linux alatt nem futtattuk.
+
+---
+
 # Linser Hungary v1.2.0-beta.2 – szerviznaptár felületjavítás és próbaadatok
 
 - Javított ügyfél/gép kártyamagasság: a gépsor nem kerül takarásba.

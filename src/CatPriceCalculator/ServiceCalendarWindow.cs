@@ -7,6 +7,7 @@ namespace CatPriceCalculator;
 public sealed class ServiceCalendarWindow : Window
 {
     private ServiceJob[] jobs;
+    private readonly List<Window> detailWindows=[];
     private int year,month;
     private readonly Grid calendar=new();
     private readonly TextBlock title=new(){FontSize=25,FontWeight=FontWeights.SemiBold,VerticalAlignment=VerticalAlignment.Center};
@@ -27,11 +28,12 @@ public sealed class ServiceCalendarWindow : Window
         var footer=new TextBlock{Text="Munkatársanként feliratozott sorok · Egy napra több feladat · Kattintson egy nap és munkatárs cellájára a részletekhez.",FontSize=13,VerticalAlignment=VerticalAlignment.Center};footer.SetResourceReference(TextBlock.ForegroundProperty,"TextSecondary");Grid.SetRow(footer,4);root.Children.Add(footer);
         Content=new Viewbox{Stretch=Stretch.Uniform,StretchDirection=StretchDirection.DownOnly,Child=root};
         SourceInitialized+=(_,_)=>WindowTheme.Apply(this,new AppearanceStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"CAT-Price-Calculator","appearance.json")).Load()==Appearance.Light);
+        Closed+=(_,_)=>{foreach(var detail in detailWindows.ToArray())detail.Close();};
         Render();
     }
     private static Button Action(string label,Action action) {var b=new Button{Content=label,Margin=new Thickness(3),Padding=new Thickness(12,6,12,6)};b.Click+=(_,_)=>action();return b;}
     private void MoveMonth(int delta){var next=new DateOnly(year,month,1);if(delta<0 && year==1 && month==1 || delta>0 && year==9999 && month==12)return;next=next.AddMonths(delta);year=next.Year;month=next.Month;Render();}
-    public void ApplyTheme(bool light) => WindowTheme.Apply(this,light);
+    public void ApplyTheme(bool light) { WindowTheme.Apply(this,light); foreach(var detail in detailWindows)WindowTheme.Apply(detail,light); }
     public void Refresh(ServiceJob[] tasks){jobs=tasks;Render();}
     private void Render(){
         title.Text=$"SZERVIZNAPTÁR · {year}. {Hungarian.DateTimeFormat.GetMonthName(month)}";
@@ -49,11 +51,11 @@ public sealed class ServiceCalendarWindow : Window
             int row=1+week*6;
             for(int s=0;s<5;s++) {
                 var staff=ServiceCalendar.Staff[s];
-                var label=new TextBlock{Text=staff.Name,FontSize=12,FontWeight=FontWeights.SemiBold,VerticalAlignment=VerticalAlignment.Center,Margin=new Thickness(8,0,2,0)};
-                label.SetResourceReference(TextBlock.ForegroundProperty,"TextPrimary");
+                var label=new TextBlock{Text=staff.Name+(staff.Id=="szalai"?" · vezető":""),FontSize=12,FontWeight=FontWeights.SemiBold,VerticalAlignment=VerticalAlignment.Center,Margin=new Thickness(8,0,2,0)};
+                label.SetResourceReference(TextBlock.ForegroundProperty,staff.Id=="szalai"?"ManagerText":"TextPrimary");
                 var band=new Border{Child=label,Margin=new Thickness(1),BorderThickness=new Thickness(3,0,0,0),CornerRadius=new CornerRadius(6)};
-                band.SetResourceReference(Border.BackgroundProperty,s%2==0?"SidebarSurface":"SummaryGradient");
-                band.SetResourceReference(Border.BorderBrushProperty,"Accent");Place(band,row+1+s,0);
+                band.SetResourceReference(Border.BackgroundProperty,staff.Id=="szalai"?"ManagerSurface":s%2==0?"SidebarSurface":"SummaryGradient");
+                band.SetResourceReference(Border.BorderBrushProperty,staff.Id=="szalai"?"ManagerBorder":"Accent");Place(band,row+1+s,0);
             }
             for(int day=0;day<7;day++){
                 if(start.DayNumber+week*7+day>DateOnly.MaxValue.DayNumber)continue;
@@ -64,13 +66,13 @@ public sealed class ServiceCalendarWindow : Window
                     var staff=ServiceCalendar.Staff[s];var tasks=lookup.GetValueOrDefault((date,staff.Id),[]);
                     var summary=tasks.Length==0?"—":tasks[0].CustomerName+" · "+tasks[0].MachineName;
                     var content=new TextBlock{Text=summary,FontSize=11,TextTrimming=TextTrimming.CharacterEllipsis,TextWrapping=TextWrapping.NoWrap,VerticalAlignment=VerticalAlignment.Center};
-                    content.SetResourceReference(TextBlock.ForegroundProperty,tasks.Length==0?"TextMuted":"TextPrimary");
+                    content.SetResourceReference(TextBlock.ForegroundProperty,staff.Id=="szalai"?"ManagerText":tasks.Length==0?"TextMuted":"TextPrimary");
                     var cellContent=new DockPanel();
                     if(tasks.Length>1){var count=new TextBlock{Text=$"+{tasks.Length-1}",FontWeight=FontWeights.Bold,FontSize=11,Margin=new Thickness(3,0,0,0),VerticalAlignment=VerticalAlignment.Center};count.SetResourceReference(TextBlock.ForegroundProperty,"AccentText");DockPanel.SetDock(count,Dock.Right);cellContent.Children.Add(count);}
                     cellContent.Children.Add(content);
                     var b=new Button{Content=cellContent,Padding=new Thickness(5,0,5,0),Margin=new Thickness(1),BorderThickness=new Thickness(1),Opacity=date.Month==month?1:.42,ToolTip=$"{date:yyyy.MM.dd} · {staff.Name}\n{tasks.Length} feladat"};
-                    b.SetResourceReference(Button.BackgroundProperty,tasks.Length>0?"SummaryGradient":s%2==0?"InputSurface":"ButtonSurface");
-                    b.SetResourceReference(Button.BorderBrushProperty,"PanelBorder");
+                    b.SetResourceReference(Button.BackgroundProperty,staff.Id=="szalai"?"ManagerSurface":tasks.Length>0?"SummaryGradient":s%2==0?"InputSurface":"ButtonSurface");
+                    b.SetResourceReference(Button.BorderBrushProperty,staff.Id=="szalai"?"ManagerBorder":"PanelBorder");
                     // Neutral surfaces and aligned named rows identify the worker in both themes.
                     b.Click+=(_,_)=>ShowDay(date,staff);Place(b,row+1+s,day+1);
                 }
@@ -84,7 +86,7 @@ public sealed class ServiceCalendarWindow : Window
     private void Place(UIElement child,int row,int column){Grid.SetRow(child,row);Grid.SetColumn(child,column);calendar.Children.Add(child);}
     private void ShowDay(DateOnly date,ServiceStaff staff){
         var tasks=jobs.Where(j=>j.Date==date && j.StaffId==staff.Id).ToArray();int index=0, page=0;
-        var dialog=new Window{Owner=this,Title=$"{date:yyyy.MM.dd} · {staff.Name}",Width=670,Height=650,MinWidth=520,MinHeight=500,WindowStartupLocation=WindowStartupLocation.CenterOwner};dialog.SetResourceReference(BackgroundProperty,"WindowSurface");
+        var dialog=new Window{Topmost=false,Title=$"{date:yyyy.MM.dd} · {staff.Name}",Width=670,Height=650,MinWidth=520,MinHeight=500,WindowStartupLocation=WindowStartupLocation.CenterOwner};dialog.SetResourceReference(BackgroundProperty,"WindowSurface");
         var root=new Grid{Width=610,Height=560,Margin=new Thickness(18)};root.RowDefinitions.Add(new(){Height=new GridLength(85)});root.RowDefinitions.Add(new(){Height=new GridLength(1,GridUnitType.Star)});root.RowDefinitions.Add(new(){Height=new GridLength(45)});
         var heading=new TextBlock{FontSize=20,FontWeight=FontWeights.SemiBold,TextWrapping=TextWrapping.Wrap};heading.SetResourceReference(TextBlock.ForegroundProperty,"TextPrimary");root.Children.Add(Card(heading));
         var body=new TextBox{IsReadOnly=true,TextWrapping=TextWrapping.Wrap,FontSize=14,VerticalScrollBarVisibility=ScrollBarVisibility.Disabled};var detailCard=Card(body);Grid.SetRow(detailCard,1);root.Children.Add(detailCard);
@@ -94,7 +96,7 @@ public sealed class ServiceCalendarWindow : Window
             heading.Text+=$" · {page+1}/{pages.Count}";body.Text=pages[page];}
         buttons.Children.Add(Action("‹ Részlet",()=>{if(page>0){page--;Display();}}));buttons.Children.Add(Action("Részlet ›",()=>{page++;Display();}));
         buttons.Children.Add(Action("‹ Feladat",()=>{if(index>0){index--;page=0;Display();}}));buttons.Children.Add(Action("Feladat ›",()=>{if(index+1<tasks.Length){index++;page=0;Display();}}));buttons.Children.Add(Action("Bezárás",()=>dialog.Close()));
-        Display();dialog.Content=new Viewbox{StretchDirection=StretchDirection.DownOnly,Child=root};dialog.SourceInitialized+=(_,_)=>WindowTheme.Apply(dialog,new AppearanceStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"CAT-Price-Calculator","appearance.json")).Load()==Appearance.Light);dialog.ShowDialog();
+        Display();dialog.Content=new Viewbox{StretchDirection=StretchDirection.DownOnly,Child=root};dialog.SourceInitialized+=(_,_)=>WindowTheme.Apply(dialog,new AppearanceStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"CAT-Price-Calculator","appearance.json")).Load()==Appearance.Light);detailWindows.Add(dialog);dialog.Closed+=(_,_)=>detailWindows.Remove(dialog);dialog.Show();
     }
     private static List<string> DetailPages(string text) {
         var pages=new List<string>();var current=new System.Text.StringBuilder();int lines=0;

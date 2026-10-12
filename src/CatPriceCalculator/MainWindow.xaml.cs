@@ -109,6 +109,8 @@ public partial class MainWindow : Window
         SetSelected(RoboMenu, roboOpen);
         CalculatorSidebar.Visibility = (roboOpen || serviceOpen) ? Visibility.Collapsed : Visibility.Visible;
         RoboSidebar.Visibility = roboOpen ? Visibility.Visible : Visibility.Collapsed;
+        SetSelected(ServiceSettingsButton, settingsSection == "Service");
+        ServiceImportPage.Visibility = settingsSection == "Service" ? Visibility.Visible : Visibility.Collapsed;
         SetSelected(GeneralSettingsButton, settingsSection == "General");
         SetSelected(DhlSettingsButton, settingsSection == "DHL");
         SetSelected(UpsSettingsButton, settingsSection == "UPS");
@@ -215,6 +217,7 @@ public partial class MainWindow : Window
         var dhlService = new DhlTrackingService(trackingHttp, new TrackingRequestBudget(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "dhl-request-budget.json")), log: entry => { apiLog.Append(entry); });
         var upsService = new UpsTrackingService(trackingHttp, new TrackingRequestBudget(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "ups-request-budget.json"), carrier: "UPS"), log: entry => { apiLog.Append(entry); });
         InitializeComponent();
+        ServiceImportPage.Configure(ServicePage.ImportCatalogAsync,ServicePage.OpenImportFolder);
         ApiLogPage.Configure(apiLog);
         string data = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator");
         var dhlStore = new DhlSettingsStore(Path.Combine(data, "dhl-connection.bin"), new WindowsSecretProtector());
@@ -276,7 +279,7 @@ public partial class MainWindow : Window
             PriceInput.Focus();
             await Task.WhenAll(StartupRatesAsync(startupPreferences.RefreshRates), CheckUpdatesAsync(false));
         };
-        Closed += (_, _) => { lifetime.Cancel(); RoboSanyiPage.Dispose(); trackingHttp.Dispose(); upsService.ForgetToken(); http.Dispose(); updateHttp.Dispose(); lifetime.Dispose(); };
+        Closed += (_, _) => { ServicePage.ClosePopups(); lifetime.Cancel(); RoboSanyiPage.Dispose(); trackingHttp.Dispose(); upsService.ForgetToken(); http.Dispose(); updateHttp.Dispose(); lifetime.Dispose(); };
     }
     private string QuoteInfo(decimal rate, string source, DateOnly? date, string currency = "HUF", DateTimeOffset? retrievedAt = null)
     {

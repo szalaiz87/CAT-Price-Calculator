@@ -59,3 +59,5 @@
 - v1.2.0-beta.1: Szerviznaptár adatbekérő az állandó referenciakereten belül, közös hero és kártyastílusokkal, közvetlen Excel-fájlválasztással. Külön méretezhető naptárablak: 12 hónapfül, hétfővel kezdődő hathetes rács, öt állandó színű munkatárssor, több feladat jelölése. A részletek lapozhatók, nincs görgetősáv; mindkét alkalmazástéma támogatott.
 
 - v1.2.0-beta.2: ügyfél/gép kártya belső sorai és paddingje beleférnek a rögzített magasságba. Explicit DisplayName a választókban, üres kezdeti szerelő. Naptár semleges tematikus felületekkel, váltakozó munkatárssorokkal, névfeliratokkal és kék széljelöléssel; ablak és részletek közös 10-es kártyákkal.
+
+- v1.2.0-beta.3: külön Beállítások / Szerviz importlap, két látható fájlútvonallal. Szervizlap csak importidő és hét nap után villogó amber figyelmeztetés; teljes mentés utáni ürítés. Ügyfélkereső 12-es lapozott listával, prefix/bárhol mód és ékezetfüggetlen index; gép legördülő marad. Szervizvezető legelső és arany jelölésű sor; főablaktól független normál szervizablakok, owner/topmost és modalitás nélkül.
