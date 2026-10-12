@@ -59,7 +59,7 @@
                             </Button>
                             <TextBlock Text="Linser Hungary" Foreground="{DynamicResource AccentText}" Margin="4,0,0,4" />
                             <TextBlock Text="Belső vállalati segédprogram" Style="{StaticResource Caption}" Margin="4,0,0,8" />
-                            <TextBlock x:Name="CurrentVersionText" Text="v1.0.0" Style="{StaticResource Caption}" Margin="4,0,0,0" />
+                            <TextBlock x:Name="CurrentVersionText" Text="v1.0.1" Style="{StaticResource Caption}" Margin="4,0,0,0" />
                             <TextBlock x:Name="UpdateInfo" TextWrapping="Wrap" Style="{StaticResource Caption}" Margin="4,5,0,0" />
                         </StackPanel>
                         <Border x:Name="CalculatorSidebar" Style="{StaticResource Card}" Padding="12" Margin="0,16,0,16">
@@ -268,11 +268,11 @@
                     </Border>
                     <Border Grid.Row="7" Style="{StaticResource Card}" Padding="14">
                         <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><Path Style="{StaticResource Icon}" Data="{StaticResource DocumentIcon}" /><TextBlock x:Name="ReleaseNotesTitle" Text="Legújabb verzió • v1.0.0" Style="{StaticResource SectionHeading}" /></StackPanel>
-                            <TextBlock Text="• 1.0 stabil kiadás és külön béta frissítési csatorna." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Mentett béta kapcsoló, alapból csak stabil frissítések." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Béta verzióból visszatérés a legfrissebb stabil kiadásra." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Megőrzött kalkulátorok, arculat és optimalizálások." TextWrapping="Wrap" Margin="0,4,0,0" />
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><Path Style="{StaticResource Icon}" Data="{StaticResource DocumentIcon}" /><TextBlock x:Name="ReleaseNotesTitle" Text="Legújabb verzió • v1.0.1" Style="{StaticResource SectionHeading}" /></StackPanel>
+                            <TextBlock Text="• Új 1,20 és 1,25 szorzó a CAT és EUR kalkulátorban." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Az 1,95 és 2,00 szorzó eltávolítva." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Változatlan 3×5-ös szorzórács és elrendezés." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Az alapértelmezett szorzó továbbra is 1,40." TextWrapping="Wrap" Margin="0,4,0,0" />
                         </StackPanel>
                     </Border>
                 </Grid>

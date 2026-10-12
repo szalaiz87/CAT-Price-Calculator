@@ -5,7 +5,7 @@ public static class PriceCalculator
 {
     public const decimal DefaultSellingMultiplier = 1.40m;
     public const decimal DealerMultiplier = 1.10m;
-    public static IReadOnlyList<decimal> SellingMultipliers { get; } = Array.AsReadOnly(Enumerable.Range(0, 15).Select(i => 1.30m + i * 0.05m).ToArray());
+    public static IReadOnlyList<decimal> SellingMultipliers { get; } = Array.AsReadOnly(Enumerable.Range(0, 15).Select(i => 1.20m + i * 0.05m).ToArray());
     public static IReadOnlyList<decimal> EuroSellingMultipliers => SellingMultipliers;
     public static readonly CultureInfo Hungarian = CultureInfo.GetCultureInfo("hu-HU");
     public static bool TryPositive(string text, out decimal value)

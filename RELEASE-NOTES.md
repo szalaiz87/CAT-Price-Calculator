@@ -1,10 +1,9 @@
-A Linser Hungary első hivatalos stabil főverziója, v1.0.0.
+Linser Hungary v1.0.1 – stabil frissítés
 
-- Alapból csak stabil frissítések; a Beállításokban menthető béta-frissítési kapcsoló.
-- Béta programban visszatérés a legfrissebb stabil verzióra, akár alacsonyabb verziószámra is. A béta csatorna ilyenkor kikapcsol; a többi beállítás és árfolyam megmarad.
-- Közös verziókezelés, teljes forrás külön `stable` és `beta` ágon. További kiadások béta státuszúak, stabil csak kifejezett felhasználói kérésre.
-- A CAT/EUR számítás, témák, szorzók, haszon/árrés és görgetősáv nélküli felület megmarad.
+- Mindkét árkalkulátorban 1,95 és 2,00 helyett 1,20 és 1,25 szorzó szerepel.
+- A közös szorzólista 1,20–1,90, 0,05-ös lépésekben; továbbra is 15 gomb.
+- Az elrendezés, a 3×5-ös rács és az alapértelmezett 1,40 szorzó változatlan.
 
-Windows: a CAT-Letoltes-Windows-v1.0.0.cmd fájlt töltsd le és futtasd. PowerShell nem szükséges. Telepítés előtt zárd be a korábbi programot. A csomag darabolt Windows EXE-t, teljes forrást és ellenőrzőösszeget tartalmaz.
+Windows: töltsd le és futtasd a CAT-Letoltes-Windows-v1.0.1.cmd fájlt, vagy használd az alkalmazás Frissítések gombját. Kézi telepítés előtt zárd be a programot.
 
-Ellenőrzés: 152 automatizált ellenőrzés stabil és béta builddel; hibamentes Windows x64 publish mindkét verzióval. A tényleges Windows-felület futtatása Linux alatt nem lehetséges.
+Ellenőrzés: 157 automatizált ellenőrzés és sikeres Windows x64 self-contained publish. A tényleges WPF-felület futtatását Linux alatt nem ellenőriztük.

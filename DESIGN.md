@@ -33,3 +33,5 @@
 - v0.11.2: optimalizálás során az aktív arculat, színek, méretek és kötések változatlanok. Csak használatlan erőforrások törölhetők; dinamikus témaszínek nem fagyaszthatók. Vektorok/fotóforrás változatlan tartalommal fagyasztható. Online árfolyamváltásnál a végső újraszámítás megmarad; ár törlése, kézi beírás és revision-védelem változatlan.
 
 - v1.0.0: Beállításokban külön Frissítési csatorna kártya, a közös csúszókapcsolóval és lekerekített gombokkal. A béta-opt-in alapból kikapcsolt és mentett. A stabilra visszatérési gomb csak béta buildben látszik; helye a kártyában fenntartott. A futó verzió és csatorna látható. Tömörebb Beállítások-kártyák a meglévő fix referenciakereten belül; nincs görgetősáv vagy nézetváltási méretváltozás.
+
+- v1.0.1: a felhasználó kérésére mindkét kalkulátor közös szorzólistája ×1,20–×1,90, 0,05-ös lépésekben. Az 1,95 és 2,00 helyére 1,20 és 1,25 kerül; a 15 gomb, a 3×5-ös rács és minden méret változatlan.
