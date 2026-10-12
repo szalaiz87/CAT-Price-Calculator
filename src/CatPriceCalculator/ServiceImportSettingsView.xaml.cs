@@ -18,7 +18,7 @@ public partial class ServiceImportSettingsView : UserControl
     private void ChooseCustomers(object sender,RoutedEventArgs e)=>Choose(true);
     private void ChooseMachines(object sender,RoutedEventArgs e)=>Choose(false);
     private void Choose(bool customer){
-        var picker=new Microsoft.Win32.OpenFileDialog{Filter="Excel-munkafüzet (*.xlsx)|*.xlsx",CheckFileExists=true,Title=customer?"Ügyféladatbázis":"Gépadatbázis"};
+        var picker=new Microsoft.Win32.OpenFileDialog{Filter="Excel-export (*.xls;*.xlsx)|*.xls;*.xlsx",CheckFileExists=true,Title=customer?"Ügyféladatbázis":"Gépadatbázis"};
         if(picker.ShowDialog()!=true)return;
         paths=customer?paths with{CustomerFile=picker.FileName}:paths with{MachineFile=picker.FileName};ShowPaths();
         Status.Text=store.SaveImportPaths(paths)?"Fájlválasztás mentve. A törzs frissítéséhez indítsa a beolvasást.":"Az útvonal nem menthető. Ebben a munkamenetben használható.";

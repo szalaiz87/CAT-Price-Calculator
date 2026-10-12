@@ -8,7 +8,7 @@ A Szerviznaptár menüpont helyi adatbekérő. A „Havi naptár megnyitása” 
 2. Adatbázisok beolvasása. Mindkét fájlt ellenőrzi, és csak siker esetén cseréli le a törzset.
 3. A Szerviznaptár lapon az Ügyfél keresése gombbal válasszon ügyfelet. Utána csak a hozzá rendelt gépek jelennek meg a géplistában.
 
-Excel (.xlsx), első munkalap, első nem üres sor a fejléc. Excel telepítése nem szükséges. Képletek helyett értékeket tartalmazó export szükséges. Többletoszlopok megengedettek. Az azonosítókat szövegként exportálja, így a kezdő nullák megmaradnak. A tényleges ügyviteli exporthoz az oszlopneveket egy mintafájl alapján tudjuk tovább igazítani.
+Excel (.xls és .xlsx), első munkalap, első nem üres sor a fejléc. Excel telepítése nem szükséges. Képletek helyett értékeket tartalmazó export szükséges. Többletoszlopok megengedettek. Az azonosítókat szövegként exportálja, így a kezdő nullák megmaradnak. A tényleges ügyviteli export eredeti oszlopneveit automatikusan felismeri a program; nem szükséges átnevezni őket.
 
 | Ügyfélfájl oszlop | Tartalom |
 | --- | --- |
@@ -55,3 +55,20 @@ A naptár, ügyfélkereső és feladatrészletek normál, nem mindig előtérben
 Egy nap/munkatárs celláját megnyitva a Munka hozzáadása gomb a Szerviznaptár adatbekérő lapját hozza elő, a kattintott dátummal és szerelővel. Az esetleg már beírt többi mező megmarad. A rögzítő kötelező külön választás: Szalai Zoltán, Hották Enikő, Sebesi Sándor vagy Helembai Gergely. A név a mentett feladat része, a napi részletablakban is látszik; a régi feladatoknál „korábban nem rögzített”. Sikeres mentés után ez a választó is kiürül.
 
 Szalai Zoltán neve mellett nincs külön vezető felirat; az első hely és az arany jelölés megmarad. Az app normál gombjai és a funkcióválasztó menügombok egy közös sablont használnak: lekerekített felület, azonos hover/fókusz/aktív állapotok és oldalsó jelölés. A napi részletek gombjai két sorban, a közös stílusban helyezkednek el.
+
+## Ügyviteli törzsexport (v1.2.0-beta.6)
+
+A feltöltött valódi bináris XLS-formátum Excel telepítése nélkül beolvasható. Ugyanez a fejléc .xlsx fájlban is használható. A többi oszlopot figyelmen kívül hagyjuk.
+
+| Export | Oszlop | Felhasználás |
+|---|---|---|
+| Partnertörzs | A (`kod`) | Partnerazonosító |
+| Partnertörzs | B (`nev`) | Partner megnevezése |
+| Géptörzs | A (`gep`) | Gépazonosító |
+| Géptörzs | B (`megnevezes`) | Gép megnevezése |
+| Géptörzs | J (`gep_azonosito`) | Alvázszám, megjelenik a gépválasztóban |
+| Géptörzs | K (`partner`) | Partnerazonosító, összekapcsolás a partnertörzs A oszlopával |
+
+A hiányzó gépnév helyére `- hiányzó adat -` kerül. Üres partnerazonosító esetén a gép a kereshető `- hiányzó adat -` gyűjtőpartnerhez tartozik. Ezek a sorok is bekerülnek; az import visszajelzése jelzi a darabszámokat. Az összes többi partnerhez csak a saját gépei választhatók. Nem üres, de a partnertörzsben nem található azonosító esetén a program hibát jelez, és megőrzi a korábbi adatbázist.
+
+A tényleges export ellenőrzése: 5144 partner, 6323 gép, 27 hiányzó partnerazonosító, 5 hiányzó gépnév. Minden gép megmaradt. A valódi exportfájlok és ügyféladatok nem kerülnek a nyilvános forrásba vagy a kiadásba; a regressziós XLS-minták fiktívek.

@@ -151,6 +151,7 @@ await CarrierApiChecks.Run(Check);
 StorageOptimizationChecks.Run(Check);
 await TrackingTransportChecks.Run(Check);
 ServiceCalendarChecks.Run(Check);
+ServiceErpChecks.Run(Check);
 ServiceCustomerSearchChecks.Run(Check);
 Console.WriteLine($"{passed} checks passed.");
 if (args.Contains("--live")) {
@@ -182,6 +183,7 @@ Console.WriteLine("Verified update: v"+release.DisplayVersion);
 if (args.Contains("--benchmark")) CoreBenchmarks.Run();
 if (args.Contains("--benchmark-tracking-json")) await TrackingJsonBenchmarks.Run();
 
+if(args.Contains("--actual-export")){var index=Array.IndexOf(args,"--actual-export");ActualExportChecks.Run(args[index+1],args[index+2]);}
 if(args.Contains("--service-benchmark")) ServiceOptimizationBenchmarks.Run(args[Array.IndexOf(args,"--service-benchmark")+1]);
 sealed class FakeHandler(string? body, HttpStatusCode status = HttpStatusCode.OK, string expectedEndpoint = ExchangeRateService.Endpoint) : HttpMessageHandler {
 protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token) {

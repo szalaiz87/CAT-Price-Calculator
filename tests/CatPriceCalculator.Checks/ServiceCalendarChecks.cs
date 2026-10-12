@@ -89,7 +89,7 @@ internal static class ServiceCalendarChecks
         using(var reader=new StreamReader(entry.Open()))content=reader.ReadToEnd();entry.Delete();
         using var writer=new StreamWriter(zip.CreateEntry("xl/worksheets/data.xml").Open());writer.Write(change(content));
     }
-    private static void WriteExcel(string path,string[][] rows,bool shared=false) {
+    internal static void WriteExcel(string path,string[][] rows,bool shared=false) {
         if(File.Exists(path)) File.Delete(path);
         using var zip=ZipFile.Open(path,ZipArchiveMode.Create);
         void Entry(string name,string content){using var writer=new StreamWriter(zip.CreateEntry(name).Open());writer.Write(content);}

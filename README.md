@@ -1,3 +1,12 @@
+# Linser Hungary v1.2.0-beta.6 – ügyviteli Excel-import
+
+- A partner- és géptörzs eredeti `.xls` exportjai közvetlenül beolvashatók.
+- Partner A/B, gép A/B/J/K oszlopok; összerendelés partnerazonosító alapján.
+- Alvázszám a gépválasztóban, hiányzó adatok megtartása kereshető gyűjtőpartnerrel.
+- Ellenőrzött tényleges export: 5144 partner és 6323 gép, kihagyott gépsor nélkül.
+
+Windows béta: CAT-Letoltes-Windows-v1.2.0-beta.6.cmd vagy Frissítések engedélyezett béta csatornával. Stabil továbbra is v1.0.1. Részletek: [SERVICE-CALENDAR.md](SERVICE-CALENDAR.md).
+
 # Linser Hungary v1.2.0-beta.5 – látható gombkeretek
 
 - Az app minden gombján látható lekerekített keret alapállapotban is. A bal oldali menüben csak az aktív lap háttere színezett.

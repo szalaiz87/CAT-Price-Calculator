@@ -2,9 +2,10 @@ using System.Text;
 using System.Text.Json;
 namespace CatPriceCalculator.Core;
 
-public sealed record ServiceCustomer(string Id, string Name) { [System.Text.Json.Serialization.JsonIgnore] public string DisplayName => ToString(); public override string ToString() => Name + " · " + Id; }
+public sealed record ServiceCustomer(string Id, string Name, bool IsPlaceholder=false) { [System.Text.Json.Serialization.JsonIgnore] public string DisplayName => ToString(); [System.Text.Json.Serialization.JsonIgnore] public string DisplayId => IsPlaceholder?"-":Id; public override string ToString() => IsPlaceholder?Name:Name + " · " + Id; }
 public sealed record ServiceMachine(string Id, string CustomerId, string Name, string SerialNumber) { [System.Text.Json.Serialization.JsonIgnore] public string DisplayName => ToString(); public override string ToString() => Name + (string.IsNullOrWhiteSpace(SerialNumber) ? "" : " · " + SerialNumber); }
-public sealed record ServiceCatalog(ServiceCustomer[] Customers, ServiceMachine[] Machines, DateTimeOffset? ImportedAt=null, string? CustomerFile=null, string? MachineFile=null);
+public sealed record ServiceCatalog(ServiceCustomer[] Customers, ServiceMachine[] Machines, DateTimeOffset? ImportedAt=null, string? CustomerFile=null, string? MachineFile=null, ServiceImportSummary? ImportSummary=null);
+public sealed record ServiceImportSummary(int MachineRows,int ImportedMachines,int MissingPartner,int MissingName);
 public sealed record ServiceStaff(string Id, string Name, string Color) { public string DisplayName => Name; }
 public sealed record ServiceJob(Guid Id, DateOnly Date, string StaffId, string CustomerId, string CustomerName, string MachineId, string MachineName, string SerialNumber, string ContactName, string Phone, string Location, string Description, string? RecordedBy=null);
 public static class ServiceCalendar
@@ -38,26 +39,49 @@ public static class ServiceCalendar
 }
 public static class ServiceCatalogCsv
 {
-    public static ServiceCatalog Load(string customerFile, string machineFile) {
+    public static ServiceCatalog Load(string customerFile, string machineFile, bool fillMissingMachineData=false) {
         var customers = Read(customerFile, new[] { "ugyfelazonosito", "nev" }).Select(row => new ServiceCustomer(row["ugyfelazonosito"], row["nev"])).ToArray();
-        var machines = Read(machineFile, new[] { "gepazonosito", "ugyfelazonosito", "megnevezes" }).Select(row => new ServiceMachine(row["gepazonosito"], row["ugyfelazonosito"], row["megnevezes"], row.GetValueOrDefault("gyariszam", ""))).ToArray();
+        var machines = Read(machineFile, new[] { "gepazonosito", "ugyfelazonosito", "megnevezes" }, fillMissingMachineData).Select(row => new ServiceMachine(row["gepazonosito"], row["ugyfelazonosito"], row["megnevezes"], row.GetValueOrDefault("gyariszam", ""))).ToArray();
         if (customers.Length == 0) throw new FormatException("Az ügyfélfájl nem tartalmaz ügyfeleket.");
         if (customers.Select(c => c.Id).Distinct().Count() != customers.Length || machines.Select(m => m.Id).Distinct().Count() != machines.Length) throw new FormatException("Ismétlődő ügyfél- vagy gépazonosító található.");
         var ids = customers.Select(c => c.Id).ToHashSet();
-        if (machines.Any(m => !ids.Contains(m.CustomerId))) throw new FormatException("Van olyan gép, amelynek ügyfélazonosítója nem található az ügyfélfájlban.");
-        return new(customers.OrderBy(c => c.Name, StringComparer.CurrentCultureIgnoreCase).ToArray(), machines.OrderBy(m => m.Name, StringComparer.CurrentCultureIgnoreCase).ToArray());
+        if (machines.Any(m => !string.IsNullOrWhiteSpace(m.CustomerId) && !ids.Contains(m.CustomerId))) throw new FormatException("Van olyan gép, amelynek partnerazonosítója nem található a partnertörzsben. Ellenőrizze, hogy a megfelelő két exportot választotta.");
+        var missingPartner=machines.Count(m=>string.IsNullOrWhiteSpace(m.CustomerId));
+        var missingName=machines.Count(m=>string.IsNullOrWhiteSpace(m.Name));
+        if(!fillMissingMachineData && (missingPartner>0 || missingName>0))throw new FormatException("Hiányos gépsor található az exportban.");
+        var placeholderId="__SERVICE_UNASSIGNED__";
+        if(missingPartner>0){
+            while(ids.Contains(placeholderId))placeholderId+="_";
+            customers=customers.Append(new ServiceCustomer(placeholderId,"- hiányzó adat -",true)).ToArray();
+        }
+        var valid=machines.Select(m=>m with{CustomerId=string.IsNullOrWhiteSpace(m.CustomerId)?placeholderId:m.CustomerId,Name=string.IsNullOrWhiteSpace(m.Name)?"- hiányzó adat -":m.Name}).ToArray();
+        var summary=new ServiceImportSummary(machines.Length,valid.Length,missingPartner,missingName);
+        return new(customers.OrderBy(c => c.Name, StringComparer.CurrentCultureIgnoreCase).ToArray(), valid.OrderBy(m => m.Name, StringComparer.CurrentCultureIgnoreCase).ToArray(),ImportSummary:summary);
     }
-    private static IEnumerable<ImportRow> Read(string path, string[] required) {
-        if (Path.GetExtension(path).Equals(".xlsx", StringComparison.OrdinalIgnoreCase)) {
-            foreach (var row in ValidateRows(ServiceExcel.Read(path), required)) yield return row;
+    private static List<string[]> ProjectExport(List<string[]> rows,bool machines){
+        if(rows.Count==0)return rows;
+        var header=rows[0].Select(NormalizeHeader).ToArray();
+        int[] selected;string[] names;
+        if(!machines && header.Length>=2 && header[0]=="kod" && header[1]=="nev") {selected=[0,1];names=["ugyfelazonosito","nev"];}
+        else if(machines && header.Length>=11 && header[0]=="gep" && header[1]=="megnevezes" && header[9]=="gepazonosito" && header[10]=="partner") {selected=[0,1,9,10];names=["gepazonosito","megnevezes","gyariszam","ugyfelazonosito"];}
+        else return rows;
+        var projected=new List<string[]>(rows.Count){names};
+        foreach(var row in rows.Skip(1)){if(row.Length<=selected.Max())throw new FormatException("Hiányzó oszlop az ügyviteli exportban.");projected.Add(selected.Select(i=>row[i]).ToArray());}
+        return projected;
+    }
+    private static IEnumerable<ImportRow> Read(string path, string[] required, bool allowMissingMachineData=false) {
+        var extension=Path.GetExtension(path);
+        if(extension.Equals(".xlsx",StringComparison.OrdinalIgnoreCase) || extension.Equals(".xls",StringComparison.OrdinalIgnoreCase)){
+            var excelRows=extension.Equals(".xls",StringComparison.OrdinalIgnoreCase)?ServiceLegacyExcel.Read(path):ServiceExcel.Read(path);
+            foreach(var row in ValidateRows(ProjectExport(excelRows,required.Contains("gepazonosito")),required,allowMissingMachineData))yield return row;
             yield break;
         }
         var text = File.ReadAllText(path, new UTF8Encoding(false, true)).TrimStart('\uFEFF');
         var first = text.Split('\n', 2)[0];
         var rows = Parse(text, first.Contains(';') ? ';' : ',');
-        foreach (var row in ValidateRows(rows, required)) yield return row;
+        foreach (var row in ValidateRows(rows, required,allowMissingMachineData)) yield return row;
     }
-    private static IEnumerable<ImportRow> ValidateRows(List<string[]> rows, string[] required) {
+    private static IEnumerable<ImportRow> ValidateRows(List<string[]> rows, string[] required, bool allowMissingMachineData=false) {
         if (rows.Count == 0) throw new FormatException("Üres CSV-fájl.");
         var headers = rows[0].Select(s => NormalizeHeader(s)).ToArray();
         if (headers.Distinct().Count() != headers.Length || required.Any(h => !headers.Contains(h))) throw new FormatException("Hiányzó vagy ismétlődő oszlop. Szükséges: " + string.Join(", ", required));
@@ -66,7 +90,7 @@ public static class ServiceCatalogCsv
             if (row.All(string.IsNullOrWhiteSpace)) continue;
             if (row.Length != headers.Length) throw new FormatException("Eltérő oszlopszám a CSV-fájlban.");
             for(int i=0;i<row.Length;i++)row[i]=row[i].Trim();
-            foreach(var name in required)if(string.IsNullOrWhiteSpace(row[columns[name]]))throw new FormatException("Üres kötelező mező a CSV-fájlban.");
+            foreach(var name in required)if((!allowMissingMachineData || name=="gepazonosito") && string.IsNullOrWhiteSpace(row[columns[name]]))throw new FormatException("Üres kötelező mező a CSV-fájlban.");
             yield return new ImportRow(row,columns);
         }
     }

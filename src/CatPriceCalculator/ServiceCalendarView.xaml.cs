@@ -53,11 +53,13 @@ public partial class ServiceCalendarView : UserControl
     public async Task<string> ImportCatalogAsync(string customers,string machines){
         SaveButton.IsEnabled=false;
         try{
-            var imported=await Task.Run(()=>ServiceCatalogCsv.Load(customers,machines));
+            var imported=await Task.Run(()=>ServiceCatalogCsv.Load(customers,machines,fillMissingMachineData:true));
             imported=imported with{ImportedAt=DateTimeOffset.UtcNow,CustomerFile=customers,MachineFile=machines};
             if(!store.SaveCatalog(imported))return "Az adatbázis nem menthető. A korábbi törzs és importidő megmaradt.";
             catalog=imported;search?.Close();ResetForm();UpdateImportStatus();
-            return $"Beolvasva: {catalog.Customers.Length} ügyfél · {catalog.Machines.Length} gép. {RateTimestamp.Format(catalog.ImportedAt)}";
+            var summary=catalog.ImportSummary;
+            var warning=summary!=null && (summary.MissingPartner>0 || summary.MissingName>0)?$"\nHiányzó partnerazonosító: {summary.MissingPartner} gép a „- hiányzó adat -” gyűjtőpartnerhez rendelve. Hiányzó gépnév: {summary.MissingName}, kitöltve „- hiányzó adat -” szöveggel.":"";
+            return $"Beolvasva: {catalog.Customers.Count(c=>!c.IsPlaceholder)} partner · {catalog.Machines.Length} gép. {RateTimestamp.Format(catalog.ImportedAt)}"+warning;
         }catch(Exception e) when(e is IOException or UnauthorizedAccessException or FormatException or DecoderFallbackException or System.Xml.XmlException or InvalidOperationException){return e is FormatException?e.Message:"Nem sikerült beolvasni a két Excel-fájlt. A korábbi adatbázis és importidő megmaradt.";}
         finally{SaveButton.IsEnabled=storageReady;}
     }
@@ -69,7 +71,7 @@ public partial class ServiceCalendarView : UserControl
                 if(!File.Exists(destination)){using var input=Application.GetResourceStream(new Uri("/CAT-Price-Calculator;component/Assets/ServiceCalendar/"+name,UriKind.Relative)).Stream;using var output=File.Create(destination);input.CopyTo(output);}
             }
             var instructions=Path.Combine(importDirectory,"IMPORT-UTMUTATO.txt");
-            if(!File.Exists(instructions))File.WriteAllText(instructions,"Excel (.xlsx), első munkalap, első nem üres sor a fejléc.\r\nÜgyfélfejléc: ugyfelazonosito;nev\r\nGépfejléc: gepazonosito;ugyfelazonosito;megnevezes;gyariszam\r\nA gyariszam opcionális. Az azonosítókat szövegként exportálja.\r\nA Beállítások / Szerviz lapon tallózza be mindkét fájlt, majd indítsa a beolvasást.\r\n",new UTF8Encoding(true));
+            if(!File.Exists(instructions))File.WriteAllText(instructions,"Excel (.xls / .xlsx), első munkalap, első nem üres sor a fejléc.\r\nÜgyviteli partnerexport: A = azonosító (kod), B = név (nev).\r\nÜgyviteli gépexport: A = gépazonosító, B = megnevezés, J = alvázszám, K = partnerazonosító.\r\nHiányzó gépnév: - hiányzó adat -. Partnerazonosító nélküli gépek: kereshető - hiányzó adat - gyűjtőpartner.\r\nMintafájl ügyfélfejléc: ugyfelazonosito;nev\r\nGépfejléc: gepazonosito;ugyfelazonosito;megnevezes;gyariszam\r\nA gyariszam opcionális. Az azonosítókat szövegként exportálja.\r\nA Beállítások / Szerviz lapon tallózza be mindkét fájlt, majd indítsa a beolvasást.\r\n",new UTF8Encoding(true));
             Process.Start(new ProcessStartInfo(importDirectory){UseShellExecute=true});
         }catch(Exception e) when(e is IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception){MessageBox.Show("Az importmappa nem nyitható meg: "+importDirectory,"Szerviznaptár");}
     }
