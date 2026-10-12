@@ -28,6 +28,7 @@ public partial class SecretEntry : UserControl
         if (syncing || HiddenInput == null) return;
         syncing = true; HiddenInput.Password = VisibleInput.Text; syncing = false; Changed();
     }
+    public void FocusInput()=>HiddenInput.Focus();
     public void HideValue()
     {
         if (RevealButton == null) return;

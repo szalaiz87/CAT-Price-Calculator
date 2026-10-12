@@ -68,7 +68,7 @@
                             <TextBlock x:Name="SessionName" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" Foreground="{DynamicResource AccentText}" Margin="4,0,0,4" />
                             <Button x:Name="LogoutButton" Click="LogoutClicked" Style="{StaticResource NavigationButton}" Margin="0,0,0,6"><StackPanel Orientation="Horizontal"><Path Style="{StaticResource ButtonIcon}" Data="{StaticResource LogoutIcon}"/><TextBlock Text="Kijelentkezés" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/></StackPanel></Button>
                             <TextBlock Text="Belső vállalati segédprogram" Style="{StaticResource Caption}" Margin="4,0,0,8" />
-                            <TextBlock x:Name="CurrentVersionText" Text="v1.2.0-beta.7" Style="{StaticResource Caption}" Margin="4,0,0,0" />
+                            <TextBlock x:Name="CurrentVersionText" Text="v1.2.0-beta.8" Style="{StaticResource Caption}" Margin="4,0,0,0" />
                             <TextBlock x:Name="UpdateInfo" TextWrapping="Wrap" Style="{StaticResource Caption}" Margin="4,5,0,0" />
                         </StackPanel>
                         <Grid>
@@ -296,11 +296,11 @@
                     </Border>
                     <Border Grid.Row="6" Style="{StaticResource Card}" Padding="14">
                         <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><Path Style="{StaticResource Icon}" Data="{StaticResource DocumentIcon}" /><TextBlock x:Name="ReleaseNotesTitle" Text="Legújabb verzió • v1.2.0-beta.7" Style="{StaticResource SectionHeading}" /></StackPanel>
-                            <TextBlock Text="• Felhasználói bejelentkezés munkagép-háttérrel." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Adminisztrátori fiókkezelés és titkosított jelszavak." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Menük és beállításfülek egyedi hozzáférése." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Rejtett jelszavak vektoros szemikonnal." TextWrapping="Wrap" Margin="0,4,0,0" />
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><Path Style="{StaticResource Icon}" Data="{StaticResource DocumentIcon}" /><TextBlock x:Name="ReleaseNotesTitle" Text="Legújabb verzió • v1.2.0-beta.8" Style="{StaticResource SectionHeading}" /></StackPanel>
+                            <TextBlock Text="• Utolsó sikeres felhasználónév megjegyzése." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Újraindításkor és kijelentkezéskor előre kitöltve." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• A jelszómező minden belépéskor üres." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Kitöltött névnél közvetlen jelszófókusz." TextWrapping="Wrap" Margin="0,4,0,0" />
                         </StackPanel>
                     </Border>
                     </Grid>

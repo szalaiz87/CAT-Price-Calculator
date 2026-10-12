@@ -1,6 +1,6 @@
 # Helyi felhasználói bejelentkezés – v1.2.0-beta.7
 
-Induláskor csak a munkagép hátterű bejelentkező ablak jelenik meg. Mindkét mező üres; az alkalmazás felülete csak sikeres belépés után nyílik meg. Kijelentkezéskor a szerviznaptár és ügyfélkereső ablakok bezáródnak, és ismét üres bejelentkezés jelenik meg.
+Induláskor csak a munkagép hátterű bejelentkező ablak jelenik meg. Az utolsó sikeres belépés felhasználóneve előre kitöltött, a jelszómező üres; az alkalmazás felülete csak sikeres belépés után nyílik meg. Kijelentkezéskor a szerviznaptár és ügyfélkereső ablakok bezáródnak, és ismét a megjegyzett felhasználónévvel és üres jelszómezővel jelenik meg a bejelentkezés.
 
 Az első indításkor létrehozott adminisztrátor felhasználóneve és megjelenített neve **Szalai Zoltán**, kezdeti jelszava **12345**. A Beállítások / Fiókok lapon szerkeszthető, így a kezdeti jelszó lecserélhető. A felhasználónév kis- és nagybetűtől, valamint a körülötte lévő szóközöktől független; a jelszó pontosan, az ékezetekkel, szóközökkel és betűmérettel együtt értendő.
 
@@ -31,3 +31,7 @@ Meglévő, hibás vagy nem visszafejthető fiókfájl esetén a bejelentkezés l
 Automatizált ellenőrzések: megfelelő/hibás belépés, titkosított tárolás, jogosultságok, adminisztráció tiltása normál felhasználónak, duplikált név, pontos jelszókezelés, módosítás/törlés, újraindítás, sikertelen titkosítás és sérült adatfájl. A titkosítási tesztek Linuxon tesztprotektort használnak; az éles DPAPI-t Windows biztosítja.
 
 Windows kézi átvételhez: első belépés; normál fiók felvétele; eltérő menü- és fülengedélyek kipróbálása; szemikonok és témák; kijelentkezés nyitott naptár mellett; újraindítás és új jelszó; ablakméretezés. Linuxon a WPF-felület vizuális futtatása nem végezhető el.
+
+## Felhasználónév megjegyzése (v1.2.0-beta.8)
+
+Csak sikeres hitelesítés után mentjük a tényleges fiók felhasználónevét a helyi `login-preference.json` fájlba. Sikertelen belépés nem cseréli le a korábbi nevet. Első indításkor vagy hibás preferenciafájlnál a név üres. A név szerkeszthető, másik felhasználó is beléphet. Nincs mentett jelszó ebben a fájlban és nincs automatikus belépés. Kitöltött névnél a fókusz a jelszómezőre kerül.

@@ -1,3 +1,7 @@
+# Linser Hungary v1.2.0-beta.8 – megjegyzett felhasználónév
+
+Az utolsó sikeresen belépett felhasználó neve újraindítás és kijelentkezés után előre kitöltött. A jelszómező üres marad, a név szabadon módosítható.
+
 # Linser Hungary v1.2.0-beta.7 – felhasználói bejelentkezés
 
 Helyi, titkosított fióktárolás; üres bejelentkező munkagép-háttérrel; adminisztrátori felhasználókezelés; menünként és beállításfülenként kiosztható hozzáférés; rejtett jelszavak vektoros szemikonnal. Az Általános beállítások minden felhasználónak elérhetők.
