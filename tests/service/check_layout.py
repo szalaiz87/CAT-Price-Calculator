@@ -35,7 +35,7 @@ print('PASS: separate import settings, complete reset and unowned modeless popup
 assert 'staff.Name+(staff.Id==' not in calendar
 assert 'addWork(date,staff.Id)' in calendar and 'Munka hozzáadása' in calendar
 assert 'StaffInput.SelectedItem=ServiceCalendar.Staff.First(s=>s.Id==staffId)' in code
-assert 'RecorderInput.SelectedIndex=-1' in code
+assert 'RecorderInput.Text=recorderName' in code and 'IsReadOnly="True"' in form
 styles=(root/'src/CatPriceCalculator/Styles/Controls.xaml').read_text()
 assert styles.count('<ControlTemplate x:Key="AppButtonTemplate"')==1
 assert 'Property="Template" Value="{StaticResource AppButtonTemplate}"' in styles

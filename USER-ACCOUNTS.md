@@ -35,3 +35,5 @@ Windows kézi átvételhez: első belépés; normál fiók felvétele; eltérő 
 ## Felhasználónév megjegyzése (v1.2.0-beta.8)
 
 Csak sikeres hitelesítés után mentjük a tényleges fiók felhasználónevét a helyi `login-preference.json` fájlba. Sikertelen belépés nem cseréli le a korábbi nevet. Első indításkor vagy hibás preferenciafájlnál a név üres. A név szerkeszthető, másik felhasználó is beléphet. Nincs mentett jelszó ebben a fájlban és nincs automatikus belépés. Kitöltött névnél a fókusz a jelszómezőre kerül.
+
+A szerviznaptár rögzítőmezője automatikusan a bejelentkezett felhasználó megjelenített nevét mutatja, nem szerkeszthető. A munka ezzel a névvel kerül a naptárba; a mező az adatbekérő ürítése után is megmarad. A régi bejegyzések rögzítőnevei változatlanok.

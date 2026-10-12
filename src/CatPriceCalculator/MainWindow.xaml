@@ -65,13 +65,12 @@
                                     <TextBlock Text="Frissítések" VerticalAlignment="Center" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
                                 </StackPanel>
                             </Button>
-                            <TextBlock x:Name="SessionName" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" Foreground="{DynamicResource AccentText}" Margin="4,0,0,4" />
-                            <Button x:Name="LogoutButton" Click="LogoutClicked" Style="{StaticResource NavigationButton}" Margin="0,0,0,6"><StackPanel Orientation="Horizontal"><Path Style="{StaticResource ButtonIcon}" Data="{StaticResource LogoutIcon}"/><TextBlock Text="Kijelentkezés" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/></StackPanel></Button>
-                            <TextBlock Text="Belső vállalati segédprogram" Style="{StaticResource Caption}" Margin="4,0,0,8" />
+                            <Grid Height="34" Margin="0,0,0,6"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="36"/></Grid.ColumnDefinitions><TextBlock x:Name="SessionName" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" Foreground="{DynamicResource AccentText}" VerticalAlignment="Center" Margin="4,0,4,0"/><Button x:Name="LogoutButton" Grid.Column="1" Click="LogoutClicked" Width="30" Height="30" Padding="7" ToolTip="Kijelentkezés" AutomationProperties.Name="Kijelentkezés"><Path Style="{StaticResource ButtonIcon}" Data="{StaticResource LogoutIcon}" Width="15" Height="15" Margin="0"/></Button></Grid>
                             <TextBlock x:Name="CurrentVersionText" Text="v1.2.0-beta.8" Style="{StaticResource Caption}" Margin="4,0,0,0" />
-                            <TextBlock x:Name="UpdateInfo" TextWrapping="Wrap" Style="{StaticResource Caption}" Margin="4,5,0,0" />
+                            <TextBlock x:Name="UpdateInfo" MaxHeight="32" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" TextWrapping="Wrap" Style="{StaticResource Caption}" Margin="4,5,0,0" />
                         </StackPanel>
                         <Grid>
+                        <Border x:Name="ServiceSidebar" Style="{StaticResource Card}" Padding="12" Margin="0,8,0,8" Visibility="Collapsed"><Grid><Grid.RowDefinitions><RowDefinition Height="18"/><RowDefinition Height="12"/><RowDefinition/></Grid.RowDefinitions><StackPanel Orientation="Horizontal"><Path Style="{StaticResource Icon}" Data="{StaticResource CalendarIcon}" Width="16" Height="16" Margin="0,0,6,0"/><TextBlock Text="Szervizáttekintés" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel><Border Grid.Row="1" Height="1" Background="{DynamicResource PanelBorder}"/><Viewbox Grid.Row="2" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Top"><TextBlock x:Name="ServiceSummary" Width="174" FontSize="11" LineHeight="15" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondary}"/></Viewbox></Grid></Border>
                         <Border x:Name="RoboSidebar" Style="{StaticResource Card}" Padding="10" Margin="0,16,0,16" Visibility="Collapsed">
                             <Grid>
                                 <Grid.RowDefinitions><RowDefinition Height="18" /><RowDefinition Height="10" /><RowDefinition Height="46" /><RowDefinition Height="10" /><RowDefinition Height="18" /><RowDefinition Height="42" /><RowDefinition Height="10" /><RowDefinition Height="28" /><RowDefinition /></Grid.RowDefinitions>
@@ -86,7 +85,7 @@
                                 <TextBlock Grid.Row="7" Text="MINTA = bemutató adat&#10;4 futár = kézi API-követés" Style="{StaticResource Caption}" TextWrapping="Wrap" />
                             </Grid>
                         </Border>
-                        <Border x:Name="CalculatorSidebar" Style="{StaticResource Card}" Padding="12" Margin="0,16,0,16">
+                        <Border x:Name="CalculatorSidebar" Style="{StaticResource Card}" Padding="12" Margin="0,8,0,8">
                             <Grid>
                                 <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="12" /><RowDefinition Height="*" /><RowDefinition Height="36" /></Grid.RowDefinitions>
                                 <StackPanel Orientation="Horizontal">
@@ -94,7 +93,7 @@
                                     <TextBlock Text="Árfolyam-információk" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" />
                                 </StackPanel>
                                 <Border Grid.Row="1" Height="1" Background="{DynamicResource PanelBorder}" VerticalAlignment="Center" />
-                                <TextBlock x:Name="SidebarRate" Grid.Row="2" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondary}" FontSize="11" LineHeight="15" Margin="0,4,0,12" />
+                                <Viewbox Grid.Row="2" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,4,0,8"><TextBlock x:Name="SidebarRate" Width="174" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondary}" FontSize="11" LineHeight="15" /></Viewbox>
                                 <Button x:Name="RefreshAllButton" Grid.Row="3" Click="RefreshAll" Padding="6,4">
                                     <StackPanel Orientation="Horizontal">
                                         <Path Style="{StaticResource ButtonIcon}" Data="{StaticResource RefreshIcon}" Width="16" Height="16" Margin="0,0,6,0" />
@@ -300,7 +299,7 @@
                             <TextBlock Text="• Utolsó sikeres felhasználónév megjegyzése." TextWrapping="Wrap" Margin="0,6,0,0" />
                             <TextBlock Text="• Újraindításkor és kijelentkezéskor előre kitöltve." TextWrapping="Wrap" Margin="0,6,0,0" />
                             <TextBlock Text="• A jelszómező minden belépéskor üres." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Kitöltött névnél közvetlen jelszófókusz." TextWrapping="Wrap" Margin="0,4,0,0" />
+                            <TextBlock Text="• Szerviznaptár: automatikus bejelentkezett rögzítőnév." TextWrapping="Wrap" Margin="0,4,0,0" />
                         </StackPanel>
                     </Border>
                     </Grid>

@@ -119,6 +119,8 @@ public partial class MainWindow : Window
         ApplyModeLabels();
         SetSelected(UsersSettingsButton,settingsSection=="Users");
         UsersPage.Visibility=settingsSection=="Users" && session.IsAdministrator?Visibility.Visible:Visibility.Collapsed;
+        ServiceSidebar.Visibility=serviceOpen?Visibility.Visible:Visibility.Collapsed;
+        if(serviceOpen)ServiceSummary.Text=ServicePage.SummaryText;
         SetSelected(ServiceMenu, serviceOpen);
         SetSelected(SettingsMenu, settingsOpen);
         SetSelected(RoboMenu, roboOpen);
@@ -195,8 +197,19 @@ public partial class MainWindow : Window
     }
     private void UpdateSidebar()
     {
-        string Summary(string info) => info.Replace(" • ", "\n").Replace("Európai Központi Bank (EKB)", "EKB").Replace("Forrás: ", "").Replace("Árfolyamnap:", "Árf. nap:").Replace(" (magyar idő)", "");
-        SidebarRate.Text = RateLabel.Text + "\n" + Summary(RateInfo.Text) + (eurMode ? "" : "\n\nDKK/EUR\n" + Summary(EuroRateInfo.Text));
+        string Summary(string pair,string input,string info){
+            var rate=PriceCalculator.TryPositive(input,out var value)?value.ToString("0.########",PriceCalculator.Hungarian):"—";
+            if(rate.Length>18)rate=value.ToString("G6",PriceCalculator.Hungarian);
+            var heading=pair+" · "+rate;
+            if(info.StartsWith("Manuális"))return heading+"\nManuális árfolyam";
+            var parts=info.Split(" • ");
+            var source=parts.Length>1?parts[1].Split('\n')[0].Replace("Európai Központi Bank (EKB)","EKB"):"Forrás: —";
+            if(source.Length>12)source=source[..11]+"…";
+            var day=System.Text.RegularExpressions.Regex.Match(info,@"Árfolyamnap: (\d{4}\.\d{2}\.\d{2})");
+            var fetched=System.Text.RegularExpressions.Regex.Match(info,@"Lekérve: (\d{4}\.\d{2}\.\d{2}\.) (\d{2}:\d{2}:\d{2})");
+            return heading+"\n"+source+" · "+(day.Success?day.Groups[1].Value:"—")+"\n"+(fetched.Success?"Lekérve: "+fetched.Groups[1].Value+"\n"+fetched.Groups[2].Value+" · magyar idő":"Lekérve: nincs adat");
+        }
+        SidebarRate.Text=Summary(eurMode?"EUR/HUF":"DKK/HUF",RateInput.Text,RateInfo.Text)+(eurMode?"":"\n\n"+Summary("DKK/EUR",EuroRateInput.Text,EuroRateInfo.Text));
         SidebarRate.ToolTip = RateInfo.Text + (eurMode ? "" : "\n\n" + EuroRateInfo.Text);
 
     }
@@ -236,7 +249,9 @@ public partial class MainWindow : Window
         var upsService = new UpsTrackingService(trackingHttp, new TrackingRequestBudget(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "ups-request-budget.json"), carrier: "UPS"), log: entry => { apiLog.Append(entry); });
         InitializeComponent();
         UsersPage.Configure(accounts,session);
-        UsersPage.AccountChanged+=updated=>{this.session=updated;ApplyMenuTheme();};
+        UsersPage.AccountChanged+=updated=>{this.session=updated;ServicePage.SetRecorder(updated.Name);ApplyMenuTheme();};
+        ServicePage.SetRecorder(session.Name);
+        ServicePage.SummaryChanged+=()=>ServiceSummary.Text=ServicePage.SummaryText;
         ServiceImportPage.Configure(ServicePage.ImportCatalogAsync,ServicePage.OpenImportFolder);
         ServicePage.EntryRequested+=()=>{OpenServiceCalendar(this,new RoutedEventArgs());if(WindowState==WindowState.Minimized)WindowState=WindowState.Normal;Activate();};
         ApiLogPage.Configure(apiLog);

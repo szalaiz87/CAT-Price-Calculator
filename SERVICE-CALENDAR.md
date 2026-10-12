@@ -72,3 +72,9 @@ A feltöltött valódi bináris XLS-formátum Excel telepítése nélkül beolva
 A hiányzó gépnév helyére `- hiányzó adat -` kerül. Üres partnerazonosító esetén a gép a kereshető `- hiányzó adat -` gyűjtőpartnerhez tartozik. Ezek a sorok is bekerülnek; az import visszajelzése jelzi a darabszámokat. Az összes többi partnerhez csak a saját gépei választhatók. Nem üres, de a partnertörzsben nem található azonosító esetén a program hibát jelez, és megőrzi a korábbi adatbázist.
 
 A tényleges export ellenőrzése: 5144 partner, 6323 gép, 27 hiányzó partnerazonosító, 5 hiányzó gépnév. Minden gép megmaradt. A valódi exportfájlok és ügyféladatok nem kerülnek a nyilvános forrásba vagy a kiadásba; a regressziós XLS-minták fiktívek.
+
+## Automatikus rögzítő (v1.2.0-beta.8)
+
+A korábbi rögzítőválasztót a bejelentkezett felhasználó megjelenített neve váltja fel. Nem szerkeszthető, és az űrlap ürítése után is látható marad. Új felhasználó neve is menthető, a korábbi naptáradatok rögzítőneve nem változik.
+
+A bal oldali szervizáttekintés a mai és a következő 7 napi munkák számát, a következő tervezett munkát és munkatársat, a törzs méretét és az utolsó import magyar idejét mutatja. Mentéskor, importkor és látható oldalon percenként frissül, helyi adatokból.

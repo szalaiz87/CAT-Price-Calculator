@@ -1,6 +1,6 @@
 # Linser Hungary v1.2.0-beta.8 – megjegyzett felhasználónév
 
-Az utolsó sikeresen belépett felhasználó neve újraindítás és kijelentkezés után előre kitöltött. A jelszómező üres marad, a név szabadon módosítható.
+Az utolsó sikeresen belépett felhasználó neve újraindítás és kijelentkezés után előre kitöltött. A jelszómező üres marad, a név szabadon módosítható. A szerviznaptár rögzítőneve automatikusan a bejelentkezett felhasználó neve. Az oldalsó árfolyaminformációk tömörebb, méretezhető sorokban elférnek.
 
 # Linser Hungary v1.2.0-beta.7 – felhasználói bejelentkezés
 

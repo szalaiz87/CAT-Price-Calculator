@@ -23,10 +23,11 @@ public static class ServiceCalendar
     }
     public static IEnumerable<ServiceMachine> MachinesFor(ServiceCatalog catalog, string customerId) => catalog.Machines.Where(m => m.CustomerId == customerId);
     public static bool Valid(ServiceJob job) => job is not null && job.Id != Guid.Empty && Staff.Any(s => s.Id == job.StaffId)
-        && (job.RecordedBy==null || Recorders.Contains(job.RecordedBy))
+        && (job.RecordedBy==null || ValidRecorder(job.RecordedBy))
         && new[] { job.CustomerId, job.CustomerName, job.MachineId, job.MachineName, job.ContactName, job.Phone, job.Location, job.Description }.All(s => !string.IsNullOrWhiteSpace(s));
+    private static bool ValidRecorder(string name)=>!string.IsNullOrWhiteSpace(name) && name.Length<=120 && !name.Any(char.IsControl);
     public static ServiceJob CreateRecordedJob(ServiceCatalog catalog, DateOnly date, string staffId, string customerId, string machineId, string contact, string phone, string location, string description, string recordedBy) {
-        if(!Recorders.Contains(recordedBy)) throw new ArgumentException("Válassza ki, ki rögzítette a munkát.");
+        if(!ValidRecorder(recordedBy)) throw new ArgumentException("Érvényes bejelentkezett rögzítőnév szükséges.");
         return CreateJob(catalog,date,staffId,customerId,machineId,contact,phone,location,description) with {RecordedBy=recordedBy};
     }
     public static ServiceJob CreateJob(ServiceCatalog catalog, DateOnly date, string staffId, string customerId, string machineId, string contact, string phone, string location, string description) {

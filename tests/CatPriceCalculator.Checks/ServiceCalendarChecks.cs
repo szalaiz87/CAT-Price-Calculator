@@ -71,7 +71,8 @@ internal static class ServiceCalendarChecks
                 var recorded=ServiceCalendar.CreateRecordedJob(catalog,date,"szalai","001","M1","név","tel","hely","hiba",recorder);
                 check(recorded.RecordedBy==recorder && recorderStore.SaveJobs(new[]{recorded}) && recorderStore.LoadJobs().Single().RecordedBy==recorder,"Recorder persists: "+recorder);
             }
-            Reject(()=>ServiceCalendar.CreateRecordedJob(catalog,date,"szalai","001","M1","név","tel","hely","hiba","ismeretlen"),"Reject unknown recorder");
+            var custom=ServiceCalendar.CreateRecordedJob(catalog,date,"szalai","001","M1","név","tel","hely","hiba","Új Bejelentkezett Felhasználó");
+            check(recorderStore.SaveJobs([custom]) && recorderStore.LoadJobs().Single().RecordedBy=="Új Bejelentkezett Felhasználó","Any signed-in user name persists as recorder");
             Reject(()=>ServiceCalendar.CreateRecordedJob(catalog,date,"szalai","001","M1","név","tel","hely","hiba",""),"Reject empty recorder");
             var legacy=System.Text.Json.JsonSerializer.SerializeToNode(job)!.AsObject();legacy.Remove("RecordedBy");
             File.WriteAllText(Path.Combine(recorderStore.DirectoryPath,"jobs.json"),"["+legacy.ToJsonString()+"]");
