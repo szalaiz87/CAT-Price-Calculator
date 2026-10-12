@@ -218,6 +218,7 @@ public partial class MainWindow : Window
         var upsService = new UpsTrackingService(trackingHttp, new TrackingRequestBudget(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "ups-request-budget.json"), carrier: "UPS"), log: entry => { apiLog.Append(entry); });
         InitializeComponent();
         ServiceImportPage.Configure(ServicePage.ImportCatalogAsync,ServicePage.OpenImportFolder);
+        ServicePage.EntryRequested+=()=>{OpenServiceCalendar(this,new RoutedEventArgs());if(WindowState==WindowState.Minimized)WindowState=WindowState.Normal;Activate();};
         ApiLogPage.Configure(apiLog);
         string data = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator");
         var dhlStore = new DhlSettingsStore(Path.Combine(data, "dhl-connection.bin"), new WindowsSecretProtector());

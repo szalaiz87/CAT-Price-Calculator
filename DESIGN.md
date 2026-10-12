@@ -61,3 +61,5 @@
 - v1.2.0-beta.2: ügyfél/gép kártya belső sorai és paddingje beleférnek a rögzített magasságba. Explicit DisplayName a választókban, üres kezdeti szerelő. Naptár semleges tematikus felületekkel, váltakozó munkatárssorokkal, névfeliratokkal és kék széljelöléssel; ablak és részletek közös 10-es kártyákkal.
 
 - v1.2.0-beta.3: külön Beállítások / Szerviz importlap, két látható fájlútvonallal. Szervizlap csak importidő és hét nap után villogó amber figyelmeztetés; teljes mentés utáni ürítés. Ügyfélkereső 12-es lapozott listával, prefix/bárhol mód és ékezetfüggetlen index; gép legördülő marad. Szervizvezető legelső és arany jelölésű sor; főablaktól független normál szervizablakok, owner/topmost és modalitás nélkül.
+
+- v1.2.0-beta.4: közös AppButtonTemplate a normál és menügomboknak, változatlan vezérlőméretekkel. Napi részletek két soros gombzónában; Munka hozzáadása a nap/szerelő párost adja át. Szervizvezető külön szöveges felirat nélkül; kötelező rögzítőválasztó a fix adatbekérő kereten belül.

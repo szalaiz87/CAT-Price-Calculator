@@ -49,3 +49,9 @@ A Szerviznaptár lapon csak az utolsó sikeres, mindkét adatbázist frissítő 
 Az ügyfélkereső a név elején vagy bárhol a névben keres. Kis-/nagybetűk és magyar ékezetek, köztük ő/ű, nem különböznek. A normalizált névindex a kereső megnyitásakor egyszer készül el. A találatok 12-es lapokban jelennek meg; ügyfél választása után a géplista a megfelelő ügyfélhez szűrődik.
 
 A naptár, ügyfélkereső és feladatrészletek normál, nem mindig előtérben tartott, nem tulajdonolt és nem modális ablakok. Egymástól és a főablaktól függetlenül rétegezhetők. A főablak bezárása a szervizablakokat is bezárja. A főablak meglévő Mindig előtérben kapcsolója továbbra is csak a főablakot szabályozza.
+
+## Munka hozzáadása a naptárból és rögzítő
+
+Egy nap/munkatárs celláját megnyitva a Munka hozzáadása gomb a Szerviznaptár adatbekérő lapját hozza elő, a kattintott dátummal és szerelővel. Az esetleg már beírt többi mező megmarad. A rögzítő kötelező külön választás: Szalai Zoltán, Hották Enikő, Sebesi Sándor vagy Helembai Gergely. A név a mentett feladat része, a napi részletablakban is látszik; a régi feladatoknál „korábban nem rögzített”. Sikeres mentés után ez a választó is kiürül.
+
+Szalai Zoltán neve mellett nincs külön vezető felirat; az első hely és az arany jelölés megmarad. Az app normál gombjai és a funkcióválasztó menügombok egy közös sablont használnak: lekerekített felület, azonos hover/fókusz/aktív állapotok és oldalsó jelölés. A napi részletek gombjai két sorban, a közös stílusban helyezkednek el.

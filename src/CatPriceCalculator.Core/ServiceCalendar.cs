@@ -6,9 +6,10 @@ public sealed record ServiceCustomer(string Id, string Name) { [System.Text.Json
 public sealed record ServiceMachine(string Id, string CustomerId, string Name, string SerialNumber) { [System.Text.Json.Serialization.JsonIgnore] public string DisplayName => ToString(); public override string ToString() => Name + (string.IsNullOrWhiteSpace(SerialNumber) ? "" : " · " + SerialNumber); }
 public sealed record ServiceCatalog(ServiceCustomer[] Customers, ServiceMachine[] Machines, DateTimeOffset? ImportedAt=null, string? CustomerFile=null, string? MachineFile=null);
 public sealed record ServiceStaff(string Id, string Name, string Color) { public string DisplayName => Name; }
-public sealed record ServiceJob(Guid Id, DateOnly Date, string StaffId, string CustomerId, string CustomerName, string MachineId, string MachineName, string SerialNumber, string ContactName, string Phone, string Location, string Description);
+public sealed record ServiceJob(Guid Id, DateOnly Date, string StaffId, string CustomerId, string CustomerName, string MachineId, string MachineName, string SerialNumber, string ContactName, string Phone, string Location, string Description, string? RecordedBy=null);
 public static class ServiceCalendar
 {
+    public static IReadOnlyList<string> Recorders { get; } = Array.AsReadOnly(new[]{"Szalai Zoltán","Hották Enikő","Sebesi Sándor","Helembai Gergely"});
     public static IReadOnlyList<ServiceStaff> Staff { get; } = Array.AsReadOnly(new[] {
         new ServiceStaff("szalai", "Szalai Zoltán", "#D5A64C"),
         new ServiceStaff("barabas", "Barabás János", "#9CE7E8"),
@@ -21,7 +22,12 @@ public static class ServiceCalendar
     }
     public static IEnumerable<ServiceMachine> MachinesFor(ServiceCatalog catalog, string customerId) => catalog.Machines.Where(m => m.CustomerId == customerId);
     public static bool Valid(ServiceJob job) => job is not null && job.Id != Guid.Empty && Staff.Any(s => s.Id == job.StaffId)
+        && (job.RecordedBy==null || Recorders.Contains(job.RecordedBy))
         && new[] { job.CustomerId, job.CustomerName, job.MachineId, job.MachineName, job.ContactName, job.Phone, job.Location, job.Description }.All(s => !string.IsNullOrWhiteSpace(s));
+    public static ServiceJob CreateRecordedJob(ServiceCatalog catalog, DateOnly date, string staffId, string customerId, string machineId, string contact, string phone, string location, string description, string recordedBy) {
+        if(!Recorders.Contains(recordedBy)) throw new ArgumentException("Válassza ki, ki rögzítette a munkát.");
+        return CreateJob(catalog,date,staffId,customerId,machineId,contact,phone,location,description) with {RecordedBy=recordedBy};
+    }
     public static ServiceJob CreateJob(ServiceCatalog catalog, DateOnly date, string staffId, string customerId, string machineId, string contact, string phone, string location, string description) {
         var customer = catalog.Customers.SingleOrDefault(c => c.Id == customerId) ?? throw new ArgumentException("Válasszon ügyfelet.");
         var machine = MachinesFor(catalog, customerId).SingleOrDefault(m => m.Id == machineId) ?? throw new ArgumentException("A gép nem a kiválasztott ügyfélhez tartozik.");

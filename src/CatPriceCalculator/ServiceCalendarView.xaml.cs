@@ -18,8 +18,11 @@ public partial class ServiceCalendarView : UserControl
     private ServiceCalendarWindow? calendar;
     private CustomerSearchWindow? search;
     private bool storageReady,blinking;
+    private sealed record RecorderOption(string DisplayName);
+    public event Action? EntryRequested;
+    public void PrepareEntry(DateOnly date,string staffId){DateInput.Text=date.ToString("yyyy.MM.dd",CultureInfo.InvariantCulture);StaffInput.SelectedItem=ServiceCalendar.Staff.First(s=>s.Id==staffId);EntryRequested?.Invoke();SearchButton.Focus();}
     public ServiceCalendarView(){
-        InitializeComponent();StaffInput.ItemsSource=ServiceCalendar.Staff;StaffInput.SelectedIndex=-1;
+        InitializeComponent();StaffInput.ItemsSource=ServiceCalendar.Staff;StaffInput.SelectedIndex=-1;RecorderInput.ItemsSource=ServiceCalendar.Recorders.Select(name=>new RecorderOption(name)).ToArray();RecorderInput.SelectedIndex=-1;
         DateInput.Text=DateTime.Today.ToString("yyyy.MM.dd",CultureInfo.InvariantCulture);
         try{catalog=store.LoadCatalog();jobs=store.LoadJobs();storageReady=true;}
         catch(Exception e) when(e is IOException or UnauthorizedAccessException or FormatException){Status.Text=e is FormatException?e.Message:"A szervizadatok nem olvashatók. Mentés letiltva az eredeti adatok védelmében.";}
@@ -72,14 +75,15 @@ public partial class ServiceCalendarView : UserControl
     }
     private void ResetForm(){
         customer=null;CustomerDisplay.Clear();MachineInput.SelectedItem=null;MachineInput.ItemsSource=Array.Empty<ServiceMachine>();MachineInput.IsEnabled=false;StaffInput.SelectedIndex=-1;
-        DateInput.Clear();ContactInput.Clear();PhoneInput.Clear();LocationInput.Clear();DescriptionInput.Clear();
+        RecorderInput.SelectedIndex=-1;DateInput.Clear();ContactInput.Clear();PhoneInput.Clear();LocationInput.Clear();DescriptionInput.Clear();
     }
     private void SaveJob(object sender,RoutedEventArgs e){
         if(!storageReady)return;
         if(customer==null || MachineInput.SelectedItem is not ServiceMachine machine || StaffInput.SelectedItem is not ServiceStaff staff){Status.Text="Válasszon ügyfelet, hozzá tartozó gépet és munkatársat.";return;}
         if(!DateOnly.TryParseExact(DateInput.Text.Trim(),new[]{"yyyy.MM.dd","yyyy-MM-dd","yyyy.MM.dd."},CultureInfo.InvariantCulture,DateTimeStyles.None,out var date)){Status.Text="Érvényes dátum szükséges, például 2026.10.12.";return;}
         try{
-            var job=ServiceCalendar.CreateJob(catalog,date,staff.Id,customer.Id,machine.Id,ContactInput.Text,PhoneInput.Text,LocationInput.Text,DescriptionInput.Text);
+            if(RecorderInput.SelectedItem is not RecorderOption recorder){Status.Text="Válassza ki, ki rögzítette a munkát.";return;}
+            var job=ServiceCalendar.CreateRecordedJob(catalog,date,staff.Id,customer.Id,machine.Id,ContactInput.Text,PhoneInput.Text,LocationInput.Text,DescriptionInput.Text,recorder.DisplayName);
             if(!store.Append(job,out var updated)){Status.Text="A feladat nem menthető; a korábbi naptáradatok és a kitöltött mezők megmaradtak.";return;}
             jobs=updated;calendar?.Refresh(jobs);ResetForm();
             Status.Text=$"A feladat bekerült a naptárba: {date:yyyy.MM.dd} · {staff.Name}. Új feladat rögzíthető.";SearchButton.Focus();
@@ -91,6 +95,6 @@ public partial class ServiceCalendarView : UserControl
         if(!storageReady){Status.Text="A mentett naptáradatokat előbb helyre kell állítani.";return;}
         if(calendar!=null){calendar.Activate();return;}
         var date=DateOnly.TryParseExact(DateInput.Text.Trim(),new[]{"yyyy.MM.dd","yyyy-MM-dd"},CultureInfo.InvariantCulture,DateTimeStyles.None,out var parsed)?parsed:DateOnly.FromDateTime(DateTime.Today);
-        calendar=new ServiceCalendarWindow(jobs,date){Topmost=false};calendar.Closed+=(_,_)=>calendar=null;calendar.Show();
+        calendar=new ServiceCalendarWindow(jobs,date,PrepareEntry){Topmost=false};calendar.Closed+=(_,_)=>calendar=null;calendar.Show();
     }
 }

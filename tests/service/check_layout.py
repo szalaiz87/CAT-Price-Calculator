@@ -31,3 +31,12 @@ for field in ['CustomerDisplay','DateInput','ContactInput','PhoneInput','Locatio
 assert 'Owner=' not in code and 'ShowDialog' not in code
 assert 'Owner=' not in calendar and 'dialog.Show()' in calendar
 print('PASS: separate import settings, complete reset and unowned modeless popups')
+
+assert 'staff.Name+(staff.Id==' not in calendar
+assert 'addWork(date,staff.Id)' in calendar and 'Munka hozzáadása' in calendar
+assert 'StaffInput.SelectedItem=ServiceCalendar.Staff.First(s=>s.Id==staffId)' in code
+assert 'RecorderInput.SelectedIndex=-1' in code
+styles=(root/'src/CatPriceCalculator/Styles/Controls.xaml').read_text()
+assert styles.count('<ControlTemplate x:Key="AppButtonTemplate"')==1
+assert 'Property="Template" Value="{StaticResource AppButtonTemplate}"' in styles
+print('PASS: calendar-to-form date/staff handoff, recorder reset and shared menu button template')

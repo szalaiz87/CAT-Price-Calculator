@@ -1,3 +1,16 @@
+# Linser Hungary v1.2.0-beta.4 – munka hozzáadása és egységes gombstílus
+
+- A naptárban Szalai Zoltán mellett nincs külön vezető felirat; az első hely és arany jelölés megmarad.
+- Az egész app gombjai a funkcióválasztó menügombok közös sablonját használják. A napi feladatrészletek lapozógombjai egységes, két soros elrendezést kapnak.
+- Munka hozzáadása gomb minden nap/munkatárs részletablakában: visszavezet az adatbekérőhöz, kitöltött dátummal és szerelővel.
+- Kötelező rögzítőválasztó: Szalai Zoltán, Hották Enikő, Sebesi Sándor, Helembai Gergely. A rögzítő neve mentődik és a feladatrészletekben látszik. Régi feladatoknál nincs kitalált rögzítő.
+
+Windows: CAT-Letoltes-Windows-v1.2.0-beta.4.cmd vagy Frissítések engedélyezett béta csatornával. A stabil továbbra is v1.0.1.
+
+563 automatizált ellenőrzés sikeres; a felület rögzített méreteit, átadását és a közös gombsablont is ellenőriztük. Windows x64 self-contained build. A tényleges WPF-felületet Linux alatt nem futtattuk.
+
+---
+
 # Linser Hungary v1.2.0-beta.3 – importbeállítások és ügyfélkereső
 
 - Import a Beállítások / Szerviz lapon, két látható és megjegyzett teljes fájlútvonallal. A naptár lapon utolsó sikeres importidő, hét nap után sárgásan villogó frissítési figyelmeztetés.

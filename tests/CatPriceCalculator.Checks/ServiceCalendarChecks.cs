@@ -45,6 +45,16 @@ internal static class ServiceCalendarChecks
             check(excel.Customers[0].Id=="001" && excel.Machines[0].SerialNumber=="0000123" && excel.Customers[0].Name.Contains('&'),"XLSX inline text identifiers and escaped customer names");
             WriteExcel(cx,new[]{new[]{"ugyfelazonosito","nev"},new[]{"001","Közös szöveg"}},shared:true);
             check(ServiceCatalogCsv.Load(cx,mx).Customers[0].Name=="Közös szöveg","XLSX shared-string exports");
+            var recorderStore=new ServiceCalendarStore(Path.Combine(directory,"recorded"));
+            foreach(var recorder in ServiceCalendar.Recorders){
+                var recorded=ServiceCalendar.CreateRecordedJob(catalog,date,"szalai","001","M1","név","tel","hely","hiba",recorder);
+                check(recorded.RecordedBy==recorder && recorderStore.SaveJobs(new[]{recorded}) && recorderStore.LoadJobs().Single().RecordedBy==recorder,"Recorder persists: "+recorder);
+            }
+            Reject(()=>ServiceCalendar.CreateRecordedJob(catalog,date,"szalai","001","M1","név","tel","hely","hiba","ismeretlen"),"Reject unknown recorder");
+            Reject(()=>ServiceCalendar.CreateRecordedJob(catalog,date,"szalai","001","M1","név","tel","hely","hiba",""),"Reject empty recorder");
+            var legacy=System.Text.Json.JsonSerializer.SerializeToNode(job)!.AsObject();legacy.Remove("RecordedBy");
+            File.WriteAllText(Path.Combine(recorderStore.DirectoryPath,"jobs.json"),"["+legacy.ToJsonString()+"]");
+            check(recorderStore.LoadJobs().Single().RecordedBy==null,"Legacy job without a recorder remains readable without inventing a name");
             var next=ServiceCalendar.CreateJob(catalog,date,"gulyas","001","M1","név","tel","hely","harmadik");
             check(new ServiceCalendarStore(store.DirectoryPath).Append(next,out var refreshed) && refreshed.Length==3 && refreshed.Contains(job),"Appending from another store preserves existing tasks");
             using(var locked=new FileStream(Path.Combine(store.DirectoryPath,"jobs.lock"),FileMode.OpenOrCreate,FileAccess.ReadWrite,FileShare.None))

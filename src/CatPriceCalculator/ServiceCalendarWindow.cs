@@ -7,14 +7,15 @@ namespace CatPriceCalculator;
 public sealed class ServiceCalendarWindow : Window
 {
     private ServiceJob[] jobs;
+    private readonly Action<DateOnly,string>? addWork;
     private readonly List<Window> detailWindows=[];
     private int year,month;
     private readonly Grid calendar=new();
     private readonly TextBlock title=new(){FontSize=25,FontWeight=FontWeights.SemiBold,VerticalAlignment=VerticalAlignment.Center};
     private readonly UniformGridHost monthTabs=new();
     private static readonly CultureInfo Hungarian=CultureInfo.GetCultureInfo("hu-HU");
-    public ServiceCalendarWindow(ServiceJob[] tasks,DateOnly date) {
-        jobs=tasks;year=date.Year;month=date.Month;
+    public ServiceCalendarWindow(ServiceJob[] tasks,DateOnly date,Action<DateOnly,string>? add=null) {
+        addWork=add;jobs=tasks;year=date.Year;month=date.Month;
         Title="Linser Hungary · Szerviznaptár";Width=1380;Height=920;MinWidth=900;MinHeight=600;WindowStartupLocation=WindowStartupLocation.CenterOwner;
         SetResourceReference(BackgroundProperty,"WindowSurface");FontFamily=new FontFamily("Segoe UI");
         var root=new Grid{Width=1400,Height=900,Margin=new Thickness(18)};
@@ -51,7 +52,7 @@ public sealed class ServiceCalendarWindow : Window
             int row=1+week*6;
             for(int s=0;s<5;s++) {
                 var staff=ServiceCalendar.Staff[s];
-                var label=new TextBlock{Text=staff.Name+(staff.Id=="szalai"?" · vezető":""),FontSize=12,FontWeight=FontWeights.SemiBold,VerticalAlignment=VerticalAlignment.Center,Margin=new Thickness(8,0,2,0)};
+                var label=new TextBlock{Text=staff.Name,FontSize=12,FontWeight=FontWeights.SemiBold,VerticalAlignment=VerticalAlignment.Center,Margin=new Thickness(8,0,2,0)};
                 label.SetResourceReference(TextBlock.ForegroundProperty,staff.Id=="szalai"?"ManagerText":"TextPrimary");
                 var band=new Border{Child=label,Margin=new Thickness(1),BorderThickness=new Thickness(3,0,0,0),CornerRadius=new CornerRadius(6)};
                 band.SetResourceReference(Border.BackgroundProperty,staff.Id=="szalai"?"ManagerSurface":s%2==0?"SidebarSurface":"SummaryGradient");
@@ -87,13 +88,14 @@ public sealed class ServiceCalendarWindow : Window
     private void ShowDay(DateOnly date,ServiceStaff staff){
         var tasks=jobs.Where(j=>j.Date==date && j.StaffId==staff.Id).ToArray();int index=0, page=0;
         var dialog=new Window{Topmost=false,Title=$"{date:yyyy.MM.dd} · {staff.Name}",Width=670,Height=650,MinWidth=520,MinHeight=500,WindowStartupLocation=WindowStartupLocation.CenterOwner};dialog.SetResourceReference(BackgroundProperty,"WindowSurface");
-        var root=new Grid{Width=610,Height=560,Margin=new Thickness(18)};root.RowDefinitions.Add(new(){Height=new GridLength(85)});root.RowDefinitions.Add(new(){Height=new GridLength(1,GridUnitType.Star)});root.RowDefinitions.Add(new(){Height=new GridLength(45)});
+        var root=new Grid{Width=610,Height=560,Margin=new Thickness(18)};root.RowDefinitions.Add(new(){Height=new GridLength(85)});root.RowDefinitions.Add(new(){Height=new GridLength(1,GridUnitType.Star)});root.RowDefinitions.Add(new(){Height=new GridLength(98)});
         var heading=new TextBlock{FontSize=20,FontWeight=FontWeights.SemiBold,TextWrapping=TextWrapping.Wrap};heading.SetResourceReference(TextBlock.ForegroundProperty,"TextPrimary");root.Children.Add(Card(heading));
         var body=new TextBox{IsReadOnly=true,TextWrapping=TextWrapping.Wrap,FontSize=14,VerticalScrollBarVisibility=ScrollBarVisibility.Disabled};var detailCard=Card(body);Grid.SetRow(detailCard,1);root.Children.Add(detailCard);
-        var buttons=new StackPanel{Orientation=Orientation.Horizontal,HorizontalAlignment=HorizontalAlignment.Right};Grid.SetRow(buttons,2);root.Children.Add(buttons);
-        void Display(){heading.Text=$"{date:yyyy.MM.dd} · {staff.Name}";var full=tasks.Length==0?"Erre a napra még nincs rögzített feladat.":$"Feladat {index+1} / {tasks.Length}\n\nÜgyfél: {tasks[index].CustomerName}\nGép: {tasks[index].MachineName}\nGyári szám: {tasks[index].SerialNumber}\nKapcsolattartó: {tasks[index].ContactName}\nTelefon: {tasks[index].Phone}\nLokáció: {tasks[index].Location}\n\nHibaleírás:\n{tasks[index].Description}";
+        var buttons=new System.Windows.Controls.Primitives.UniformGrid{Rows=2,Columns=3};Grid.SetRow(buttons,2);root.Children.Add(buttons);
+        void Display(){heading.Text=$"{date:yyyy.MM.dd} · {staff.Name}";var full=tasks.Length==0?"Erre a napra még nincs rögzített feladat.":$"Feladat {index+1} / {tasks.Length}\n\nÜgyfél: {tasks[index].CustomerName}\nGép: {tasks[index].MachineName}\nGyári szám: {tasks[index].SerialNumber}\nKapcsolattartó: {tasks[index].ContactName}\nTelefon: {tasks[index].Phone}\nLokáció: {tasks[index].Location}\nRögzítette: {tasks[index].RecordedBy ?? "korábban nem rögzített"}\n\nHibaleírás:\n{tasks[index].Description}";
             var pages=DetailPages(full);page=Math.Clamp(page,0,pages.Count-1);
             heading.Text+=$" · {page+1}/{pages.Count}";body.Text=pages[page];}
+        buttons.Children.Add(Action("Munka hozzáadása",()=>{if(addWork!=null){dialog.Close();addWork(date,staff.Id);}}));
         buttons.Children.Add(Action("‹ Részlet",()=>{if(page>0){page--;Display();}}));buttons.Children.Add(Action("Részlet ›",()=>{page++;Display();}));
         buttons.Children.Add(Action("‹ Feladat",()=>{if(index>0){index--;page=0;Display();}}));buttons.Children.Add(Action("Feladat ›",()=>{if(index+1<tasks.Length){index++;page=0;Display();}}));buttons.Children.Add(Action("Bezárás",()=>dialog.Close()));
         Display();dialog.Content=new Viewbox{StretchDirection=StretchDirection.DownOnly,Child=root};dialog.SourceInitialized+=(_,_)=>WindowTheme.Apply(dialog,new AppearanceStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"CAT-Price-Calculator","appearance.json")).Load()==Appearance.Light);detailWindows.Add(dialog);dialog.Closed+=(_,_)=>detailWindows.Remove(dialog);dialog.Show();
