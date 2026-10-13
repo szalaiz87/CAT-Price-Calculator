@@ -7,6 +7,14 @@ foreach (var text in new[] { "0", "-1", "abc", "", "1,2.3" }) Check(!PriceCalcul
 var result = PriceCalculator.Calculate(1250m, 53.5m, 1.4m);
 Check(result == (1375m, 73562.50m, 102988m), "Required calculation");
 Check(PriceCalculator.Forints(result.Selling) == "102 988 Ft", "Hungarian formatting");
+Check(PriceCalculator.ConvertForintsToEuro(result.Selling, 400m) == 257.47m, "CAT selling EUR divides the displayed rounded HUF result by EUR/HUF");
+Check(PriceCalculator.ConvertForintsToEuro(1m, 8m) == 0.13m, "EUR cents use midpoint rounding away from zero");
+Check(PriceCalculator.ConvertForintsToEuro(0m, 400m) == 0m, "Valid small selling prices rounded to zero remain convertible");
+foreach (var invalidRate in new[] { 0m, -1m }) {
+try { PriceCalculator.ConvertForintsToEuro(100m, invalidRate); throw new Exception("Invalid EUR/HUF accepted"); } catch (ArgumentOutOfRangeException) { Check(true, "Reject invalid selling EUR exchange rate " + invalidRate); }
+}
+try { PriceCalculator.ConvertForintsToEuro(-1m, 400m); throw new Exception("Negative selling HUF accepted"); } catch (ArgumentOutOfRangeException) { Check(true, "Reject negative selling HUF"); }
+try { PriceCalculator.ConvertForintsToEuro(decimal.MaxValue, 0.1m); throw new Exception("EUR overflow ignored"); } catch (OverflowException) { Check(true, "Selling EUR overflow detected"); }
 foreach (var multiplier in PriceCalculator.SellingMultipliers) Check(PriceCalculator.Calculate(100m, 50m, multiplier).Selling == decimal.Round(5500m * multiplier, 0, MidpointRounding.AwayFromZero), "Multiplier " + multiplier);
 try { PriceCalculator.Calculate(decimal.MaxValue, 50m, 1.4m); throw new Exception("Overflow was ignored"); } catch (OverflowException) { Check(true, "Overflow detected"); }
 Check(PriceCalculator.ConvertToEuro(1250m, 0.134m) == 167.5m, "EUR uses raw CAT price without dealer markup");

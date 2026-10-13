@@ -53,5 +53,11 @@ public static class PriceCalculator
         if (priceDkk <= 0 || euroPerDkk <= 0) throw new ArgumentOutOfRangeException(nameof(priceDkk));
         return priceDkk * euroPerDkk;
     }
+    public static decimal ConvertForintsToEuro(decimal sellingHuf, decimal hufPerEuro)
+    {
+        if (sellingHuf < 0) throw new ArgumentOutOfRangeException(nameof(sellingHuf));
+        if (hufPerEuro <= 0) throw new ArgumentOutOfRangeException(nameof(hufPerEuro));
+        return decimal.Round(sellingHuf / hufPerEuro, 2, MidpointRounding.AwayFromZero);
+    }
     public static string Forints(decimal value) => value.ToString("N0", Hungarian).Replace('\u00a0', ' ').Replace('\u202f', ' ') + " Ft";
 }

@@ -44,6 +44,15 @@ public partial class MainWindow : Window
     private bool updateBusy;
     private static readonly ReleaseVersion AppVersion = BuildInfo.Current;
     private RateQuote? currentHufQuote, currentEuroQuote;
+    private RateSettings? sellingEuroRate;
+    private RateQuote? currentEurHufQuote;
+    private Task<RateQuote>? eurHufInFlight;
+    private int eurHufRevision;
+    private Task<RateQuote> FetchSharedEuroHufAsync()
+    {
+        if (eurHufInFlight is { IsCompleted: false }) return eurHufInFlight;
+        return eurHufInFlight = rateService.FetchEuroHufAsync(lifetime.Token);
+    }
     private readonly StartupPreferencesStore startupPreferencesStore = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator", "startup-preferences.json"));
     private bool startupPreferencesReady, startupRefreshing, startupRefreshFailed;
     private bool allowBetaUpdates, suppressBetaChanges;
@@ -56,7 +65,7 @@ public partial class MainWindow : Window
     }
     private async Task StartupRatesAsync(bool refresh)
     {
-        if (!refresh) { await Task.WhenAll(CheckStartupCurrency(false), CheckStartupCurrency(true)); return; }
+        if (!refresh) { await Task.WhenAll(CheckStartupCurrency(false), CheckStartupCurrency(true), RefreshStartupEuroHuf(false)); return; }
         startupRefreshing = true; startupRefreshFailed = false;
         pendingFetches++; CatMenu.IsEnabled = EurMenu.IsEnabled = false;
         try
@@ -70,13 +79,36 @@ public partial class MainWindow : Window
             if (!lifetime.IsCancellationRequested) CatMenu.IsEnabled = EurMenu.IsEnabled = pendingFetches == 0;
         }
     }
-    private async Task RefreshStartupEuroHuf()
+    private async Task RefreshStartupEuroHuf(bool save = true)
     {
+        var revision = eurHufRevision;
         try {
-            var quote = await rateService.FetchEuroHufAsync(lifetime.Token);
-            if (lifetime.IsCancellationRequested) return;
-            if (!eurHufSettings.Save(new(decimal.Round(quote.Rate, 8, MidpointRounding.AwayFromZero), quote.Source, quote.Date, quote.RetrievedAt))) startupRefreshFailed = true;
-        } catch (Exception e) when (e is HttpRequestException or OperationCanceledException) { startupRefreshFailed = true; }
+            var quote = await FetchSharedEuroHufAsync();
+            if (lifetime.IsCancellationRequested || revision != eurHufRevision) return;
+            currentEurHufQuote = quote;
+            sellingEuroRate = new(decimal.Round(quote.Rate, 8, MidpointRounding.AwayFromZero), quote.Source, quote.Date, quote.RetrievedAt);
+            if (save)
+            {
+                if (!eurHufSettings.Save(sellingEuroRate)) startupRefreshFailed = true;
+                if (pages.TryGetValue(true, out var page))
+                    pages[true] = page with { Rate = sellingEuroRate.Rate.ToString("0.########", PriceCalculator.Hungarian), Info = EuroHufInfo(sellingEuroRate), Quote = quote, Warning = "", WarningVisibility = Visibility.Collapsed };
+            }
+            UpdateSellingEuro();
+        } catch (Exception e) when (e is HttpRequestException or OperationCanceledException) { startupRefreshFailed = true; if (!lifetime.IsCancellationRequested) UpdateSellingEuro(); }
+    }
+    private static string EuroHufInfo(RateSettings rate) =>
+        $"1 EUR = {rate.Rate.ToString("0.########", PriceCalculator.Hungarian)} HUF • {rate.Source ?? "Manuális árfolyam"}\nÁrfolyamnap: {rate.Date:yyyy.MM.dd.} • Lekérve: {RateTimestamp.Format(rate.RetrievedAt)}";
+    private void UpdateSellingEuro()
+    {
+        SellingEuroText.Text = "— EUR";
+        SellingEuroText.ToolTip = sellingEuroRate is null ? "Az EUR/HUF árfolyam nem érhető el. Frissítse az árfolyamokat." : EuroHufInfo(sellingEuroRate);
+        if (eurMode || selling is not decimal huf || sellingEuroRate is not { Rate: > 0 } rate) return;
+        try
+        {
+            SellingEuroText.Text = PriceCalculator.ConvertForintsToEuro(huf, rate.Rate).ToString("N2", PriceCalculator.Hungarian).Replace('\u00a0', ' ').Replace('\u202f', ' ') + " EUR";
+            SellingEuroText.ToolTip = SellingEuroText.Text + "\n" + EuroHufInfo(rate);
+        }
+        catch (OverflowException) { SellingEuroText.ToolTip = "Az euróösszeg túl nagy. Adjon meg kisebb értéket."; }
     }
     private double switchDrag;
     private void DragTopmostSwitch(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
@@ -192,6 +224,8 @@ public partial class MainWindow : Window
         EurHelp.Visibility = eurMode ? Visibility.Visible : Visibility.Collapsed;
         EuroLabel.Text = eurMode ? "Beszerzési ár euróban" : "CAT ár euróban";
         DealerLabel.Text = eurMode ? "Alapár (felár nélkül)" : "Dealer ár +10%";
+        SellingEuroLabel.Visibility = SellingEuroText.Visibility = eurMode ? Visibility.Collapsed : Visibility.Visible;
+        Grid.SetColumnSpan(SellingText, eurMode ? 2 : 1);
         SetSelected(CatMenu, !settingsOpen && !roboOpen && !serviceOpen && !eurMode);
         SetSelected(EurMenu, !settingsOpen && !roboOpen && !serviceOpen && eurMode);
     }
@@ -236,7 +270,7 @@ public partial class MainWindow : Window
     {
         if (pendingFetches > 0) return;
         RefreshAllButton.IsEnabled = false;
-        try { await (eurMode ? FetchCurrency(false) : Task.WhenAll(FetchCurrency(false), FetchCurrency(true))); }
+        try { await (eurMode ? FetchCurrency(false) : Task.WhenAll(FetchCurrency(false), FetchCurrency(true), RefreshStartupEuroHuf())); }
         finally { if (!lifetime.IsCancellationRequested) RefreshAllButton.IsEnabled = true; }
     }
     public MainWindow(UserAccountStore accounts,UserSession session)
@@ -299,6 +333,7 @@ public partial class MainWindow : Window
         Width = Math.Min(Width, (Height - 39) * 890 / 940 + 22);
         BuildMultipliers();
         var saved = settings.Load();
+        sellingEuroRate = eurHufSettings.Load();
         RateInput.Text = (saved?.Rate ?? 53.50m).ToString("0.########", PriceCalculator.Hungarian);
         RateInfo.Text = saved?.Source is not null ? QuoteInfo(saved.Rate, saved.Source, saved.Date, retrievedAt: saved.RetrievedAt) + " (mentett)" : "Manuális árfolyam";
         var savedEuro = euroSettings.Load();
@@ -339,7 +374,9 @@ public partial class MainWindow : Window
     {
         if (!initialized) return;
         rateRevision++;
+        if (eurMode) eurHufRevision++;
         if (settingOnline) return;
+        if (eurMode) sellingEuroRate = PriceCalculator.TryPositive(RateInput.Text, out var eurHuf) ? new(eurHuf) : null;
         UpdateRateWarning(false);
         RateInfo.Text = "Manuális árfolyam";
         Recalculate();
@@ -373,6 +410,7 @@ public partial class MainWindow : Window
     private void Recalculate()
     {
         selling = null; CopyButton.IsEnabled = false;
+        UpdateSellingEuro();
         EuroText.Text = DealerText.Text = CostText.Text = SellingText.Text = "—";
         ProfitText.Text = "Haszon: —";
         StatusText.Text = "";
@@ -402,6 +440,7 @@ public partial class MainWindow : Window
             if (multiplier.HasValue)
             {
                 selling = result.Selling; SellingText.Text = PriceCalculator.Forints(result.Selling); CopyButton.IsEnabled = true;
+                UpdateSellingEuro();
                 var profit = PriceCalculator.Profit(result.Cost, result.Selling);
                 var margin = profit.MarginPercent?.ToString("0.00", PriceCalculator.Hungarian) + (profit.MarginPercent.HasValue ? "%" : "—");
                 ProfitText.Text = $"Haszon: {profit.Amount.ToString("N2", PriceCalculator.Hungarian)} Ft • Árrés: {margin}";
@@ -421,11 +460,16 @@ public partial class MainWindow : Window
         try
         {
             var service = rateService;
-            var quote = euro ? await service.FetchEuroAsync(lifetime.Token) : eurMode ? await service.FetchEuroHufAsync(lifetime.Token) : await service.FetchAsync(lifetime.Token);
+            var quote = euro ? await service.FetchEuroAsync(lifetime.Token) : eurMode ? await FetchSharedEuroHufAsync() : await service.FetchAsync(lifetime.Token);
             if (lifetime.IsCancellationRequested) return;
             if (revision != (euro ? euroRateRevision : rateRevision)) { StatusText.Text = "A közben módosított manuális árfolyam megmaradt. Új lekéréshez nyomja meg a gombot."; return; }
             if (euro) currentEuroQuote = quote; else currentHufQuote = quote;
             var appliedRate = decimal.Round(quote.Rate, 8, MidpointRounding.AwayFromZero);
+            if (!euro && eurMode)
+            {
+                currentEurHufQuote = quote;
+                sellingEuroRate = new(appliedRate, quote.Source, quote.Date, quote.RetrievedAt);
+            }
             if (euro) settingEuroOnline = true; else settingOnline = true;
             try { (euro ? EuroRateInput : RateInput).Text = appliedRate.ToString("0.########", PriceCalculator.Hungarian); }
             finally { if (euro) settingEuroOnline = false; else settingOnline = false; }
@@ -451,7 +495,7 @@ public partial class MainWindow : Window
         try
         {
             var service = rateService;
-            var quote = euro ? await service.FetchEuroAsync(lifetime.Token) : eurMode ? await service.FetchEuroHufAsync(lifetime.Token) : await service.FetchAsync(lifetime.Token);
+            var quote = euro ? await service.FetchEuroAsync(lifetime.Token) : eurMode ? currentEurHufQuote ?? await FetchSharedEuroHufAsync() : await service.FetchAsync(lifetime.Token);
             if (lifetime.IsCancellationRequested) return;
             if (modeAtStart != eurMode) return;
             // Read-only: startup never writes a rate input, provenance label or settings file.

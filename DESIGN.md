@@ -73,3 +73,5 @@
 - API-napló fül: a Robo Sanyi menü RobotIcon vektoros geometriája, azonos 14×14-es beállítási ikonmérettel.
 
 - Szerviznaptár-optimalizáció alatt a cellák és elrendezés megmaradnak; csak a látható 42 nap adatindexe készül el, a hónapgombok egyszer jönnek létre.
+
+- v1.2.0-beta.9: a CAT-kalkulátor kék eredménykártyáján bal oldalon a forintban kijelzett eladási ár, jobb oldalhoz igazítva ugyanennek EUR-értéke jelenik meg. Átváltás: egész forintra kerekített eladási ár / EUR-HUF, két tizedesre kerekítve. A meglévő EUR/HUF szolgáltatás, árfolyamforrás és mentett árfolyam használatos; párhuzamos EUR/HUF kérések megosztottak. Induláskor az aktuális EUR/HUF ellenőrzése frissíti az euróeredményt, az automatikus mezőfrissítés kikapcsolt állapotában nem írja felül a mentett mezőket. Offline megmarad az elérhető korábbi árfolyam; hiányzó vagy hibás EUR/HUF esetén „— EUR” látható. Az eszköztipp mutatja az árfolyamot, forrást és időpontot. Új számítás törli mindkét eredményt. Az EUR-kalkulátor eredménykártyája megtartja teljes szélességű forintösszegét. A fix keret, témák és gombok mérete változatlan.

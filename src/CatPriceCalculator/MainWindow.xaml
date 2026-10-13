@@ -66,7 +66,7 @@
                                 </StackPanel>
                             </Button>
                             <Grid Height="34" Margin="0,0,0,6"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="36"/></Grid.ColumnDefinitions><TextBlock x:Name="SessionName" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" Foreground="{DynamicResource AccentText}" VerticalAlignment="Center" Margin="4,0,4,0"/><Button x:Name="LogoutButton" Grid.Column="1" Click="LogoutClicked" Width="30" Height="30" Padding="7" ToolTip="Kijelentkezés" AutomationProperties.Name="Kijelentkezés"><Path Style="{StaticResource ButtonIcon}" Data="{StaticResource LogoutIcon}" Width="15" Height="15" Margin="0"/></Button></Grid>
-                            <TextBlock x:Name="CurrentVersionText" Text="v1.2.0-beta.8" Style="{StaticResource Caption}" Margin="4,0,0,0" />
+                            <TextBlock x:Name="CurrentVersionText" Style="{StaticResource Caption}" Margin="4,0,0,0" />
                             <TextBlock x:Name="UpdateInfo" MaxHeight="32" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" TextWrapping="Wrap" Style="{StaticResource Caption}" Margin="4,5,0,0" />
                         </StackPanel>
                         <Grid>
@@ -204,14 +204,17 @@
 
                     <Border Grid.Row="8" CornerRadius="10" Padding="16,10" Background="{DynamicResource ResultGradient}" BorderBrush="{DynamicResource SelectedBorder}" BorderThickness="1">
                         <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="3*" /><ColumnDefinition Width="2*" /></Grid.ColumnDefinitions>
                             <Grid.RowDefinitions><RowDefinition Height="22" /><RowDefinition Height="46" /><RowDefinition Height="20" /><RowDefinition /></Grid.RowDefinitions>
                             <StackPanel Orientation="Horizontal">
                                 <Path Style="{StaticResource Icon}" Data="{StaticResource TagIcon}" Stroke="{DynamicResource ResultDetailForeground}" />
                                 <TextBlock Text="ELADÁSI ÁR" Foreground="{DynamicResource ResultForeground}" FontWeight="SemiBold" VerticalAlignment="Center" />
                             </StackPanel>
+                            <TextBlock x:Name="SellingEuroLabel" Grid.Column="1" Text="ELADÁSI ÁR EUR" TextAlignment="Right" Foreground="{DynamicResource ResultDetailForeground}" FontWeight="SemiBold" VerticalAlignment="Center" />
                             <TextBlock x:Name="SellingText" Grid.Row="1" Text="—" FontSize="36" FontWeight="Bold" Foreground="{DynamicResource ResultForeground}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" />
-                            <TextBlock x:Name="SelectedText" Grid.Row="2" Foreground="{DynamicResource ResultDetailForeground}" FontSize="12" VerticalAlignment="Center" />
-                            <TextBlock x:Name="ProfitText" Grid.Row="3" Text="Haszon: —" Foreground="{DynamicResource ResultForeground}" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" />
+                            <TextBlock x:Name="SellingEuroText" Grid.Row="1" Grid.Column="1" Text="— EUR" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource ResultForeground}" TextAlignment="Right" VerticalAlignment="Center" Margin="12,0,0,0" TextTrimming="CharacterEllipsis" AutomationProperties.Name="Eladási ár euróban" />
+                            <TextBlock x:Name="SelectedText" Grid.Row="2" Grid.ColumnSpan="2" Foreground="{DynamicResource ResultDetailForeground}" FontSize="12" VerticalAlignment="Center" />
+                            <TextBlock x:Name="ProfitText" Grid.Row="3" Grid.ColumnSpan="2" Text="Haszon: —" Foreground="{DynamicResource ResultForeground}" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" />
                         </Grid>
                     </Border>
                     <Grid Grid.Row="10">
@@ -295,11 +298,11 @@
                     </Border>
                     <Border Grid.Row="6" Style="{StaticResource Card}" Padding="14">
                         <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><Path Style="{StaticResource Icon}" Data="{StaticResource DocumentIcon}" /><TextBlock x:Name="ReleaseNotesTitle" Text="Legújabb verzió • v1.2.0-beta.8" Style="{StaticResource SectionHeading}" /></StackPanel>
-                            <TextBlock Text="• Utolsó sikeres felhasználónév megjegyzése." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Újraindításkor és kijelentkezéskor előre kitöltve." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• A jelszómező minden belépéskor üres." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Szerviznaptár: automatikus bejelentkezett rögzítőnév." TextWrapping="Wrap" Margin="0,4,0,0" />
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><Path Style="{StaticResource Icon}" Data="{StaticResource DocumentIcon}" /><TextBlock x:Name="ReleaseNotesTitle" Text="Legújabb verzió" Style="{StaticResource SectionHeading}" /></StackPanel>
+                            <TextBlock Text="• CAT eladási ár forintban és euróban, egy kártyán." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Jobbra igazított euróár, két tizedesjeggyel." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Aktuális EUR/HUF árfolyam a meglévő forrásból." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Árfolyam és dátum az euróár eszköztippjében." TextWrapping="Wrap" Margin="0,4,0,0" />
                         </StackPanel>
                     </Border>
                     </Grid>
