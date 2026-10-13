@@ -9,9 +9,9 @@ public static class UserAccess
     public static IReadOnlyList<AccessOption> Menus { get; }=Array.AsReadOnly(new[]{
         new AccessOption("menu.cat","CAT árkalkulátor"),new("menu.eur","EUR árkalkulátor"),new("menu.service","Szerviznaptár"),new("menu.robo","Robo Sanyi"),new("menu.updates","Frissítések")});
     public static IReadOnlyList<AccessOption> Settings { get; }=Array.AsReadOnly(new[]{
-        new AccessOption(General,"Általános"),new("settings.dhl","DHL API"),new("settings.ups","UPS API"),new("settings.fedex","FedEx API"),new("settings.gls","GLS API"),new("settings.log","API-napló"),new("settings.service","Szerviznaptár import")});
+        new AccessOption(General,"Általános"),new("settings.dhl","DHL API"),new("settings.ups","UPS API"),new("settings.fedex","FedEx API"),new("settings.gls","GLS API"),new("settings.log","API-napló"),new("settings.service","Szerviznaptár import"),new("settings.google","Google Táblázatok")});
     public static bool Known(string permission)=>permission==Users || Menus.Concat(Settings).Any(p=>p.Id==permission);
-    public static string ForSettings(string section)=>section switch {"General"=>General,"Users"=>Users,"DHL"=>"settings.dhl","UPS"=>"settings.ups","FedEx"=>"settings.fedex","GLS"=>"settings.gls","Log"=>"settings.log","Service"=>"settings.service",_=>""};
+    public static string ForSettings(string section)=>section switch {"General"=>General,"Users"=>Users,"DHL"=>"settings.dhl","UPS"=>"settings.ups","FedEx"=>"settings.fedex","GLS"=>"settings.gls","Log"=>"settings.log","Service"=>"settings.service","Google"=>"settings.google",_=>""};
 }
 public sealed record UserSession(Guid Id,string Username,string Name,UserRole Role,string[] Permissions)
 {

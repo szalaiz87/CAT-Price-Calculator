@@ -20,6 +20,7 @@ public partial class ServiceCalendarView : UserControl
     private bool storageReady,blinking;
     private string recorderName="";
     public void SetRecorder(string name){recorderName=name;RecorderInput.Text=name;}
+    public event Action? CalendarChanged;
     public event Action? SummaryChanged;
     public string SummaryText{
         get{
@@ -99,7 +100,7 @@ public partial class ServiceCalendarView : UserControl
             if(string.IsNullOrWhiteSpace(recorderName)){Status.Text="A rögzítéshez bejelentkezett felhasználó szükséges.";return;}
             var job=ServiceCalendar.CreateRecordedJob(catalog,date,staff.Id,customer.Id,machine.Id,ContactInput.Text,PhoneInput.Text,LocationInput.Text,DescriptionInput.Text,recorderName);
             if(!store.Append(job,out var updated)){Status.Text="A feladat nem menthető; a korábbi naptáradatok és a kitöltött mezők megmaradtak.";return;}
-            jobs=updated;calendar?.Refresh(jobs);ResetForm();SummaryChanged?.Invoke();
+            jobs=updated;calendar?.Refresh(jobs);ResetForm();SummaryChanged?.Invoke();CalendarChanged?.Invoke();
             Status.Text=$"A feladat bekerült a naptárba: {date:yyyy.MM.dd} · {staff.Name}. Új feladat rögzíthető.";SearchButton.Focus();
         }catch(ArgumentException ex){Status.Text=ex.Message;}
     }

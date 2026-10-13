@@ -1,3 +1,9 @@
+# Linser Hungary v1.2.0-beta.10 – Google Táblázatok szerviznaptár
+
+Beállítások / Google Táblázatok: táblázathivatkozás, titkosított szolgáltatásfiók-kulcsimport, olvasási kapcsolatteszt, kézi szinkron és választható automatikus feltöltés. Külön felhasználói jogosultság. Az app egy közös feladatlapot és öt, jövőbeli munkákat mutató szerelői lapot hoz létre, telefonos olvasáshoz.
+
+Beállítási lépések és hatókör: [GOOGLE-SHEETS.md](GOOGLE-SHEETS.md). A szerelők megtekintők, a szolgáltatásfiók szerkesztő. Az app a forrás; egy kijelölt helyi PC szinkronizáljon a táblázathoz.
+
 # Linser Hungary v1.2.0-beta.9 – CAT eladási ár euróban
 
 A CAT-kalkulátor kék eredménykártyájának jobb oldalán a forintos eladási ár euróban is megjelenik, a stabil változatban elkészített módosítással azonos módon. A kijelzett Ft összeget váltja át a meglévő EUR/HUF árfolyammal, két tizedesjegyre kerekítve. Az árfolyam forrása és dátuma az euróár eszköztippjében látható. Sikertelen lekéréskor megmarad a korábbi elérhető árfolyam; árfolyam nélkül „— EUR” látható. A korábbi béta funkciók megmaradnak. 623 automatizált ellenőrzés, téma- és naptárelrendezési ellenőrzések sikeresek; Windows x64 önálló publish elkészült. A WPF-felület Linux alatt nem futtatható. Windows letöltő: [CAT-Letoltes-Windows-v1.2.0-beta.9.cmd](https://github.com/szalaiz87/CAT-Price-Calculator/releases/download/v1.2.0-beta.9/CAT-Letoltes-Windows-v1.2.0-beta.9.cmd). A programon belüli Frissítések gombbal is telepíthető; bétához a béta frissítési csatorna engedélyezése szükséges.

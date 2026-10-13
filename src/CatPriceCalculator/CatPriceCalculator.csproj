@@ -4,4 +4,4 @@
 <ItemGroup><ProjectReference Include="../CatPriceCalculator.Core/CatPriceCalculator.Core.csproj" /></ItemGroup>
 <ItemGroup><PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.0" /></ItemGroup>
 <ItemGroup><Resource Include="Assets/CAT-Excavator.png"/><Resource Include="Assets/LS-Germany.ico"/></ItemGroup>
-<ItemGroup><Resource Include="Assets/ServiceCalendar/*.xlsx"/></ItemGroup></Project>
+<ItemGroup><Resource Include="Assets/ServiceCalendar/*.xlsx"/><Resource Include="Assets/GOOGLE-SHEETS.md"/></ItemGroup></Project>

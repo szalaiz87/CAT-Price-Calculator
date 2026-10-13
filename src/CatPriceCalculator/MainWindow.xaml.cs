@@ -8,11 +8,13 @@ using CatPriceCalculator.Core;
 namespace CatPriceCalculator;
 public partial class MainWindow : Window
 {
+    private GoogleSyncCoordinator? google;
+    private string ServiceSummaryText()=>ServicePage.SummaryText+(google==null?"":"\n\n"+google.Summary);
     private UserSession session;
     private bool Can(string permission)=>session.Can(permission);
     private void ApplyAccess(){
         SessionName.Text=session.Name;
-        foreach(var (button,permission) in new[]{(CatMenu,"menu.cat"),(EurMenu,"menu.eur"),(ServiceMenu,"menu.service"),(RoboMenu,"menu.robo"),(UpdateButton,"menu.updates"),(GeneralSettingsButton,UserAccess.General),(DhlSettingsButton,"settings.dhl"),(UpsSettingsButton,"settings.ups"),(FedExSettingsButton,"settings.fedex"),(GlsSettingsButton,"settings.gls"),(ApiLogButton,"settings.log"),(ServiceSettingsButton,"settings.service"),(UsersSettingsButton,UserAccess.Users)})button.Visibility=Can(permission)?Visibility.Visible:Visibility.Collapsed;
+        foreach(var (button,permission) in new[]{(CatMenu,"menu.cat"),(EurMenu,"menu.eur"),(ServiceMenu,"menu.service"),(RoboMenu,"menu.robo"),(UpdateButton,"menu.updates"),(GeneralSettingsButton,UserAccess.General),(DhlSettingsButton,"settings.dhl"),(UpsSettingsButton,"settings.ups"),(FedExSettingsButton,"settings.fedex"),(GlsSettingsButton,"settings.gls"),(ApiLogButton,"settings.log"),(ServiceSettingsButton,"settings.service"),(UsersSettingsButton,UserAccess.Users),(GoogleSettingsButton,"settings.google")})button.Visibility=Can(permission)?Visibility.Visible:Visibility.Collapsed;
         BetaUpdatesSwitch.IsEnabled=!updateBusy && Can("menu.updates");
         RestoreStableButton.IsEnabled=!updateBusy && AppVersion.IsBeta && Can("menu.updates");
         if(!Can(UserAccess.ForSettings(settingsSection)))settingsSection="General";
@@ -149,10 +151,12 @@ public partial class MainWindow : Window
     {
         ApplyAccess();
         ApplyModeLabels();
+        SetSelected(GoogleSettingsButton,settingsSection=="Google");
+        GoogleSettingsPage.Visibility=settingsSection=="Google" && Can("settings.google")?Visibility.Visible:Visibility.Collapsed;
         SetSelected(UsersSettingsButton,settingsSection=="Users");
         UsersPage.Visibility=settingsSection=="Users" && session.IsAdministrator?Visibility.Visible:Visibility.Collapsed;
         ServiceSidebar.Visibility=serviceOpen?Visibility.Visible:Visibility.Collapsed;
-        if(serviceOpen)ServiceSummary.Text=ServicePage.SummaryText;
+        if(serviceOpen)ServiceSummary.Text=ServiceSummaryText();
         SetSelected(ServiceMenu, serviceOpen);
         SetSelected(SettingsMenu, settingsOpen);
         SetSelected(RoboMenu, roboOpen);
@@ -285,11 +289,15 @@ public partial class MainWindow : Window
         UsersPage.Configure(accounts,session);
         UsersPage.AccountChanged+=updated=>{this.session=updated;ServicePage.SetRecorder(updated.Name);ApplyMenuTheme();};
         ServicePage.SetRecorder(session.Name);
-        ServicePage.SummaryChanged+=()=>ServiceSummary.Text=ServicePage.SummaryText;
+        ServicePage.SummaryChanged+=()=>ServiceSummary.Text=ServiceSummaryText();
         ServiceImportPage.Configure(ServicePage.ImportCatalogAsync,ServicePage.OpenImportFolder);
         ServicePage.EntryRequested+=()=>{OpenServiceCalendar(this,new RoutedEventArgs());if(WindowState==WindowState.Minimized)WindowState=WindowState.Normal;Activate();};
         ApiLogPage.Configure(apiLog);
         string data = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CAT-Price-Calculator");
+        google=new GoogleSyncCoordinator(data,()=>Can("menu.service"),lifetime.Token);
+        GoogleSettingsPage.Configure(google,()=>Can("settings.google"));
+        google.Changed+=()=>ServiceSummary.Text=ServiceSummaryText();
+        ServicePage.CalendarChanged+=async()=>await google.MarkChangedAsync();
         var dhlStore = new DhlSettingsStore(Path.Combine(data, "dhl-connection.bin"), new WindowsSecretProtector());
         var upsStore = new UpsSettingsStore(Path.Combine(data, "ups-connection.bin"), new WindowsSecretProtector("UPS"));
         var fedexStore = new FedExSettingsStore(Path.Combine(data, "fedex-connection.bin"), new WindowsSecretProtector("FedEx"));
@@ -353,11 +361,12 @@ public partial class MainWindow : Window
         Loaded += async (_, _) =>
         {
             if(Can("menu.robo"))RoboSanyiPage.InitializeData();
+            var googleStartup=Can("menu.service")?google.AutoSyncAsync():Task.CompletedTask;
             PriceInput.Focus();
-            await Task.WhenAll(Can("menu.cat") || Can("menu.eur")?StartupRatesAsync(startupPreferences.RefreshRates):Task.CompletedTask, CheckUpdatesAsync(false));
+            await Task.WhenAll(Can("menu.cat") || Can("menu.eur")?StartupRatesAsync(startupPreferences.RefreshRates):Task.CompletedTask, CheckUpdatesAsync(false),googleStartup);
         };
         Deactivated+=(_,_)=>UsersPage.HideSecrets();
-        Closed += (_, _) => { UsersPage.HideSecrets();ServicePage.ClosePopups(); lifetime.Cancel(); RoboSanyiPage.Dispose(); trackingHttp.Dispose(); upsService.ForgetToken(); http.Dispose(); updateHttp.Dispose(); lifetime.Dispose(); };
+        Closed += (_, _) => { google?.Dispose();UsersPage.HideSecrets();ServicePage.ClosePopups(); lifetime.Cancel(); RoboSanyiPage.Dispose(); trackingHttp.Dispose(); upsService.ForgetToken(); http.Dispose(); updateHttp.Dispose(); lifetime.Dispose(); };
     }
     private string QuoteInfo(decimal rate, string source, DateOnly? date, string currency = "HUF", DateTimeOffset? retrievedAt = null)
     {

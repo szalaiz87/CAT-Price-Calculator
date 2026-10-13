@@ -161,6 +161,7 @@ await TrackingTransportChecks.Run(Check);
 ServiceCalendarChecks.Run(Check);
 ServiceErpChecks.Run(Check);
 UserAccountChecks.Run(Check);
+await GoogleSheetsChecks.RunAsync(Check);
 ServiceCustomerSearchChecks.Run(Check);
 Console.WriteLine($"{passed} checks passed.");
 if (args.Contains("--live")) {

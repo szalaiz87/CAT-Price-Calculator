@@ -15,7 +15,7 @@ public partial class UserSettingsView : UserControl
     public void Configure(UserAccountStore accounts,UserSession actor){this.accounts=accounts;this.actor=actor;NewUser(this,new RoutedEventArgs());Render();}
     private void BuildPermissions(){
         foreach(var (options,panel) in new[]{(UserAccess.Menus,MenuPermissions),(UserAccess.Settings,SettingsPermissions)})
-            foreach(var option in options){var box=new CheckBox{Content=option.Name,Tag=option.Id,Height=23,FontSize=12,VerticalContentAlignment=VerticalAlignment.Center};box.SetResourceReference(ForegroundProperty,"TextPrimary");permissionBoxes.Add(box);panel.Children.Add(box);}
+            foreach(var option in options){var box=new CheckBox{Content=option.Name,Tag=option.Id,Height=21,FontSize=12,VerticalContentAlignment=VerticalAlignment.Center};box.SetResourceReference(ForegroundProperty,"TextPrimary");permissionBoxes.Add(box);panel.Children.Add(box);}
     }
     private void RoleChanged(object sender,SelectionChangedEventArgs e)=>UpdateRole();
     private void UpdateRole(){
