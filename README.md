@@ -1,3 +1,11 @@
+# Linser Hungary v1.0.2 – CAT eladási ár euróban
+
+A CAT-kalkulátor alsó kék eredménykártyáján a forintösszeg mellett, a jobb oldalhoz igazítva ugyanannak az eladási árnak az euróértéke látható. Átváltás: kijelzett Ft / EUR-HUF, két tizedesjegyre kerekítve. Példa: 102 988 Ft / 400 = 257,47 EUR. A meglévő EUR/HUF szolgáltatást és mentett árfolyamot használja; induláskor és az „Összes frissítése” gombbal frissül. Az árfolyam és annak dátuma az euróár eszköztippjében látható. Sikertelen lekéréskor a korábbi elérhető árfolyam megmarad; árfolyam nélkül „— EUR” jelenik meg.
+
+164 automatizált ellenőrzés, három élő árfolyamlekérés és Windows x64 önálló publish sikeres. A Windows WPF-felület Linux alatt nem futtatható. Windows letöltő: [CAT-Letoltes-Windows-v1.0.2.cmd](https://github.com/szalaiz87/CAT-Price-Calculator/releases/download/v1.0.2/CAT-Letoltes-Windows-v1.0.2.cmd). A programon belüli Frissítések gombbal is telepíthető; bétához a béta frissítési csatorna engedélyezése szükséges.
+
+---
+
 # Linser Hungary v1.0.1 – stabil szorzófrissítés
 
 Linser Hungary v1.0.1 – stabil frissítés

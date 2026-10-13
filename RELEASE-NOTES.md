@@ -1,9 +1,8 @@
-Linser Hungary v1.0.1 – stabil frissítés
+Linser Hungary v1.0.2 – CAT eladási ár euróban
 
-- Mindkét árkalkulátorban 1,95 és 2,00 helyett 1,20 és 1,25 szorzó szerepel.
-- A közös szorzólista 1,20–1,90, 0,05-ös lépésekben; továbbra is 15 gomb.
-- Az elrendezés, a 3×5-ös rács és az alapértelmezett 1,40 szorzó változatlan.
+- A CAT-kalkulátor kék eredménykártyájának jobb oldalán az eladási ár EUR-ban is látható, két tizedesjeggyel.
+- A kijelzett forintösszeget váltja át a meglévő EUR/HUF árfolyam alapján; nincs ismételt dealer felár vagy eladási szorzó.
+- Az euróár követi az ár és a szorzó változását, valamint az árfolyamfrissítést. Az eszköztippben elérhető a forrás és az árfolyam időpontja.
+- Sikertelen frissítésnél a korábbi elérhető árfolyam használható; hiányzó árfolyamnál „— EUR” jelenik meg. Az EUR-kalkulátor és a rögzített ablakméret megmarad.
 
-Windows: töltsd le és futtasd a CAT-Letoltes-Windows-v1.0.1.cmd fájlt, vagy használd az alkalmazás Frissítések gombját. Kézi telepítés előtt zárd be a programot.
-
-Ellenőrzés: 157 automatizált ellenőrzés és sikeres Windows x64 self-contained publish. A tényleges WPF-felület futtatását Linux alatt nem ellenőriztük.
+Ellenőrzés: 164 automatizált ellenőrzés, sikeres élő DKK/HUF, EUR/HUF és DKK/EUR lekérés; Windows x64 self-contained single-file publish. A tényleges WPF-felület futtatását Linux alatt nem ellenőriztük.

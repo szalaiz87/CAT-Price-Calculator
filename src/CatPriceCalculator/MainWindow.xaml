@@ -59,7 +59,7 @@
                             </Button>
                             <TextBlock Text="Linser Hungary" Foreground="{DynamicResource AccentText}" Margin="4,0,0,4" />
                             <TextBlock Text="Belső vállalati segédprogram" Style="{StaticResource Caption}" Margin="4,0,0,8" />
-                            <TextBlock x:Name="CurrentVersionText" Text="v1.0.1" Style="{StaticResource Caption}" Margin="4,0,0,0" />
+                            <TextBlock x:Name="CurrentVersionText" Style="{StaticResource Caption}" Margin="4,0,0,0" />
                             <TextBlock x:Name="UpdateInfo" TextWrapping="Wrap" Style="{StaticResource Caption}" Margin="4,5,0,0" />
                         </StackPanel>
                         <Border x:Name="CalculatorSidebar" Style="{StaticResource Card}" Padding="12" Margin="0,16,0,16">
@@ -181,14 +181,17 @@
 
                     <Border Grid.Row="8" CornerRadius="10" Padding="16,10" Background="{DynamicResource ResultGradient}" BorderBrush="{DynamicResource SelectedBorder}" BorderThickness="1">
                         <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="3*" /><ColumnDefinition Width="2*" /></Grid.ColumnDefinitions>
                             <Grid.RowDefinitions><RowDefinition Height="22" /><RowDefinition Height="46" /><RowDefinition Height="20" /><RowDefinition /></Grid.RowDefinitions>
                             <StackPanel Orientation="Horizontal">
                                 <Path Style="{StaticResource Icon}" Data="{StaticResource TagIcon}" Stroke="{DynamicResource ResultDetailForeground}" />
                                 <TextBlock Text="ELADÁSI ÁR" Foreground="{DynamicResource ResultForeground}" FontWeight="SemiBold" VerticalAlignment="Center" />
                             </StackPanel>
+                            <TextBlock x:Name="SellingEuroLabel" Grid.Column="1" Text="ELADÁSI ÁR EUR" TextAlignment="Right" Foreground="{DynamicResource ResultDetailForeground}" FontWeight="SemiBold" VerticalAlignment="Center" />
                             <TextBlock x:Name="SellingText" Grid.Row="1" Text="—" FontSize="36" FontWeight="Bold" Foreground="{DynamicResource ResultForeground}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" />
-                            <TextBlock x:Name="SelectedText" Grid.Row="2" Foreground="{DynamicResource ResultDetailForeground}" FontSize="12" VerticalAlignment="Center" />
-                            <TextBlock x:Name="ProfitText" Grid.Row="3" Text="Haszon: —" Foreground="{DynamicResource ResultForeground}" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" />
+                            <TextBlock x:Name="SellingEuroText" Grid.Row="1" Grid.Column="1" Text="— EUR" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource ResultForeground}" TextAlignment="Right" VerticalAlignment="Center" Margin="12,0,0,0" TextTrimming="CharacterEllipsis" AutomationProperties.Name="Eladási ár euróban" />
+                            <TextBlock x:Name="SelectedText" Grid.Row="2" Grid.ColumnSpan="2" Foreground="{DynamicResource ResultDetailForeground}" FontSize="12" VerticalAlignment="Center" />
+                            <TextBlock x:Name="ProfitText" Grid.Row="3" Grid.ColumnSpan="2" Text="Haszon: —" Foreground="{DynamicResource ResultForeground}" FontSize="13" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" />
                         </Grid>
                     </Border>
                     <Grid Grid.Row="10">
@@ -268,11 +271,11 @@
                     </Border>
                     <Border Grid.Row="7" Style="{StaticResource Card}" Padding="14">
                         <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><Path Style="{StaticResource Icon}" Data="{StaticResource DocumentIcon}" /><TextBlock x:Name="ReleaseNotesTitle" Text="Legújabb verzió • v1.0.1" Style="{StaticResource SectionHeading}" /></StackPanel>
-                            <TextBlock Text="• Új 1,20 és 1,25 szorzó a CAT és EUR kalkulátorban." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Az 1,95 és 2,00 szorzó eltávolítva." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Változatlan 3×5-ös szorzórács és elrendezés." TextWrapping="Wrap" Margin="0,6,0,0" />
-                            <TextBlock Text="• Az alapértelmezett szorzó továbbra is 1,40." TextWrapping="Wrap" Margin="0,4,0,0" />
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8"><Path Style="{StaticResource Icon}" Data="{StaticResource DocumentIcon}" /><TextBlock x:Name="ReleaseNotesTitle" Text="Legújabb verzió" Style="{StaticResource SectionHeading}" /></StackPanel>
+                            <TextBlock Text="• CAT eladási ár forintban és euróban, egy kártyán." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Jobbra igazított euróár, két tizedesjeggyel." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Aktuális EUR/HUF árfolyam a meglévő forrásból." TextWrapping="Wrap" Margin="0,6,0,0" />
+                            <TextBlock Text="• Árfolyam és dátum az euróár eszköztippjében." TextWrapping="Wrap" Margin="0,4,0,0" />
                         </StackPanel>
                     </Border>
                 </Grid>
