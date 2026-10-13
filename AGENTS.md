@@ -8,3 +8,5 @@
 - A frissítési csatorna alapból stabil; béta csak mentett felhasználói opt-in után. A visszatérés a legfrissebb stabilra lehet downgrade, és kikapcsolja a béta csatornát. Megőriz minden más beállítást és árfolyamot.
 - Tartsd meg a DESIGN.md tartós követelményeit: nincs görgetősáv, fix keret és fülméretek, közös kalkuláció, 3×5 szorzók, éles menüjelölés, lekerekítések, vektoros logó/ikonok, világos/sötét téma, normál Windows-tálca.
 - Funkcionális frissítési változásoknál futtasd a tests/CatPriceCalculator.Checks projektet, és készíts Windows x64 publish-t. Linux alatt a tényleges WPF-felület nem futtatható; ezt ne állítsd ellenőrzöttnek.
+
+- A felhasználó 2026-10-13-i kérése: ha a fejlesztés végén a változtatás még nincs közzétéve, mindig kérdezd meg, engedélyezi-e a közzétételt. Az ugyanahhoz a kiadáshoz már megadott jóváhagyás érvényes marad.
